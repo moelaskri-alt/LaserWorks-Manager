@@ -331,7 +331,12 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             DesignRevisionId = e.DesignRevisionId; Date = e.Date; Description = e.Description; Quantity = e.Quantity; DesignHours = e.DesignHours; DesignRate = e.DesignRate;
             SetupHours = e.SetupHours; SetupRate = e.SetupRate; FinishingPerUnit = e.FinishingPerUnit; PackagingPerUnit = e.PackagingPerUnit; ConsumablesPerUnit = e.ConsumablesPerUnit;
             OverheadMethod = e.OverheadMethod; OverheadRate = e.OverheadRate; ScrapAllowancePercent = e.ScrapAllowancePercent; TargetMarginPercent = e.TargetMarginPercent;
-            MinimumMarginPercent = e.MinimumMarginPercent; SellingPrice = e.SellingPrice; Notes = e.Notes;
+            MinimumMarginPercent = e.MinimumMarginPercent; Notes = e.Notes;
+            _settingPrice = true;
+            SellingPrice = e.SellingPrice;
+            _settingPrice = false;
+            // a new estimate (or one still priced at its suggestion) keeps following the suggested price until the user types a price
+            _priceFollowsSuggestion = _id == 0 || e.SellingPrice == 0 || e.SellingPrice == e.SuggestedPrice;
             MaterialLines.Clear();
             foreach (var l in e.MaterialLines)
             {
@@ -411,7 +416,12 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             for (var i = 0; i < LaborLines.Count; i++) { LaborLines[i].Hours = e.LaborLines[i].Hours; LaborLines[i].Cost = e.LaborLines[i].Cost; }
             foreach (var c in Components) { c.CalculatedAmount = result.Calculated.GetValueOrDefault(c.Component); c.Amount = result[c.Component]; }
             DirectCost = e.DirectCost; TotalCost = e.TotalCost; UnitCost = e.UnitCost; SuggestedPrice = e.SuggestedPrice; MinimumPrice = e.MinimumPrice; TotalMachineHours = e.TotalMachineHours;
-            if (SellingPrice <= 0) SellingPrice = e.SellingPrice;
+            if (SellingPrice <= 0 || _priceFollowsSuggestion)
+            {
+                _settingPrice = true;
+                SellingPrice = e.SuggestedPrice;
+                _settingPrice = false;
+            }
             var a = PricingCalculator.Analyze(TotalCost, SellingPrice);
             Profit = a.Profit; MarginAtPrice = a.MarginPercent; MarkupAtPrice = a.MarkupPercent; BelowMinimum = SellingPrice < MinimumPrice;
             CalcError = null;
@@ -448,7 +458,20 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     }
 
     [RelayCommand] private void ResetWhatIf() { WiQuantity = null; WiMaterialCost = null; WiMachineHours = null; WiMargin = null; WiPrice = null; }
-    [RelayCommand] private void UseSuggestedPrice() => SellingPrice = SuggestedPrice;
+    [RelayCommand]
+    private void UseSuggestedPrice()
+    {
+        SellingPrice = SuggestedPrice;
+        _priceFollowsSuggestion = true;
+    }
+
+    private bool _priceFollowsSuggestion;
+    private bool _settingPrice;
+
+    partial void OnSellingPriceChanged(decimal value)
+    {
+        if (!_settingPrice && !Suspended) _priceFollowsSuggestion = false;
+    }
     [RelayCommand] private void ApplyWhatIfPrice() { if (WhatIf != null && WiQuantity == null) SellingPrice = WhatIf.SellingPrice; }
 
     [RelayCommand]

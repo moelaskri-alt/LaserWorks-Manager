@@ -4,6 +4,7 @@ using LaserWorks.Domain.Entities;
 using LaserWorks.Domain.Enums;
 using LaserWorks.Infrastructure;
 using LaserWorks.Infrastructure.Files;
+using LaserWorks.Reporting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,7 +38,7 @@ public sealed class TestDb : IAsyncDisposable
         folder ??= NewFolder();
         var clock = new MutableClock();
         clock.Set(now ?? new DateTime(2026, 3, 1, 9, 0, 0));
-        var sp = new ServiceCollection().AddLaserWorks(new AppPaths(folder), clock).BuildServiceProvider();
+        var sp = new ServiceCollection().AddLaserWorks(new AppPaths(folder), clock).AddLaserWorksReporting().BuildServiceProvider();
         await sp.InitializeDatabaseAsync();
         var db = new TestDb(folder, sp, clock);
         if (setup) await sp.GetRequiredService<SetupService>().CompleteAsync(DefaultSetup(demo, clock.Now), null);
@@ -62,6 +63,14 @@ public sealed class TestDb : IAsyncDisposable
             new SetupUser("production", "Production Lead", UserRole.Production, "Prod@2026"),
             new SetupUser("store", "Storekeeper", UserRole.Storekeeper, "Store@2026")
         },
+        Machines = demo ? new() : new() { new SetupMachine("CO2 Laser 1390", "CO2 flatbed", 130, 1.8m, 60000, 5, 5000, 2000, 3000) },
+        Materials = demo ? new() : new()
+        {
+            new SetupMaterial("Acrylic Clear 3mm 122x244", "Acrylic", 3, 244, 122, "SHEET", 145, 20),
+            new SetupMaterial("Wooden Coaster Set", "Wood", 4, 10, 10, "PCS", 12, 50, MaterialKind.FinishedGood)
+        },
+        OpeningCash = demo ? 0 : 10000,
+        OpeningBank = demo ? 0 : 100000,
         LoadDemoData = demo
     };
 
