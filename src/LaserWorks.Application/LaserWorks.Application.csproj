@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>LaserWorks.Application</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LaserWorks.Domain\LaserWorks.Domain.csproj" />
+    <ProjectReference Include="..\LaserWorks.Localization\LaserWorks.Localization.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+</Project>

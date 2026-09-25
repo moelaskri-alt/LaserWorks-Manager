@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LaserWorks.Application/LaserWorks.Application.csproj" />
+    <Project Path="src/LaserWorks.Desktop/LaserWorks.Desktop.csproj" />
+    <Project Path="src/LaserWorks.Domain/LaserWorks.Domain.csproj" />
+    <Project Path="src/LaserWorks.Infrastructure/LaserWorks.Infrastructure.csproj" />
+    <Project Path="src/LaserWorks.Localization/LaserWorks.Localization.csproj" />
+    <Project Path="src/LaserWorks.Reporting/LaserWorks.Reporting.csproj" />
+    <Project Path="src/LaserWorks.Tools/LaserWorks.Tools.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LaserWorks.Tests/LaserWorks.Tests.csproj" />
+  </Folder>
+</Solution>

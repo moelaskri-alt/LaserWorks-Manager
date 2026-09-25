@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><RootNamespace>LaserWorks.Tools</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LaserWorks.Infrastructure\LaserWorks.Infrastructure.csproj" />
+    <ProjectReference Include="..\LaserWorks.Reporting\LaserWorks.Reporting.csproj" />
+  </ItemGroup>
+</Project>
