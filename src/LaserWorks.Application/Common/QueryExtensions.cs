@@ -12,19 +12,28 @@ public static class QueryExtensions
         return new PagedResult<T>(items, total, req.Page, req.PageSize);
     }
 
-    /// <summary>Sorts by a property name (case-insensitive) when present, otherwise by the default key.</summary>
-    public static IQueryable<T> SortBy<T, TKey>(this IQueryable<T> query, string? property, bool desc, Expression<Func<T, TKey>> defaultKey, bool defaultDesc = false)
+    /// <summary>
+    /// Sorts the entity query by a property path such as "Date" or "Customer.Name" (case-insensitive).
+    /// Unknown paths fall back to the default key. Sorting happens before projection so it is translated to SQL.
+    /// </summary>
+    public static IQueryable<T> SortBy<T, TKey>(this IQueryable<T> query, string? path, bool desc, Expression<Func<T, TKey>> defaultKey, bool defaultDesc = false)
     {
-        if (!string.IsNullOrWhiteSpace(property))
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            var prop = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, property, StringComparison.OrdinalIgnoreCase));
-            if (prop != null)
+            var param = Expression.Parameter(typeof(T), "x");
+            Expression body = param;
+            var ok = true;
+            foreach (var part in path.Split('.'))
             {
-                var param = Expression.Parameter(typeof(T), "x");
-                var body = Expression.Property(param, prop);
+                var prop = body.Type.GetProperties().FirstOrDefault(p => string.Equals(p.Name, part, StringComparison.OrdinalIgnoreCase));
+                if (prop == null || prop.GetIndexParameters().Length > 0 || prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute), true).Length > 0) { ok = false; break; }
+                body = Expression.Property(body, prop);
+            }
+            if (ok && body != param && (body.Type.IsPrimitive || body.Type.IsEnum || body.Type == typeof(string) || body.Type == typeof(decimal) || body.Type == typeof(DateTime)
+                                        || Nullable.GetUnderlyingType(body.Type) != null))
+            {
                 var lambda = Expression.Lambda(body, param);
-                var method = desc ? "OrderByDescending" : "OrderBy";
-                var call = Expression.Call(typeof(Queryable), method, new[] { typeof(T), prop.PropertyType }, query.Expression, Expression.Quote(lambda));
+                var call = Expression.Call(typeof(Queryable), desc ? "OrderByDescending" : "OrderBy", new[] { typeof(T), body.Type }, query.Expression, Expression.Quote(lambda));
                 return query.Provider.CreateQuery<T>(call);
             }
         }

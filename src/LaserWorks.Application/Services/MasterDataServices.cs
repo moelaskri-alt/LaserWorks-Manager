@@ -61,9 +61,9 @@ public sealed class CustomerService : ServiceBase
         var q = db.Customers.AsNoTracking().AsQueryable();
         if (active.HasValue) q = q.Where(c => c.IsActive == active.Value);
         if (req.Search.Norm() is { } s) q = q.Where(c => c.Name.Contains(s) || c.Code.Contains(s) || (c.Phone != null && c.Phone.Contains(s)) || (c.Email != null && c.Email.Contains(s)));
-        var rows = q.Select(c => new CustomerRow(c.Id, c.Code, c.Name, c.Phone, c.Email, c.TaxNumber, c.CreditLimit, c.PaymentTermsDays, c.IsActive,
+        var rows = q.SortBy(req.SortBy, req.Descending, e => e.Code).Select(c => new CustomerRow(c.Id, c.Code, c.Name, c.Phone, c.Email, c.TaxNumber, c.CreditLimit, c.PaymentTermsDays, c.IsActive,
             db.JournalLines.Where(l => l.AccountId == arId && l.CustomerId == c.Id).Sum(l => l.Debit - l.Credit)));
-        return await rows.SortBy(req.SortBy, req.Descending, r => r.Code).ToPagedAsync(req);
+        return await rows.ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync(bool activeOnly = true) => await ReadAsync(db => db.Customers.AsNoTracking()
@@ -155,9 +155,9 @@ public sealed class SupplierService : ServiceBase
         var apId = (await AccountingEngine.AccountAsync(db, SystemAccounts.AP)).Id;
         var q = db.Suppliers.AsNoTracking().AsQueryable();
         if (req.Search.Norm() is { } s) q = q.Where(c => c.Name.Contains(s) || c.Code.Contains(s) || (c.Phone != null && c.Phone.Contains(s)));
-        return await q.Select(c => new SupplierRow(c.Id, c.Code, c.Name, c.Phone, c.Email, c.PaymentTermsDays, c.IsActive,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Code).Select(c => new SupplierRow(c.Id, c.Code, c.Name, c.Phone, c.Email, c.PaymentTermsDays, c.IsActive,
                 db.JournalLines.Where(l => l.AccountId == apId && l.SupplierId == c.Id).Sum(l => l.Credit - l.Debit)))
-            .SortBy(req.SortBy, req.Descending, r => r.Code).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync() => await ReadAsync(db => db.Suppliers.AsNoTracking().Where(c => c.IsActive).OrderBy(c => c.Name).Select(c => new Lookup(c.Id, c.Code, c.Name)).ToListAsync());
@@ -212,7 +212,7 @@ public sealed class EmployeeService : ServiceBase
         await using var db = Factory.Create();
         var q = db.Employees.AsNoTracking().AsQueryable();
         if (req.Search.Norm() is { } s) q = q.Where(c => c.Name.Contains(s) || c.Code.Contains(s) || (c.Role != null && c.Role.Contains(s)));
-        return await q.Select(e => new EmployeeRow(e.Id, e.Code, e.Name, e.Role, e.HourlyCost, e.Phone, e.IsActive)).SortBy(req.SortBy, req.Descending, r => r.Code).ToPagedAsync(req);
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Code).Select(e => new EmployeeRow(e.Id, e.Code, e.Name, e.Role, e.HourlyCost, e.Phone, e.IsActive)).ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync() => await ReadAsync(db => db.Employees.AsNoTracking().Where(c => c.IsActive).OrderBy(c => c.Name).Select(c => new Lookup(c.Id, c.Code, c.Name)).ToListAsync());

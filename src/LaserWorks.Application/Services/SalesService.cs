@@ -36,9 +36,9 @@ public sealed class SalesService : ServiceBase
         if (range != null) q = q.Where(i => i.Date >= range.From.Date && i.Date < range.ToExclusive);
         if (openOnly) q = q.Where(i => i.Status == DocumentStatus.Posted && i.Total - i.PaidAmount - i.ReturnedAmount > 0);
         if (req.Search.Norm() is { } s) q = q.Where(i => i.Number.Contains(s) || i.Customer!.Name.Contains(s) || (i.Job != null && i.Job.Number.Contains(s)));
-        return await q.Select(i => new InvoiceRow(i.Id, i.Number, i.Date, i.DueDate, i.CustomerId, i.Customer!.Name, i.Job != null ? i.Job.Number : null, i.Status, i.Subtotal,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(i => new InvoiceRow(i.Id, i.Number, i.Date, i.DueDate, i.CustomerId, i.Customer!.Name, i.Job != null ? i.Job.Number : null, i.Status, i.Subtotal,
                 i.DiscountAmount, i.TaxAmount, i.Total, i.PaidAmount, i.ReturnedAmount, i.CogsAmount))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<SalesInvoice?> GetInvoiceAsync(long id) => await ReadAsync(db => db.SalesInvoices.AsNoTracking().Include(i => i.Customer).Include(i => i.Job)

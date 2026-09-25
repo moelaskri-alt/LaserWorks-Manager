@@ -156,9 +156,9 @@ public sealed class EstimateService : ServiceBase
         if (status.HasValue) q = q.Where(e => e.Status == status);
         if (customerId.HasValue) q = q.Where(e => e.CustomerId == customerId);
         if (req.Search.Norm() is { } s) q = q.Where(e => e.Number.Contains(s) || e.Description.Contains(s) || e.Customer!.Name.Contains(s));
-        return await q.Select(e => new EstimateRow(e.Id, e.Number, e.Date, e.Customer!.Name, e.Request != null ? e.Request.Number : null, e.Description, e.Quantity,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(e => new EstimateRow(e.Id, e.Number, e.Date, e.Customer!.Name, e.Request != null ? e.Request.Number : null, e.Description, e.Quantity,
                 e.TotalCost, e.SuggestedPrice, e.SellingPrice, e.Status))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync(long? customerId = null) => await ReadAsync(db => db.CostEstimates.AsNoTracking()

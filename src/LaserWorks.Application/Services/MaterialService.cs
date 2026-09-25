@@ -32,9 +32,9 @@ public sealed class MaterialService : ServiceBase
         if (kind.HasValue) q = q.Where(m => m.Kind == kind);
         if (lowOnly) q = q.Where(m => m.IsActive && m.ReorderLevel > 0 && m.QuantityOnHand <= m.ReorderLevel);
         if (req.Search.Norm() is { } s) q = q.Where(m => m.Name.Contains(s) || m.Code.Contains(s) || (m.MaterialType != null && m.MaterialType.Contains(s)));
-        return await q.Select(m => new MaterialRow(m.Id, m.Code, m.Name, m.Category != null ? m.Category.Name : null, m.Kind, m.MaterialType, m.Thickness, m.Length, m.Width,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Code).Select(m => new MaterialRow(m.Id, m.Code, m.Name, m.Category != null ? m.Category.Name : null, m.Kind, m.MaterialType, m.Thickness, m.Length, m.Width,
                 m.Unit!.Code, m.QuantityOnHand, m.AverageCost, m.StockValue, m.ReorderLevel, m.MinimumStock, m.IsActive))
-            .SortBy(req.SortBy, req.Descending, r => r.Code).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<MaterialLookup>> LookupAsync(MaterialKind? kind = null) => await ReadAsync(db => db.Materials.AsNoTracking()

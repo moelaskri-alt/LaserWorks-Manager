@@ -29,9 +29,9 @@ public sealed class ExpenseService : ServiceBase
         if (costCenterId.HasValue) q = q.Where(e => e.CostCenterId == costCenterId);
         if (status.HasValue) q = q.Where(e => e.Status == status);
         if (req.Search.Norm() is { } s) q = q.Where(e => e.Number.Contains(s) || e.Description.Contains(s) || (e.Reference != null && e.Reference.Contains(s)));
-        return await q.Select(e => new ExpenseRow(e.Id, e.Number, e.Date, e.Category!.Name, e.Description, e.Amount, e.TaxAmount, e.PaymentMethod, e.Supplier != null ? e.Supplier.Name : null,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(e => new ExpenseRow(e.Id, e.Number, e.Date, e.Category!.Name, e.Description, e.Amount, e.TaxAmount, e.PaymentMethod, e.Supplier != null ? e.Supplier.Name : null,
                 e.Job != null ? e.Job.Number : null, e.Machine != null ? e.Machine.Name : null, e.CostCenter != null ? e.CostCenter.Name : null, e.Status))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<Expense?> GetAsync(long id) => await ReadAsync(db => db.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id));

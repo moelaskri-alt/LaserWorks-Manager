@@ -51,9 +51,9 @@ public sealed class JobService : ServiceBase
         if (f.Overdue) q = q.Where(j => j.Status < JobStatus.Delivered && j.DueDate != null && j.DueDate < today);
         if (f.Range != null) q = q.Where(j => j.OrderDate >= f.Range.From.Date && j.OrderDate < f.Range.ToExclusive);
         if (req.Search.Norm() is { } s) q = q.Where(j => j.Number.Contains(s) || j.Title.Contains(s) || j.Customer!.Name.Contains(s));
-        return await q.Select(j => new JobRow(j.Id, j.Number, j.OrderDate, j.CustomerId, j.Customer!.Name, j.Title, j.Quantity, j.DueDate, j.Priority, j.Status, j.EstimatedCost,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(j => new JobRow(j.Id, j.Number, j.OrderDate, j.CustomerId, j.Customer!.Name, j.Title, j.Quantity, j.DueDate, j.Priority, j.Status, j.EstimatedCost,
                 j.ActualCost, j.SellingPrice, j.Machine != null ? j.Machine.Name : null, j.Operator != null ? j.Operator.Name : null))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync(bool openOnly = true, long? customerId = null) => await ReadAsync(db => db.Jobs.AsNoTracking()

@@ -27,10 +27,10 @@ public sealed class RequestService : ServiceBase
         if (customerId.HasValue) q = q.Where(r => r.CustomerId == customerId);
         if (range != null) q = q.Where(r => r.RequestDate >= range.From.Date && r.RequestDate < range.ToExclusive);
         if (req.Search.Norm() is { } s) q = q.Where(r => r.Number.Contains(s) || r.Description.Contains(s) || r.Customer!.Name.Contains(s));
-        return await q.Select(r => new RequestRow(r.Id, r.Number, r.RequestDate, r.CustomerId, r.Customer!.Name, r.Description, r.Material != null ? r.Material.Name : null, r.Quantity,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(r => new RequestRow(r.Id, r.Number, r.RequestDate, r.CustomerId, r.Customer!.Name, r.Description, r.Material != null ? r.Material.Name : null, r.Quantity,
                 r.RequiredDate, r.Status, db.DesignRevisions.Count(d => d.RequestId == r.Id),
                 db.Attachments.Count(a => a.OwnerType == AttachmentOwner.Request && a.OwnerId == r.Id)))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<Lookup>> LookupAsync(long? customerId = null) => await ReadAsync(db => db.CustomerRequests.AsNoTracking()

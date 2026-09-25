@@ -31,9 +31,9 @@ public sealed class QuotationService : ServiceBase
         if (customerId.HasValue) q = q.Where(x => x.CustomerId == customerId);
         if (range != null) q = q.Where(x => x.Date >= range.From.Date && x.Date < range.ToExclusive);
         if (req.Search.Norm() is { } s) q = q.Where(x => x.Number.Contains(s) || x.Description.Contains(s) || x.Customer!.Name.Contains(s));
-        return await q.Select(x => new QuotationRow(x.Id, x.Number, x.VersionNo, x.Date, x.Customer!.Name, x.Description, x.Quantity, x.EstimatedCost,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(x => new QuotationRow(x.Id, x.Number, x.VersionNo, x.Date, x.Customer!.Name, x.Description, x.Quantity, x.EstimatedCost,
                 x.SellingPrice - x.DiscountAmount, x.Total, x.ValidUntil, x.Status, x.IsLatestVersion, db.Jobs.Where(j => j.QuotationId == x.Id).Select(j => j.Number).FirstOrDefault()))
-            .SortBy(req.SortBy, req.Descending, r => r.Id, defaultDesc: true).ToPagedAsync(req);
+            .ToPagedAsync(req);
     }
 
     public async Task<List<QuotationRow>> VersionsAsync(long id)
