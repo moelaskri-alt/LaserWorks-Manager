@@ -1,0 +1,147 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8">
+      <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+      <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+    </StackPanel>
+    <TabControl SelectedIndex="{Binding SelectedTab}" IsEnabled="{Binding CanEdit}">
+      <TabItem Header="{l:T Settings.Company}">
+        <ScrollViewer>
+          <Border Classes="card" Margin="0,10,0,0" MaxWidth="1000" HorizontalAlignment="Left">
+            <StackPanel Spacing="6">
+              <Grid ColumnDefinitions="*,14,*,14,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Company.Name}" /><TextBox Text="{Binding Company.CompanyName}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.TaxNumber}" /><TextBox Text="{Binding Company.TaxNumber}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Phone}" /><TextBox Text="{Binding Company.Phone}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Email}" /><TextBox Text="{Binding Company.Email}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.Currency}" /><TextBox Text="{Binding Company.CurrencyCode}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Address}" /><TextBox Text="{Binding Company.Address}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.CurrencySymbol}" /><TextBox Text="{Binding Company.CurrencySymbol}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Settings.Language}" /><ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Company.Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Lang}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Shell.Theme}" />
+                  <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Company.Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Theme}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.DecimalPlaces}" /><NumericUpDown Value="{Binding Company.DecimalPlaces}" Minimum="0" Maximum="4" FormatString="0" /></StackPanel>
+              </Grid>
+              <TextBlock Classes="h3" Text="{l:T Settings.Costing}" Margin="0,6,0,0" />
+              <Grid ColumnDefinitions="*,14,*,14,*,14,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Company.TaxRate}" /><NumericUpDown Value="{Binding Company.DefaultTaxRate}" Minimum="0" Maximum="100" /></StackPanel>
+                <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.DefaultMargin}" /><NumericUpDown Value="{Binding Company.DefaultMarginPercent}" Minimum="0" Maximum="99" /></StackPanel>
+                <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.MinimumMargin}" /><NumericUpDown Value="{Binding Company.MinimumMarginPercent}" Minimum="0" Maximum="99" /></StackPanel>
+                <StackPanel Classes="field" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Company.DefaultMarkup}" /><NumericUpDown Value="{Binding Company.DefaultMarkupPercent}" Minimum="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Estimate.OverheadMethod}" />
+                  <ComboBox ItemsSource="{Binding OverheadMethods}" SelectedItem="{Binding Company.OverheadMethod}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.OverheadRate}" /><NumericUpDown Value="{Binding Company.OverheadRate}" Minimum="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.LaborRate}" /><NumericUpDown Value="{Binding Company.DefaultLaborRate}" Minimum="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="1" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Company.ElectricityPrice}" /><NumericUpDown Value="{Binding Company.DefaultElectricityPricePerKwh}" Minimum="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Estimate.ScrapAllowance}" /><NumericUpDown Value="{Binding Company.DefaultScrapAllowancePercent}" Minimum="0" Maximum="100" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Settings.QuoteValidity}" /><NumericUpDown Value="{Binding Company.QuotationValidityDays}" Minimum="1" FormatString="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Settings.CostingMethod}" /><ComboBox ItemsSource="{Binding CostingMethods}" SelectedItem="{Binding Company.InventoryCostingMethod}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Costing}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Company.PaymentTerms}" /><TextBox Text="{Binding Company.DefaultPaymentTerms}" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Settings.LowMargin}" /><NumericUpDown Value="{Binding Company.LowMarginThresholdPercent}" Minimum="0" FormatString="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Settings.HighVariance}" /><NumericUpDown Value="{Binding Company.HighVariancePercent}" Minimum="0" FormatString="0" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Settings.HighScrap}" /><NumericUpDown Value="{Binding Company.HighScrapPercent}" Minimum="0" FormatString="0" /></StackPanel>
+              </Grid>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="primary" Content="{l:T Common.Save}" Command="{Binding SaveCompanyCommand}" Name="btnSaveSettings" />
+                <Button Content="{l:T Settings.LoadDemo}" Command="{Binding LoadDemoCommand}" IsVisible="{Binding CanLoadDemo}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="{l:T Settings.Numbering}">
+        <DockPanel Margin="0,10,0,0">
+          <Button DockPanel.Dock="Bottom" Classes="primary" Content="{l:T Common.Save}" Command="{Binding SaveSequencesCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" />
+          <DataGrid ItemsSource="{Binding Sequences}" IsReadOnly="False" CanUserSortColumns="False">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Settings.Document}" Binding="{Binding Key}" IsReadOnly="True" Width="2*" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Settings.Prefix}" Binding="{Binding Prefix}" Width="*" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Settings.NextNumber}" Binding="{Binding NextNumber}" Width="*" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Settings.Padding}" Binding="{Binding Padding}" Width="*" MinWidth="80" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+      <TabItem Header="{l:T Settings.Lists}">
+        <ScrollViewer Margin="0,10,0,0">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,14,*">
+              <StackPanel Spacing="6">
+                <DockPanel><Button DockPanel.Dock="Right" Content="+" Command="{Binding AddWarehouseCommand}" /><TextBlock Classes="h3" Text="{l:T Nav.Warehouses}" /></DockPanel>
+                <DataGrid ItemsSource="{Binding Warehouses}" IsReadOnly="False" Height="170" CanUserSortColumns="False">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="*" MinWidth="80" />
+                    <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
+                    <DataGridTemplateColumn Header="{l:T Col.Active}" Width="70" MinWidth="70"><DataTemplate><CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </StackPanel>
+              <StackPanel Grid.Column="2" Spacing="6">
+                <DockPanel><Button DockPanel.Dock="Right" Content="+" Command="{Binding AddUnitCommand}" /><TextBlock Classes="h3" Text="{l:T Settings.Units}" /></DockPanel>
+                <DataGrid ItemsSource="{Binding Units}" IsReadOnly="False" Height="170" CanUserSortColumns="False">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="*" MinWidth="80" />
+                    <DataGridTextColumn Header="{l:T Account.NameAr}" Binding="{Binding NameAr}" Width="*" MinWidth="80" />
+                    <DataGridTextColumn Header="{l:T Account.NameEn}" Binding="{Binding NameEn}" Width="*" MinWidth="80" />
+                    <DataGridTemplateColumn Header="{l:T Settings.IsSheet}" Width="70" MinWidth="70"><DataTemplate><CheckBox IsChecked="{Binding IsSheet}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </StackPanel>
+            </Grid>
+            <Grid ColumnDefinitions="*,14,*">
+              <StackPanel Spacing="6">
+                <DockPanel><Button DockPanel.Dock="Right" Content="+" Command="{Binding AddCategoryCommand}" /><TextBlock Classes="h3" Text="{l:T Settings.Categories}" /></DockPanel>
+                <DataGrid ItemsSource="{Binding Categories}" IsReadOnly="False" Height="170" CanUserSortColumns="False">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="*" MinWidth="80" />
+                    <DataGridTemplateColumn Header="{l:T Col.Active}" Width="70" MinWidth="70"><DataTemplate><CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </StackPanel>
+              <StackPanel Grid.Column="2" Spacing="6">
+                <DockPanel><Button DockPanel.Dock="Right" Content="+" Command="{Binding AddCostCenterCommand}" /><TextBlock Classes="h3" Text="{l:T Col.CostCenter}" /></DockPanel>
+                <DataGrid ItemsSource="{Binding CostCenters}" IsReadOnly="False" Height="170" CanUserSortColumns="False">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="*" MinWidth="80" />
+                    <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
+                    <DataGridTemplateColumn Header="{l:T Col.Active}" Width="70" MinWidth="70"><DataTemplate><CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </StackPanel>
+            </Grid>
+            <StackPanel Spacing="6">
+              <DockPanel><Button DockPanel.Dock="Right" Content="+" Command="{Binding AddExpenseCategoryCommand}" /><TextBlock Classes="h3" Text="{l:T Settings.ExpenseCategories}" /></DockPanel>
+              <DataGrid ItemsSource="{Binding ExpenseCategories}" IsReadOnly="False" Height="220" CanUserSortColumns="False">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="*" MinWidth="80" />
+                  <DataGridTemplateColumn Header="{l:T Col.Account}" Width="1.5*" MinWidth="105">
+                    <DataTemplate x:DataType="e:ExpenseCategory">
+                      <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:SettingsViewModel)DataContext).ExpenseAccounts}" SelectedItem="{Binding Account}" BorderThickness="0">
+                        <ComboBox.ItemTemplate><DataTemplate x:DataType="e:Account"><TextBlock><Run Text="{Binding Code}" /><Run Text=" " /><Run Text="{Binding Converter={x:Static l:Conv.BiName}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </DataTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="{l:T Settings.JobComponent}" Width="*" MinWidth="80">
+                    <DataTemplate x:DataType="e:ExpenseCategory">
+                      <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:SettingsViewModel)DataContext).Components}" SelectedItem="{Binding JobComponent}" BorderThickness="0">
+                        <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </DataTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="{l:T Col.Active}" Width="70" MinWidth="70"><DataTemplate><CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+                </DataGrid.Columns>
+              </DataGrid>
+            </StackPanel>
+            <Button Classes="primary" Content="{l:T Common.Save}" Command="{Binding SaveListsCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

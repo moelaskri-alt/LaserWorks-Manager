@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.MaterialEditorView"
+             x:DataType="vm:MaterialEditorViewModel">
+  <StackPanel Spacing="6">
+    <Grid ColumnDefinitions="*,12,2*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" Watermark="{l:T Common.AutoNumber}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Name}" /><TextBox Text="{Binding Name}" Name="txtMaterialName" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Kind}" />
+        <ComboBox ItemsSource="{Binding KindsList}" SelectedItem="{Binding Kind}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Category}" />
+        <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:MaterialCategory"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Type}" /><TextBox Text="{Binding MaterialType}" Watermark="MDF, Acrylic, Leather…" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Unit}" />
+        <ComboBox ItemsSource="{Binding Units}" SelectedItem="{Binding Unit}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:UnitOfMeasure"><TextBlock><Run Text="{Binding Code}" /><Run Text=" — " /><Run Text="{Binding Converter={x:Static l:Conv.BiName}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.ThicknessMm}" /><NumericUpDown Value="{Binding Thickness}" Minimum="0" /></StackPanel>
+      <Grid Grid.Row="2" Grid.Column="2" ColumnDefinitions="*,10,*">
+        <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.LengthCm}" /><NumericUpDown Value="{Binding Length}" Minimum="0" /></StackPanel>
+        <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.WidthCm}" /><NumericUpDown Value="{Binding Width}" Minimum="0" /></StackPanel>
+      </Grid>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Supplier}" /><ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding Supplier}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.PurchaseCost}" /><NumericUpDown Value="{Binding PurchaseCost}" Minimum="0" /></StackPanel>
+      <Grid Grid.Row="3" Grid.Column="2" ColumnDefinitions="*,10,*">
+        <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.MinimumStock}" /><NumericUpDown Value="{Binding MinimumStock}" Minimum="0" /></StackPanel>
+        <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.ReorderLevel}" /><NumericUpDown Value="{Binding ReorderLevel}" Minimum="0" /></StackPanel>
+      </Grid>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.SalesPrice}" /><NumericUpDown Value="{Binding SalesPrice}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+      <CheckBox Grid.Row="5" IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+    </Grid>
+    <Border Classes="soft" IsVisible="{Binding IsSaved}">
+      <StackPanel Spacing="4">
+        <TextBlock Classes="h3" Text="{l:T Material.Stock}" />
+        <TextBlock><Run Text="{l:T Col.OnHand}" /><Run Text=": " /><Run Text="{Binding QuantityOnHand, Converter={x:Static l:Conv.Number}}" FontWeight="SemiBold" />
+          <Run Text="   " /><Run Text="{l:T Col.AverageCost}" /><Run Text=": " /><Run Text="{Binding AverageCost, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" />
+          <Run Text="   " /><Run Text="{l:T Col.StockValue}" /><Run Text=": " /><Run Text="{Binding StockValue, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+        <ItemsControl ItemsSource="{Binding StockByWarehouse}" />
+        <TextBlock Classes="muted small wrap" Text="{l:T Material.StockReadOnly}" />
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

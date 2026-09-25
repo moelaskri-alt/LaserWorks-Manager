@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SupplierEditorView"
+             x:DataType="vm:SupplierEditorViewModel">
+  <Grid ColumnDefinitions="*,16,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" Watermark="{l:T Common.AutoNumber}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Name}" /><TextBox Text="{Binding Name}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Phone}" /><TextBox Text="{Binding Phone}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Email}" /><TextBox Text="{Binding Email}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Address}" /><TextBox Text="{Binding Address}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.TaxNumber}" /><TextBox Text="{Binding TaxNumber}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.PaymentTermsDays}" /><NumericUpDown Value="{Binding PaymentTermsDays}" Minimum="0" FormatString="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    <CheckBox Grid.Row="5" IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+    <StackPanel Classes="field" Grid.Row="5" Grid.Column="2" IsVisible="{Binding IsNew}"><TextBlock Classes="label" Text="{l:T Supplier.OpeningBalance}" /><NumericUpDown Value="{Binding OpeningBalance}" /></StackPanel>
+  </Grid>
+</UserControl>

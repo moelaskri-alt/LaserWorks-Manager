@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ProductionView"
+             x:DataType="vm:ProductionViewModel">
+  <TabControl SelectedIndex="{Binding SelectedTab}">
+    <TabItem Header="{l:T Production.Board}"><ContentControl Content="{Binding Board}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Nav.ScrapRework}"><ContentControl Content="{Binding ScrapLog}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Nav.Quality}"><ContentControl Content="{Binding QualityLog}" Margin="0,10,0,0" /></TabItem>
+  </TabControl>
+</UserControl>

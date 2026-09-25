@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.OperationEditorView"
+             x:DataType="vm:OperationEditorViewModel">
+  <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Operation}" />
+      <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding OperationType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Sequence}" /><NumericUpDown Value="{Binding Sequence}" Minimum="0" FormatString="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Employee}" /><ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding Employee}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.PlannedHours}" /><NumericUpDown Value="{Binding PlannedHours}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" /></StackPanel>
+    <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Spacing="6">
+      <CheckBox IsChecked="{Binding IsRework}" Content="{l:T Operation.IsRework}" />
+      <TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

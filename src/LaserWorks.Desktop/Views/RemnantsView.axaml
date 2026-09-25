@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.RemnantsView"
+             x:DataType="vm:RemnantsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Width="150" />
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Content="{l:T Remnant.Consume}" Command="{Binding ConsumeCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+          <Button Content="{l:T Remnant.Adjust}" Command="{Binding AdjustCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+          <Button Classes="primary" Content="{l:T Remnant.CreateFromStock}" Command="{Binding CreateCommand}" />
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding MaterialName}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Thickness}" Binding="{Binding Thickness, Converter={x:Static l:Conv.Number}}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Length}" Binding="{Binding Length, Converter={x:Static l:Conv.Number}}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Width}" Binding="{Binding Width, Converter={x:Static l:Conv.Number}}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Area}" Binding="{Binding Area, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Warehouse}" Binding="{Binding Warehouse}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.SourceJob}" Binding="{Binding SourceJob}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.UsedIn}" Binding="{Binding ConsumedJob}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Cost}" Binding="{Binding Cost, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

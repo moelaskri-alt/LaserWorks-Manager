@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.JournalEditorView"
+             x:DataType="vm:JournalEditorViewModel">
+  <StackPanel Spacing="8">
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+      <TextBlock Classes="muted" Text="{Binding Source}" VerticalAlignment="Center" />
+      <TextBlock Classes="muted" Text="{Binding ReversalInfo}" VerticalAlignment="Center" />
+    </StackPanel>
+    <Border Classes="banner-warning" IsVisible="{Binding !IsManual}"><TextBlock Classes="wrap" Text="{l:T Journal.AutoHint}" /></Border>
+    <Grid ColumnDefinitions="*,12,3*" IsEnabled="{Binding IsDraft}">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Description}" /><TextBox Text="{Binding Description}" /></StackPanel>
+    </Grid>
+    <DockPanel>
+      <Button DockPanel.Dock="Right" Content="{l:T Invoice.AddLine}" Command="{Binding AddLineCommand}" IsVisible="{Binding IsDraft}" />
+      <TextBlock Classes="h3" Text="{l:T Invoice.Lines}" VerticalAlignment="Center" />
+    </DockPanel>
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="{Binding !IsDraft}" CanUserSortColumns="False" MinHeight="150" MaxHeight="320">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{l:T Col.Account}" Width="2.5*" MinWidth="160">
+          <DataTemplate x:DataType="vm:JournalLineVm">
+            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:JournalEditorViewModel)DataContext).Accounts}" SelectedItem="{Binding Account}" BorderThickness="0"
+                      IsEnabled="{Binding $parent[UserControl].((vm:JournalEditorViewModel)DataContext).IsDraft}">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="e:Account"><TextBlock><Run Text="{Binding Code}" /><Run Text="  " /><Run Text="{Binding Converter={x:Static l:Conv.BiName}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Col.Debit}" Binding="{Binding Debit}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Credit}" Binding="{Binding Credit}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Journal.Tags}" Binding="{Binding Tags}" IsReadOnly="True" Width="1.5*" MinWidth="105" />
+        <DataGridTemplateColumn Width="40" MinWidth="40">
+          <DataTemplate x:DataType="vm:JournalLineVm">
+            <Button Classes="ghost" Padding="4" Command="{Binding $parent[UserControl].((vm:JournalEditorViewModel)DataContext).RemoveLineCommand}" CommandParameter="{Binding}"
+                    IsVisible="{Binding $parent[UserControl].((vm:JournalEditorViewModel)DataContext).IsDraft}">
+              <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource DangerBrush}" Width="14" Height="14" /></Button>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+    <DockPanel>
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="16">
+        <TextBlock><Run Text="{l:T Col.Debit}" /><Run Text=": " /><Run Text="{Binding TotalDebit, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+        <TextBlock><Run Text="{l:T Col.Credit}" /><Run Text=": " /><Run Text="{Binding TotalCredit, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+        <TextBlock Foreground="{Binding Difference, Converter={x:Static l:Conv.VarianceBrush}}"><Run Text="{l:T Journal.Difference}" /><Run Text=": " /><Run Text="{Binding Difference, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+      </StackPanel>
+      <WrapPanel>
+        <Button Classes="primary" Content="{l:T Common.Post}" Command="{Binding PostCommand}" IsVisible="{Binding IsDraft}" Margin="0,0,6,0" />
+        <Button Classes="danger" Content="{l:T Common.Delete}" Command="{Binding DeleteDraftCommand}" IsVisible="{Binding CanPost}" Margin="0,0,6,0" />
+        <Button Content="{l:T Journal.Reverse}" Command="{Binding ReverseCommand}" IsVisible="{Binding CanReverse}" />
+      </WrapPanel>
+    </DockPanel>
+    <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+  </StackPanel>
+</UserControl>

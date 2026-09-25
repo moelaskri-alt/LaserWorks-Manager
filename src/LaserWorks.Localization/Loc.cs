@@ -54,9 +54,15 @@ public sealed class Loc : INotifyPropertyChanged
     {
         if (string.IsNullOrEmpty(key)) return "";
         if (_current.TryGetValue(key, out var v)) return v;
-        if (_fallback.TryGetValue(key, out var f)) return f;
+        if (_fallback.TryGetValue(key, out var f)) { lock (_missing) _missing.Add(Language + ":" + key); return f; }
+        lock (_missing) _missing.Add("*:" + key);
         return key;
     }
+
+    private readonly HashSet<string> _missing = new();
+
+    /// <summary>Keys requested at runtime that were missing in the current language ("lang:key") or everywhere ("*:key").</summary>
+    public IReadOnlyCollection<string> MissingKeys { get { lock (_missing) return _missing.ToList(); } }
 
     public bool Has(string key) => _current.ContainsKey(key) || _fallback.ContainsKey(key);
 
@@ -71,6 +77,7 @@ public sealed class Loc : INotifyPropertyChanged
     public string Enum(object value)
     {
         var key = $"Enum.{value.GetType().Name}.{value}";
+        if (!Has(key)) lock (_missing) _missing.Add("*:" + key);
         return Has(key) ? Get(key) : value.ToString() ?? "";
     }
 

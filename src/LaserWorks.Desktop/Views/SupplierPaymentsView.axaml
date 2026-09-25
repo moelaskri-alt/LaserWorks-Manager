@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SupplierPaymentsView"
+             x:DataType="vm:SupplierPaymentsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Classes="primary" Content="{l:T SupplierPayment.Title}" Command="{Binding NewCommand}" />
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Supplier}" Binding="{Binding Supplier}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Invoice}" Binding="{Binding Invoice}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Method}" Binding="{Binding Method, Converter={x:Static l:Conv.Enum}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Reference}" Binding="{Binding Reference}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Amount}" Binding="{Binding Amount, Converter={x:Static l:Conv.Money}}" Width="120" MinWidth="120" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

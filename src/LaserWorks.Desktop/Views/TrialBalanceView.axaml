@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.TrialBalanceView"
+             x:DataType="vm:TrialBalanceViewModel">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="12">
+        <TextBlock VerticalAlignment="Center"><Run Text="{l:T Col.Debit}" /><Run Text=": " /><Run Text="{Binding TotalDebit, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+        <TextBlock VerticalAlignment="Center"><Run Text="{l:T Col.Credit}" /><Run Text=": " /><Run Text="{Binding TotalCredit, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" /></TextBlock>
+        <Border Classes="banner-success" IsVisible="{Binding Balanced}"><TextBlock Text="{l:T Rpt.TrialBalance.Balanced}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+        <Border Classes="banner-error" IsVisible="{Binding !Balanced}"><TextBlock Text="{l:T Rpt.TrialBalance.Unbalanced}" Classes="error" /></Border>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <CalendarDatePicker SelectedDate="{Binding From}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+        <CalendarDatePicker SelectedDate="{Binding To}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+        <Button Content="{l:T Common.Refresh}" Command="{Binding LoadCommand}" />
+      </StackPanel>
+    </DockPanel>
+    <DataGrid ItemsSource="{Binding Rows}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Account}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.OpeningDebit}" Binding="{Binding OpeningDebit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.OpeningCredit}" Binding="{Binding OpeningCredit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.PeriodDebit}" Binding="{Binding PeriodDebit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.PeriodCredit}" Binding="{Binding PeriodCredit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.ClosingDebit}" Binding="{Binding ClosingDebit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.ClosingCredit}" Binding="{Binding ClosingCredit, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

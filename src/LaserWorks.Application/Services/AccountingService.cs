@@ -107,11 +107,15 @@ public sealed class AccountingService : ServiceBase
             .ToPagedAsync(req);
     }
 
-    public async Task<List<JournalLineRow>> EntryLinesAsync(long entryId) => await ReadAsync(db => db.JournalLines.AsNoTracking().Where(l => l.JournalEntryId == entryId).OrderBy(l => l.Id)
-        .Select(l => new JournalLineRow(l.Id, l.Account!.Code, l.Account.NameEn, l.Debit, l.Credit, l.Description,
+    public async Task<List<JournalLineRow>> EntryLinesAsync(long entryId)
+    {
+        var arabicNames = LaserWorks.Localization.Loc.Instance.IsRightToLeft;
+        return await ReadAsync(db => db.JournalLines.AsNoTracking().Where(l => l.JournalEntryId == entryId).OrderBy(l => l.Id)
+        .Select(l => new JournalLineRow(l.Id, l.Account!.Code, arabicNames ? l.Account.NameAr : l.Account.NameEn, l.Debit, l.Credit, l.Description,
             db.Jobs.Where(j => j.Id == l.JobId).Select(j => j.Number).FirstOrDefault(), db.Customers.Where(c => c.Id == l.CustomerId).Select(c => c.Name).FirstOrDefault(),
             db.Suppliers.Where(c => c.Id == l.SupplierId).Select(c => c.Name).FirstOrDefault(), db.CostCenters.Where(c => c.Id == l.CostCenterId).Select(c => c.Name).FirstOrDefault()))
         .ToListAsync());
+    }
 
     public async Task<JournalEntry?> GetEntryAsync(long id) => await ReadAsync(db => db.JournalEntries.AsNoTracking().Include(e => e.Lines).ThenInclude(l => l.Account).FirstOrDefaultAsync(e => e.Id == id));
 
@@ -283,7 +287,7 @@ public sealed class AccountingService : ServiceBase
             var pc = agg.Where(x => x.AccountId == a.Id && !x.Before).Sum(x => x.C);
             var c = o + pd - pc;
             if (!includeZero && o == 0 && pd == 0 && pc == 0) continue;
-            rows.Add(new TrialBalanceRow(a.Code, a.NameEn, a.Type, o > 0 ? o : 0, o < 0 ? -o : 0, pd, pc, c > 0 ? c : 0, c < 0 ? -c : 0));
+            rows.Add(new TrialBalanceRow(a.Code, LaserWorks.Localization.Loc.Instance.IsRightToLeft ? a.NameAr : a.NameEn, a.Type, o > 0 ? o : 0, o < 0 ? -o : 0, pd, pc, c > 0 ? c : 0, c < 0 ? -c : 0));
         }
         return rows;
     }

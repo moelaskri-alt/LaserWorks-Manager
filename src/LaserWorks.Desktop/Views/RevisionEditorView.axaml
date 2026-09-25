@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.RevisionEditorView"
+             x:DataType="vm:RevisionEditorViewModel">
+  <StackPanel Spacing="8">
+    <Border Classes="banner-warning" IsVisible="{Binding IsLocked}">
+      <TextBlock Classes="wrap" Text="{l:T Revision.Locked}" />
+    </Border>
+    <Grid ColumnDefinitions="*,14,*,14,*" RowDefinitions="Auto,Auto,Auto,Auto" IsEnabled="{Binding !IsLocked}">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" />
+        <CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Designer}" /><ComboBox ItemsSource="{Binding Designers}" SelectedItem="{Binding Designer}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Revision.Width}" /><NumericUpDown Value="{Binding Width}" Minimum="0" Name="numWidth" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Revision.Height}" /><NumericUpDown Value="{Binding Height}" Minimum="0" Name="numHeight" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Thickness}" /><NumericUpDown Value="{Binding Thickness}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Revision.CuttingLength}" /><NumericUpDown Value="{Binding CuttingLengthM}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Revision.EngravingArea}" /><NumericUpDown Value="{Binding EngravingAreaCm2}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Revision.MachineMinutes}" /><NumericUpDown Value="{Binding EstimatedMachineMinutes}" Minimum="0" Name="numMinutes" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" Classes="multiline" /></StackPanel>
+    </Grid>
+    <CheckBox IsChecked="{Binding SubmitForReview}" Content="{l:T Revision.SubmitForReview}" IsVisible="{Binding !IsLocked}" />
+    <Border Classes="soft">
+      <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+          <Button DockPanel.Dock="Right" Command="{Binding AttachFileCommand}" IsVisible="{Binding !IsLocked}" Name="btnAttachDesign">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoAttach}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Revision.AttachFile}" /></StackPanel>
+          </Button>
+          <TextBlock Classes="h3" Text="{l:T Revision.Files}" VerticalAlignment="Center" />
+        </DockPanel>
+        <ItemsControl ItemsSource="{Binding Files}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="svc:AttachmentRow">
+              <Button Classes="link" Content="{Binding FileName}" Command="{Binding $parent[UserControl].((vm:RevisionEditorViewModel)DataContext).OpenFileCommand}" CommandParameter="{Binding}" Margin="0,2" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </DockPanel>
+    </Border>
+    <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding CanApprove}">
+      <Button Classes="primary" Command="{Binding ApproveCommand}" Name="btnApproveRevision">
+        <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoCheck}" Foreground="White" /><TextBlock Text="{l:T Revision.ApproveFinal}" /></StackPanel>
+      </Button>
+      <Button Classes="danger" Content="{l:T Common.Reject}" Command="{Binding RejectCommand}" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+        xmlns:l="using:LaserWorks.Desktop"
+        x:Class="LaserWorks.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding AppTitle}"
+        Icon="avares://LaserWorksManager/Assets/app.ico"
+        Width="1440" Height="880" MinWidth="1200" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        FlowDirection="{Binding IsRightToLeft, Converter={x:Static l:Conv.FlowDirection}}">
+  <Grid>
+    <ContentControl Content="{Binding Content}" />
+
+    <!-- startup -->
+    <StackPanel IsVisible="{Binding IsBusy}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+      <Image Source="avares://LaserWorksManager/Assets/logo128.png" Width="72" Height="72" />
+      <TextBlock Text="LaserWorks Manager" Classes="h2" HorizontalAlignment="Center" />
+      <ProgressBar IsIndeterminate="True" Width="220" />
+    </StackPanel>
+    <ScrollViewer IsVisible="{Binding StartupError, Converter={x:Static l:Conv.NotEmpty}}" Margin="40">
+      <Border Classes="banner-error">
+        <SelectableTextBlock Text="{Binding StartupError}" TextWrapping="Wrap" />
+      </Border>
+    </ScrollViewer>
+
+    <!-- modal dialogs (stacked) -->
+    <ItemsControl ItemsSource="{Binding DialogStack}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate><Grid /></ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.DataTemplates>
+        <DataTemplate DataType="vm:DialogViewModel">
+          <Grid Background="{DynamicResource OverlayBrush}">
+            <Border Classes="card" Padding="0" Width="{Binding DialogWidth}" MaxHeight="{Binding $parent[Window].Bounds.Height, Converter={x:Static l:Conv.DialogMaxHeight}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" BoxShadow="0 12 40 0 #40000000">
+              <DockPanel>
+                <Border DockPanel.Dock="Top" Padding="18,14" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrushSoft}">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Classes="ghost" Command="{Binding CancelCommand}" Padding="6" ToolTip.Tip="{l:T Common.Close}">
+                      <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource MutedBrush}" />
+                    </Button>
+                    <TextBlock Text="{Binding Title}" Classes="h2" VerticalAlignment="Center" />
+                  </DockPanel>
+                </Border>
+                <Border DockPanel.Dock="Bottom" Padding="18,12" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrushSoft}" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="0,0,8,8">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                      <Button Content="{l:T Common.Cancel}" Command="{Binding CancelCommand}" IsCancel="True" MinWidth="90" />
+                      <Button Classes="primary" Content="{Binding SaveKey, Converter={x:Static l:Conv.LocKey}}" Command="{Binding SaveCommand}" IsVisible="{Binding ShowSave}" IsDefault="True" MinWidth="110" />
+                    </StackPanel>
+                    <ProgressBar DockPanel.Dock="Left" IsIndeterminate="True" Width="60" IsVisible="{Binding IsBusy}" Margin="0,0,10,0" />
+                    <TextBlock Classes="error" Text="{Binding ErrorMessage}" VerticalAlignment="Center" MaxLines="3" />
+                  </DockPanel>
+                </Border>
+                <ScrollViewer Padding="18,14" HorizontalScrollBarVisibility="Disabled">
+                  <ContentControl Content="{Binding}" ContentTemplate="{x:Static l:ViewLocator.Instance}" />
+                </ScrollViewer>
+              </DockPanel>
+            </Border>
+          </Grid>
+        </DataTemplate>
+        <DataTemplate DataType="vm:MessageDialogViewModel">
+          <Grid Background="{DynamicResource OverlayBrush}">
+            <Border Classes="card" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center" BoxShadow="0 12 40 0 #40000000">
+              <StackPanel Spacing="14">
+                <TextBlock Text="{Binding Title}" Classes="h2" />
+                <TextBlock Text="{Binding Message}" Classes="wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                  <Button Content="{l:T Common.No}" Command="{Binding NoCommand}" IsVisible="{Binding IsConfirm}" MinWidth="80" IsCancel="True" />
+                  <Button Classes="primary" Content="{l:T Common.Yes}" Command="{Binding YesCommand}" IsVisible="{Binding IsConfirm}" MinWidth="80" IsDefault="True" />
+                  <Button Classes="primary" Content="{l:T Common.OK}" Command="{Binding YesCommand}" IsVisible="{Binding !IsConfirm}" MinWidth="80" IsDefault="True" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </DataTemplate>
+        <DataTemplate DataType="vm:PromptDialogViewModel">
+          <Grid Background="{DynamicResource OverlayBrush}">
+            <Border Classes="card" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center" BoxShadow="0 12 40 0 #40000000">
+              <StackPanel Spacing="12">
+                <TextBlock Text="{Binding Title}" Classes="h2" />
+                <TextBlock Text="{Binding Label}" Classes="label" />
+                <TextBox Text="{Binding Value}" Classes="multiline" />
+                <TextBlock Classes="error" Text="{Binding ErrorMessage}" />
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                  <Button Content="{l:T Common.Cancel}" Command="{Binding CancelPromptCommand}" MinWidth="80" IsCancel="True" />
+                  <Button Classes="primary" Content="{l:T Common.OK}" Command="{Binding OkCommand}" MinWidth="80" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.DataTemplates>
+    </ItemsControl>
+  </Grid>
+</Window>

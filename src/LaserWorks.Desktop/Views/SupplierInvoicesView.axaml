@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SupplierInvoicesView"
+             x:DataType="vm:SupplierInvoicesViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <CheckBox IsChecked="{Binding OpenOnly}" Content="{l:T Filter.UnpaidOnly}" />
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.SupplierInvoiceNo}" Binding="{Binding SupplierInvoiceNo}" Width="120" MinWidth="120" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.DueDate}" Binding="{Binding DueDate, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Supplier}" Binding="{Binding Supplier}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Receipt}" Binding="{Binding Receipt}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Subtotal}" Binding="{Binding Subtotal, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Tax}" Binding="{Binding TaxAmount, Converter={x:Static l:Conv.Money}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Total}" Binding="{Binding Total, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Paid}" Binding="{Binding PaidAmount, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Balance}" Binding="{Binding Balance, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

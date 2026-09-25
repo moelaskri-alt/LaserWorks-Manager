@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.JobsView"
+             x:DataType="vm:JobsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Width="150" />
+          <ComboBox ItemsSource="{Binding Views}" SelectedItem="{Binding View}" Width="150">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=JobView}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoOpen}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Open}" /></StackPanel>
+          </Button>
+          <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
+            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+          </Button>
+          <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Job.NewDirect}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.ServerSort="True" l:GridBehaviors.OpenCommand="{Binding OpenCommand}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Job}" Binding="{Binding Number}" SortMemberPath="Number" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding OrderDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="OrderDate" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" SortMemberPath="Customer.Name" Width="1.3*" MinWidth="91" />
+        <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Title}" SortMemberPath="Title" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" SortMemberPath="Quantity" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.DueDate}" Binding="{Binding DueDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="DueDate" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Priority}" Binding="{Binding Priority, Converter={x:Static l:Conv.Enum}}" SortMemberPath="Priority" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" SortMemberPath="Status" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.EstimatedCost}" Binding="{Binding EstimatedCost, Converter={x:Static l:Conv.Money}}" SortMemberPath="EstimatedCost" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.ActualCost}" Binding="{Binding ActualCost, Converter={x:Static l:Conv.Money}}" SortMemberPath="ActualCost" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.SellingPrice}" Binding="{Binding SellingPrice, Converter={x:Static l:Conv.Money}}" SortMemberPath="SellingPrice" Width="110" MinWidth="110" />
+        <DataGridTemplateColumn Header="{l:T Col.Margin}" Width="80" MinWidth="80">
+          <DataTemplate x:DataType="svc:JobRow">
+            <TextBlock Text="{Binding MarginPercent, Converter={x:Static l:Conv.Percent}}" Foreground="{Binding GrossProfit, Converter={x:Static l:Conv.SignBrush}}" VerticalAlignment="Center" Margin="6,0" />
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Col.Machine}" Binding="{Binding Machine}" Width="*" MinWidth="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.PurchaseOrderEditorView"
+             x:DataType="vm:PurchaseOrderEditorViewModel">
+  <StackPanel Spacing="8">
+    <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+    <Grid ColumnDefinitions="2*,12,*,12,*" IsEnabled="{Binding IsDraft}">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Supplier}" /><ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding Supplier}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.ExpectedDate}" /><CalendarDatePicker SelectedDate="{Binding ExpectedDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    </Grid>
+    <DockPanel>
+      <Button DockPanel.Dock="Right" Content="{l:T Invoice.AddLine}" Command="{Binding AddLineCommand}" IsVisible="{Binding IsDraft}" />
+      <TextBlock Classes="h3" Text="{l:T Invoice.Lines}" VerticalAlignment="Center" />
+    </DockPanel>
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="{Binding !IsDraft}" CanUserSortColumns="False" MinHeight="140" MaxHeight="280">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{l:T Col.Material}" Width="2*" MinWidth="140">
+          <DataTemplate x:DataType="vm:PoLineVm">
+            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:PurchaseOrderEditorViewModel)DataContext).Materials}" SelectedItem="{Binding Material}" BorderThickness="0"
+                      IsEnabled="{Binding $parent[UserControl].((vm:PurchaseOrderEditorViewModel)DataContext).IsDraft}" />
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding UnitCost}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.TaxRate}" Binding="{Binding TaxRate}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Received}" Binding="{Binding ReceivedQuantity, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="90" MinWidth="90" />
+        <DataGridTemplateColumn Width="40" MinWidth="40">
+          <DataTemplate x:DataType="vm:PoLineVm">
+            <Button Classes="ghost" Padding="4" Command="{Binding $parent[UserControl].((vm:PurchaseOrderEditorViewModel)DataContext).RemoveLineCommand}" CommandParameter="{Binding}"
+                    IsVisible="{Binding $parent[UserControl].((vm:PurchaseOrderEditorViewModel)DataContext).IsDraft}">
+              <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource DangerBrush}" Width="14" Height="14" /></Button>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+    <StackPanel Classes="field" IsEnabled="{Binding IsDraft}"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    <WrapPanel>
+      <Button Classes="primary" Content="{l:T Common.Approve}" Command="{Binding ApproveCommand}" IsVisible="{Binding CanApprove}" Margin="0,0,6,6" />
+      <Button Classes="primary" Content="{l:T Receipt.Title}" Command="{Binding ReceiveCommand}" IsVisible="{Binding CanReceive}" Margin="0,0,6,6" />
+      <Button Classes="danger" Content="{l:T PO.Cancel}" Command="{Binding CancelOrderCommand}" IsVisible="{Binding CanCancel}" Margin="0,0,6,6" />
+    </WrapPanel>
+    <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+  </StackPanel>
+</UserControl>

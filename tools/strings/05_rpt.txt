@@ -1,0 +1,120 @@
+RptCat.Customers|Customers & sales|العملاء والمبيعات
+RptCat.Finance|Financial statements|القوائم المالية
+RptCat.Inventory|Inventory|المخزون
+RptCat.Jobs|Jobs & costing|الأعمال والتكاليف
+RptCat.Production|Production|الإنتاج
+RptCat.Profit|Profitability|الربحية
+RptCat.Trade|Purchasing & payables|المشتريات والدائنون
+Rpt.AccountsPayable|Accounts payable aging|أعمار الذمم الدائنة
+Rpt.AccountsReceivable|Accounts receivable aging|أعمار الذمم المدينة
+Rpt.AccountsReceivable.GlBalance|General ledger receivables balance|رصيد الذمم المدينة في دفتر الأستاذ
+Rpt.BalanceSheet|Balance sheet|الميزانية العمومية
+Rpt.CashFlow|Cash flow summary|ملخص التدفقات النقدية
+Rpt.CustomerBalance|Customer balances|أرصدة العملاء
+Rpt.CustomerList|Customer list|قائمة العملاء
+Rpt.CustomerProfitability|Customer profitability|ربحية العملاء
+Rpt.CustomerRequests|Customer requests|طلبات العملاء
+Rpt.CustomerStatement|Customer statement|كشف حساب عميل
+Rpt.EstimatedVsActual|Estimated vs actual cost|التكلفة المقدرة مقابل الفعلية
+Rpt.ExpenseAnalysis|Expense analysis|تحليل المصروفات
+Rpt.GeneralLedger|General ledger|دفتر الأستاذ العام
+Rpt.GrossMargin|Gross margin by invoice|مجمل الهامش حسب الفاتورة
+Rpt.GrossMargin.Note|Cost of sales is the actual job cost moved to COGS when the invoice was posted.|تكلفة المبيعات هي تكلفة العمل الفعلية المحوّلة إلى تكلفة المبيعات عند ترحيل الفاتورة.
+Rpt.GrossProfit|Gross profit by month|مجمل الربح حسب الشهر
+Rpt.IncomeStatement|Income statement|قائمة الدخل
+Rpt.InventoryValuation|Inventory valuation|تقييم المخزون
+Rpt.JobCostSheet|Job cost sheet|بطاقة تكلفة أمر العمل
+Rpt.JobCostVariance|Job cost variance|انحرافات تكلفة الأعمال
+Rpt.JobProfitability|Job profitability|ربحية الأعمال
+Rpt.JobRegister|Job register|سجل أوامر العمل
+Rpt.JobStatus|Jobs by status|الأعمال حسب الحالة
+Rpt.LowStock|Low stock & reorder|المخزون المنخفض وإعادة الطلب
+Rpt.MachineCost|Machine hourly cost|تكلفة ساعة الماكينة
+Rpt.MachineCost.Note|* rate entered manually (override). Absorbed = machine hours × rate charged to jobs in the period.|* سعر مُدخل يدوياً. المحمّل = ساعات الماكينة × السعر المحمّل على الأعمال خلال الفترة.
+Rpt.MachineProfitability|Machine profitability|ربحية الماكينات
+Rpt.MachineProfitability.Note|Revenue and cost are allocated to machines in proportion to their machine hours on each job.|تُوزَّع الإيرادات والتكاليف على الماكينات بنسبة ساعات تشغيلها في كل عمل.
+Rpt.MachineUtilization|Machine utilization|استغلال الماكينات
+Rpt.MaterialConsumption|Material consumption|استهلاك المواد
+Rpt.MaterialCostAnalysis|Material cost analysis|تحليل تكلفة المواد
+Rpt.MaterialUtilization|Material (sheet) utilization|استغلال المواد (الألواح)
+Rpt.MaterialUtilization.Note|Estimated utilization uses the estimate's sheet count; actual uses sheets actually issued to the jobs.|الاستغلال المقدّر يعتمد على عدد الألواح في التقدير، والفعلي على الألواح المصروفة فعلاً للأعمال.
+Rpt.PendingQuotations|Pending quotations|عروض الأسعار المعلّقة
+Rpt.ProductionSummary|Production summary by operation|ملخص الإنتاج حسب العملية
+Rpt.ProductionSummary.Note|Highlighted rows took more than 15% longer than planned.|الصفوف المميزة استغرقت وقتاً أطول من المخطط بأكثر من 15%.
+Rpt.PurchaseRegister|Purchase register|سجل المشتريات
+Rpt.QualitySummary|Quality summary|ملخص الجودة
+Rpt.QuotationRegister|Quotation register|سجل عروض الأسعار
+Rpt.RemnantInventory|Remnant inventory|مخزون البواقي
+Rpt.RemnantInventory.Note|Highlighted remnants have been available for more than 180 days.|البواقي المميزة متاحة منذ أكثر من 180 يوماً.
+Rpt.ReworkAnalysis|Rework analysis|تحليل إعادة التشغيل
+Rpt.SalesRegister|Sales register|سجل المبيعات
+Rpt.SalesReturn|Sales returns|مرتجعات المبيعات
+Rpt.ScrapAnalysis|Scrap analysis|تحليل الهالك
+Rpt.StockMovement|Stock movements|حركات المخزون
+Rpt.TrialBalance|Trial balance|ميزان المراجعة
+Rpt.TrialBalance.Balanced|The trial balance is balanced.|ميزان المراجعة متوازن.
+Rpt.TrialBalance.Unbalanced|WARNING: the trial balance is not balanced.|تحذير: ميزان المراجعة غير متوازن.
+Report.GeneratedAt|Generated|تاريخ الإنشاء
+Report.NoData|No data for the selected filters.|لا توجد بيانات للمرشحات المحددة.
+Report.OpeningBalance|Opening balance|رصيد أول المدة
+Report.Page|Page|صفحة
+Report.RowsSummary|{0} rows|{0} صف
+Report.Run|Run report|عرض التقرير
+Aging.Current|Current|غير مستحق
+Group.Detail|Detail|تفصيلي
+Group.Job|By job|حسب أمر العمل
+Group.Machine|By machine|حسب الماكينة
+Group.Material|By material|حسب المادة
+Group.Reason|By reason|حسب السبب
+Var.Legend|Positive variance = actual cost above estimate (over budget).|الانحراف الموجب = التكلفة الفعلية أعلى من التقدير (تجاوز الميزانية).
+Var.MainReason|Main variance reason|السبب الرئيسي للانحراف
+Var.OnBudget|On budget|ضمن الميزانية
+Var.OverBudget|Over budget|تجاوز الميزانية
+Var.UnderBudget|Under budget|أقل من الميزانية
+Flag.HighMachineVariance|High machine variance|انحراف ماكينة مرتفع
+Flag.HighMaterialVariance|High material variance|انحراف مواد مرتفع
+Flag.HighScrap|High scrap|هالك مرتفع
+Flag.LowMargin|Low margin|هامش منخفض
+Flag.NegativeMargin|Loss|خسارة
+Profit.ByCustomer|By customer|حسب العميل
+Profit.ByJob|By job|حسب أمر العمل
+Profit.ByMachine|By machine|حسب الماكينة
+Profit.ByMaterial|By material|حسب المادة
+Profit.ByMonth|By month|حسب الشهر
+Profit.FlaggedJobs|Flagged jobs|أعمال عليها تنبيهات
+Profit.LossJobs|Loss-making jobs|أعمال خاسرة
+Chart.CostComposition|Cost composition|تركيبة التكلفة
+Chart.GrossProfitTrend|Gross profit trend|اتجاه مجمل الربح
+Chart.JobsByStatus|Jobs by status|الأعمال حسب الحالة
+Chart.MaterialConsumption|Material consumption|استهلاك المواد
+Chart.NoData|No data for this period|لا توجد بيانات لهذه الفترة
+Chart.SalesTrend|Sales trend|اتجاه المبيعات
+Chart.TopCustomers|Top customers|أفضل العملاء
+Chart.TopJobs|Most profitable jobs|الأعمال الأكثر ربحية
+Kpi.ActualInPeriod|Actual, this period|الفعلي خلال الفترة
+Kpi.BelowReorder|Below reorder level|أقل من حد إعادة الطلب
+Kpi.CashAndBank|Cash and bank|النقدية والبنك
+Kpi.CashBalance|Cash balance|رصيد النقدية
+Kpi.DraftSent|Draft or sent|مسودة أو مُرسل
+Kpi.GrossMargin|Gross margin|مجمل الهامش
+Kpi.GrossProfit|Gross profit|مجمل الربح
+Kpi.InPeriod|In selected period|خلال الفترة المحددة
+Kpi.JobsDueSoon|Jobs due soon|أعمال قريبة الاستحقاق
+Kpi.LowStock|Low stock items|أصناف منخفضة المخزون
+Kpi.MachineCost|Machine cost|تكلفة الماكينات
+Kpi.MaterialCost|Material cost|تكلفة المواد
+Kpi.Next7Days|Next 7 days|خلال 7 أيام
+Kpi.NotDelivered|Not yet delivered|لم تُسلَّم بعد
+Kpi.OfJobCost|Of job cost|من تكلفة الأعمال
+Kpi.OfMaterial|Of material cost|من تكلفة المواد
+Kpi.OpenInvoices|Open invoices|فواتير مفتوحة
+Kpi.OpenJobs|Open jobs|أعمال مفتوحة
+Kpi.OverdueJobs|Overdue jobs|أعمال متأخرة
+Kpi.PastDueDate|Past due date|تجاوزت تاريخ الاستحقاق
+Kpi.PendingQuotations|Pending quotations|عروض أسعار معلّقة
+Kpi.Receivables|Receivables|الذمم المدينة
+Kpi.ReworkPercent|Rework|إعادة التشغيل
+Kpi.SalesMonth|Sales this month|مبيعات الشهر
+Kpi.SalesToday|Sales today|مبيعات اليوم
+Kpi.ScrapPercent|Scrap|الهالك
+Dashboard.Period|Period|الفترة

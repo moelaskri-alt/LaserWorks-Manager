@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.RequestsView"
+             x:DataType="vm:RequestsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Width="170" />
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoOpen}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Open}" /></StackPanel>
+          </Button>
+          <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
+            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+          </Button>
+          <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}" Name="btnNew">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Request.New}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.ServerSort="True" l:GridBehaviors.OpenCommand="{Binding OpenCommand}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" SortMemberPath="Number" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding RequestDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="RequestDate" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" SortMemberPath="Customer.Name" Width="1.4*" MinWidth="98" />
+        <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" SortMemberPath="Description" Width="2.2*" MinWidth="154" />
+        <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding Material}" Width="1.2*" MinWidth="84" />
+        <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" SortMemberPath="Quantity" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.RequiredDate}" Binding="{Binding RequiredDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="RequiredDate" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Revisions}" Binding="{Binding Revisions}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Files}" Binding="{Binding Attachments}" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" SortMemberPath="Status" Width="130" MinWidth="130" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,67 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="AppBackground" Color="#F3F5F8" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SurfaceAltBrush" Color="#F7F9FB" />
+      <SolidColorBrush x:Key="BorderBrushSoft" Color="#DCE2EA" />
+      <SolidColorBrush x:Key="TextBrush" Color="#18212D" />
+      <SolidColorBrush x:Key="MutedBrush" Color="#5A6878" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#1F5AA6" />
+      <SolidColorBrush x:Key="AccentSoftBrush" Color="#E7EFFA" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SidebarBrush" Color="#132338" />
+      <SolidColorBrush x:Key="SidebarTextBrush" Color="#C3D0DF" />
+      <SolidColorBrush x:Key="SidebarHoverBrush" Color="#1C3150" />
+      <SolidColorBrush x:Key="SidebarActiveBrush" Color="#1F5AA6" />
+      <SolidColorBrush x:Key="SidebarGroupBrush" Color="#7F93AB" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#B42318" />
+      <SolidColorBrush x:Key="DangerSoftBrush" Color="#FDECEC" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#B54708" />
+      <SolidColorBrush x:Key="WarningSoftBrush" Color="#FFF4DE" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#067647" />
+      <SolidColorBrush x:Key="SuccessSoftBrush" Color="#E3F6EC" />
+      <SolidColorBrush x:Key="OverlayBrush" Color="#66101824" />
+      <SolidColorBrush x:Key="GridHeaderBrush" Color="#EEF2F7" />
+      <SolidColorBrush x:Key="GridAltRowBrush" Color="#FAFBFD" />
+      <SolidColorBrush x:Key="ChartGridBrush" Color="#E3E8EF" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="AppBackground" Color="#101419" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#181E26" />
+      <SolidColorBrush x:Key="SurfaceAltBrush" Color="#1E2630" />
+      <SolidColorBrush x:Key="BorderBrushSoft" Color="#2C3643" />
+      <SolidColorBrush x:Key="TextBrush" Color="#E5EAF1" />
+      <SolidColorBrush x:Key="MutedBrush" Color="#98A6B7" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#4E8FDC" />
+      <SolidColorBrush x:Key="AccentSoftBrush" Color="#1D3350" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SidebarBrush" Color="#0B1017" />
+      <SolidColorBrush x:Key="SidebarTextBrush" Color="#B9C6D6" />
+      <SolidColorBrush x:Key="SidebarHoverBrush" Color="#152131" />
+      <SolidColorBrush x:Key="SidebarActiveBrush" Color="#2C62A8" />
+      <SolidColorBrush x:Key="SidebarGroupBrush" Color="#6F8199" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#F97066" />
+      <SolidColorBrush x:Key="DangerSoftBrush" Color="#3A1D1D" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#FDB022" />
+      <SolidColorBrush x:Key="WarningSoftBrush" Color="#3A2E17" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#47CD89" />
+      <SolidColorBrush x:Key="SuccessSoftBrush" Color="#16322A" />
+      <SolidColorBrush x:Key="OverlayBrush" Color="#99000000" />
+      <SolidColorBrush x:Key="GridHeaderBrush" Color="#1E2630" />
+      <SolidColorBrush x:Key="GridAltRowBrush" Color="#1B222B" />
+      <SolidColorBrush x:Key="ChartGridBrush" Color="#2A333F" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+  <Color x:Key="SystemAccentColor">#1F5AA6</Color>
+  <Color x:Key="SystemAccentColorLight1">#3B74BD</Color>
+  <Color x:Key="SystemAccentColorLight2">#5C8FCF</Color>
+  <Color x:Key="SystemAccentColorDark1">#1A4E90</Color>
+  <Color x:Key="ChartColor1">#1F5AA6</Color>
+  <Color x:Key="ChartColor2">#E07A1F</Color>
+  <Color x:Key="ChartColor3">#2E9D6A</Color>
+  <Color x:Key="ChartColor4">#8A5CC7</Color>
+  <Color x:Key="ChartColor5">#C23B5A</Color>
+  <Color x:Key="ChartColor6">#2BA3B8</Color>
+  <Color x:Key="ChartColor7">#9C8A2E</Color>
+</ResourceDictionary>

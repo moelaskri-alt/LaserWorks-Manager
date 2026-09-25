@@ -1,0 +1,262 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:costing="using:LaserWorks.Domain.Costing"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.JobDetailView"
+             x:DataType="vm:JobDetailViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.tile">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="12,8" />
+    </Style>
+    <Style Selector="WrapPanel.actions > Button">
+      <Setter Property="Margin" Value="0,0,6,6" />
+    </Style>
+  </UserControl.Styles>
+  <DockPanel>
+    <!-- header -->
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
+        <Button Content="{l:T Common.Edit}" Command="{Binding EditCommand}" IsVisible="{Binding IsOpen}" />
+        <Button Command="{Binding CostSheetCommand}" CommandParameter="pdf" Name="btnCostSheetPdf">
+          <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoExport}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Job.CostSheetPdf}" /></StackPanel>
+        </Button>
+        <Button Command="{Binding CostSheetCommand}" CommandParameter="xlsx" Name="btnCostSheetXlsx">
+          <TextBlock Text="Excel" />
+        </Button>
+        <Button Command="{Binding CostSheetCommand}" CommandParameter="print"><l:Ico Data="{StaticResource IcoPrint}" Foreground="{DynamicResource MutedBrush}" /></Button>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button Classes="ghost" Command="{Binding BackCommand}"><l:Ico Data="{StaticResource IcoChevronLeft}" Foreground="{DynamicResource TextBrush}" /></Button>
+        <StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="{Binding Header}" Classes="h2" MaxWidth="700" />
+            <Border Classes="badge" VerticalAlignment="Center"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="link" Content="{Binding Sheet.Customer}" Command="{Binding OpenSourceCommand}" CommandParameter="Customer" />
+            <Button Classes="link" Content="{Binding Sheet.QuotationNumber}" Command="{Binding OpenSourceCommand}" CommandParameter="Quotation" IsVisible="{Binding Sheet.QuotationNumber, Converter={x:Static l:Conv.NotEmpty}}" />
+            <Button Classes="link" Content="{Binding Sheet.EstimateNumber}" Command="{Binding OpenSourceCommand}" CommandParameter="Estimate" IsVisible="{Binding Sheet.EstimateNumber, Converter={x:Static l:Conv.NotEmpty}}" />
+            <Button Classes="link" Content="{l:T Col.Request}" Command="{Binding OpenSourceCommand}" CommandParameter="Request" IsVisible="{Binding Job.RequestId, Converter={x:Static l:Conv.NotNull}}" />
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </DockPanel>
+
+    <!-- workflow actions -->
+    <WrapPanel DockPanel.Dock="Top" Classes="actions" Margin="0,0,0,4">
+      <Button Content="{l:T Job.Plan}" Command="{Binding PlanCommand}" IsVisible="{Binding CanPlan}" />
+      <Button Content="{l:T Job.StartProduction}" Command="{Binding StartCommand}" IsVisible="{Binding CanStart}" />
+      <Button Content="{l:T Job.IssueMaterial}" Command="{Binding IssueMaterialCommand}" IsVisible="{Binding IsOpen}" Name="btnIssueMaterial" />
+      <Button Content="{l:T Job.CompleteProduction}" Command="{Binding CompleteProductionCommand}" IsVisible="{Binding CanCompleteProduction}" Name="btnCompleteProduction" />
+      <Button Content="{l:T Quality.Record}" Command="{Binding QualityCheckCommand}" IsVisible="{Binding CanQualityCheck}" Name="btnQuality" />
+      <Button Content="{l:T Job.Deliver}" Command="{Binding DeliverCommand}" IsVisible="{Binding CanDeliver}" Name="btnDeliver" />
+      <Button Classes="primary" Content="{l:T Job.CreateInvoice}" Command="{Binding CreateInvoiceCommand}" IsVisible="{Binding CanInvoice}" Name="btnCreateInvoice" />
+      <Button Classes="primary" Content="{l:T Job.Close}" Command="{Binding CloseCommand}" IsVisible="{Binding CanClose}" Name="btnCloseJob" />
+      <Button Classes="danger" Content="{l:T Job.Cancel}" Command="{Binding CancelCommand}" IsVisible="{Binding CanCancel}" />
+    </WrapPanel>
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8">
+      <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+      <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+    </StackPanel>
+
+    <!-- money tiles -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,8,*,8,*,8,*,8,*,8,*" Margin="0,0,0,10">
+      <Border Classes="tile"><StackPanel><TextBlock Classes="label" Text="{l:T Col.SellingPrice}" /><TextBlock Classes="kpi" Text="{Binding Sheet.Revenue, Converter={x:Static l:Conv.Money}}" /></StackPanel></Border>
+      <Border Classes="tile" Grid.Column="2"><StackPanel><TextBlock Classes="label" Text="{l:T Col.EstimatedCost}" /><TextBlock Classes="kpi" Text="{Binding Sheet.Variance.EstimatedTotal, Converter={x:Static l:Conv.Money}}" /></StackPanel></Border>
+      <Border Classes="tile" Grid.Column="4"><StackPanel><TextBlock Classes="label" Text="{l:T Col.ActualCost}" /><TextBlock Classes="kpi" Text="{Binding Sheet.ActualCost, Converter={x:Static l:Conv.Money}}" Name="txtActualCost" /></StackPanel></Border>
+      <Border Classes="tile" Grid.Column="6"><StackPanel><TextBlock Classes="label" Text="{l:T Col.Variance}" /><TextBlock Classes="kpi" Text="{Binding Sheet.Variance.Variance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Sheet.Variance.Variance, Converter={x:Static l:Conv.VarianceBrush}}" /></StackPanel></Border>
+      <Border Classes="tile" Grid.Column="8"><StackPanel><TextBlock Classes="label" Text="{l:T Col.GrossProfit}" /><TextBlock Classes="kpi" Text="{Binding Sheet.GrossProfit, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Sheet.GrossProfit, Converter={x:Static l:Conv.SignBrush}}" Name="txtGrossProfit" /></StackPanel></Border>
+      <Border Classes="tile" Grid.Column="10"><StackPanel><TextBlock Classes="label" Text="{l:T Col.Margin}" /><TextBlock Classes="kpi" Text="{Binding Sheet.MarginPercent, Converter={x:Static l:Conv.Percent}}" Foreground="{Binding Sheet.GrossProfit, Converter={x:Static l:Conv.SignBrush}}" /></StackPanel></Border>
+    </Grid>
+
+    <TabControl SelectedIndex="{Binding SelectedTab}">
+      <!-- estimated vs actual -->
+      <TabItem Header="{l:T Job.TabCost}">
+        <Grid ColumnDefinitions="*,14,*" Margin="0,8,0,0">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Rpt.EstimatedVsActual}" Margin="0,0,0,6" />
+            <TextBlock DockPanel.Dock="Bottom" Classes="muted" Margin="0,6,0,0" IsVisible="{Binding MainDriver, Converter={x:Static l:Conv.NotEmpty}}">
+              <Run Text="{l:T Var.MainReason}" /><Run Text=": " /><Run Text="{Binding MainDriver}" FontWeight="SemiBold" />
+            </TextBlock>
+            <DataGrid ItemsSource="{Binding Variance}" Name="gridVariance">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="1.3*" MinWidth="91" />
+                <DataGridTextColumn Header="{l:T Col.Estimated}" Binding="{Binding Estimated, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Actual}" Binding="{Binding Actual, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Header="{l:T Col.Variance}" Width="*" MinWidth="80">
+                  <DataTemplate x:DataType="costing:VarianceLine">
+                    <TextBlock Text="{Binding Variance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Variance, Converter={x:Static l:Conv.VarianceBrush}}" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold" />
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{l:T Col.VariancePercent}" Binding="{Binding VariancePercent, Converter={x:Static l:Conv.Percent}}" Width="90" MinWidth="90" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </DockPanel>
+          <DockPanel Grid.Column="2">
+            <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Col.CostEntries}" Margin="0,0,0,6" />
+            <DataGrid ItemsSource="{Binding Entries}">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+                <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="100" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="140" />
+                <DataGridTextColumn Header="{l:T Col.Hours}" Binding="{Binding Hours, Converter={x:Static l:Conv.Number}}" Width="60" MinWidth="60" />
+                <DataGridTextColumn Header="{l:T Col.Amount}" Binding="{Binding Amount, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Entry}" Binding="{Binding JournalNumber}" Width="90" MinWidth="90" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </DockPanel>
+        </Grid>
+      </TabItem>
+
+      <!-- operations -->
+      <TabItem Header="{l:T Job.TabOperations}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Classes="actions">
+            <Button Content="{l:T Operation.New}" Command="{Binding AddOperationCommand}" IsVisible="{Binding IsOpen}" />
+            <Button Content="{l:T Operation.Start}" Command="{Binding StartOperationCommand}" CommandParameter="{Binding SelectedOperation}" IsEnabled="{Binding SelectedOperation, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Classes="primary" Content="{l:T Operation.Complete}" Command="{Binding CompleteOperationCommand}" CommandParameter="{Binding SelectedOperation}" IsEnabled="{Binding SelectedOperation, Converter={x:Static l:Conv.NotNull}}" Name="btnCompleteOperation" />
+            <Button Content="{l:T Common.Edit}" Command="{Binding EditOperationCommand}" CommandParameter="{Binding SelectedOperation}" IsEnabled="{Binding SelectedOperation, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Content="{l:T Operation.Reopen}" Command="{Binding ReopenOperationCommand}" CommandParameter="{Binding SelectedOperation}" IsEnabled="{Binding SelectedOperation, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Classes="danger" Content="{l:T Common.Delete}" Command="{Binding DeleteOperationCommand}" CommandParameter="{Binding SelectedOperation}" IsEnabled="{Binding SelectedOperation, Converter={x:Static l:Conv.NotNull}}" />
+          </WrapPanel>
+          <DataGrid ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}" l:GridBehaviors.OpenCommand="{Binding CompleteOperationCommand}" Name="gridOperations">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="#" Binding="{Binding Sequence}" Width="40" MinWidth="40" />
+              <DataGridTextColumn Header="{l:T Col.Operation}" Binding="{Binding OperationType, Converter={x:Static l:Conv.Enum}}" Width="1.2*" MinWidth="84" />
+              <DataGridCheckBoxColumn Header="{l:T Col.Rework}" Binding="{Binding IsRework}" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Col.Employee}" Binding="{Binding Employee}" Width="1.2*" MinWidth="84" />
+              <DataGridTextColumn Header="{l:T Col.Machine}" Binding="{Binding Machine}" Width="1.2*" MinWidth="84" />
+              <DataGridTextColumn Header="{l:T Col.PlannedHours}" Binding="{Binding PlannedHours, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="{l:T Col.ActualHours}" Binding="{Binding ActualHours, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="{l:T Col.MachineHours}" Binding="{Binding MachineHours, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Col.ScrapQty}" Binding="{Binding ScrapQuantity, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Col.ReworkQty}" Binding="{Binding ReworkQuantity, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="{l:T Col.Cost}" Binding="{Binding TotalCost, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+
+      <!-- materials -->
+      <TabItem Header="{l:T Job.TabMaterials}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Classes="actions" IsVisible="{Binding IsOpen}">
+            <Button Classes="primary" Content="{l:T Job.IssueMaterial}" Command="{Binding IssueMaterialCommand}" />
+            <Button Content="{l:T Job.ReturnMaterial}" Command="{Binding ReturnMaterialCommand}" />
+            <Button Content="{l:T Job.UseRemnant}" Command="{Binding UseRemnantCommand}" />
+            <Button Content="{l:T Job.CreateRemnant}" Command="{Binding CreateRemnantCommand}" Name="btnCreateRemnant" />
+          </WrapPanel>
+          <Grid RowDefinitions="Auto,*">
+            <DataGrid ItemsSource="{Binding Materials}" MaxHeight="180" Margin="0,0,0,10">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding MaterialCode}" Width="110" MinWidth="110" />
+                <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding MaterialName}" Width="2*" MinWidth="140" />
+                <DataGridTextColumn Header="{l:T Col.NetConsumed}" Binding="{Binding NetQuantity, Converter={x:Static l:Conv.Number}}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding AverageIssueCost, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Value}" Binding="{Binding NetValue, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+              </DataGrid.Columns>
+            </DataGrid>
+            <DataGrid Grid.Row="1" ItemsSource="{Binding Movements}">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" Width="100" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+                <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Type, Converter={x:Static l:Conv.Enum}}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding MaterialName}" Width="1.5*" MinWidth="105" />
+                <DataGridTextColumn Header="{l:T Col.Remnant}" Binding="{Binding RemnantCode}" Width="90" MinWidth="90" />
+                <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Value}" Binding="{Binding TotalCost, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Entry}" Binding="{Binding JournalNumber}" Width="90" MinWidth="90" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+        </DockPanel>
+      </TabItem>
+
+      <!-- scrap & rework -->
+      <TabItem Header="{l:T Job.TabScrap}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Classes="actions" IsVisible="{Binding IsOpen}">
+            <Button Content="{l:T Scrap.RecordScrap}" Command="{Binding RecordScrapCommand}" Name="btnRecordScrap" />
+            <Button Content="{l:T Scrap.RecordRework}" Command="{Binding RecordReworkCommand}" Name="btnRecordRework" />
+            <Button Content="{l:T Job.AddExpense}" Command="{Binding AddExpenseCommand}" />
+          </WrapPanel>
+          <DataGrid ItemsSource="{Binding Scrap}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" Width="100" MinWidth="100" />
+              <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+              <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Type, Converter={x:Static l:Conv.Enum}}" Width="*" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding Material}" Width="1.3*" MinWidth="91" />
+              <DataGridTextColumn Header="{l:T Col.Machine}" Binding="{Binding Machine}" Width="*" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Col.Hours}" Binding="{Binding Hours, Converter={x:Static l:Conv.Number}}" Width="60" MinWidth="60" />
+              <DataGridTextColumn Header="{l:T Col.Reason}" Binding="{Binding Reason}" Width="2*" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Col.Cost}" Binding="{Binding Cost, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+
+      <!-- quality -->
+      <TabItem Header="{l:T Job.TabQuality}">
+        <DataGrid ItemsSource="{Binding Quality}" Margin="0,8,0,0">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+            <DataGridTextColumn Header="{l:T Col.Inspector}" Binding="{Binding Inspector}" Width="*" MinWidth="80" />
+            <DataGridTextColumn Header="{l:T Col.Produced}" Binding="{Binding QuantityProduced, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+            <DataGridTextColumn Header="{l:T Col.Accepted}" Binding="{Binding QuantityAccepted, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+            <DataGridTextColumn Header="{l:T Col.Rejected}" Binding="{Binding QuantityRejected, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+            <DataGridTextColumn Header="{l:T Col.ReworkQty}" Binding="{Binding ReworkQuantity, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+            <DataGridTextColumn Header="{l:T Col.AcceptanceRate}" Binding="{Binding AcceptanceRate, Converter={x:Static l:Conv.Percent}}" Width="100" MinWidth="100" />
+            <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="110" MinWidth="110" />
+            <DataGridTextColumn Header="{l:T Col.Notes}" Binding="{Binding Notes}" Width="2*" MinWidth="140" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </TabItem>
+
+      <!-- details -->
+      <TabItem Header="{l:T Job.TabDetails}">
+        <Grid ColumnDefinitions="*,14,*" Margin="0,8,0,0">
+          <Border Classes="card" VerticalAlignment="Top">
+            <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+              <TextBlock Classes="label" Text="{l:T Col.Quantity}" /><TextBlock Grid.Column="1" Text="{Binding Job.Quantity, Converter={x:Static l:Conv.Number}}" />
+              <TextBlock Grid.Row="1" Classes="label" Text="{l:T Col.OrderDate}" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Job.OrderDate, Converter={x:Static l:Conv.Date}}" />
+              <TextBlock Grid.Row="2" Classes="label" Text="{l:T Col.DueDate}" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Job.DueDate, Converter={x:Static l:Conv.Date}}" />
+              <TextBlock Grid.Row="3" Classes="label" Text="{l:T Col.Priority}" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Job.Priority, Converter={x:Static l:Conv.Enum}}" />
+              <TextBlock Grid.Row="4" Classes="label" Text="{l:T Col.Machine}" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Job.Machine.Name}" />
+              <TextBlock Grid.Row="5" Classes="label" Text="{l:T Col.Operator}" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Job.Operator.Name}" />
+              <TextBlock Grid.Row="6" Classes="label" Text="{l:T Col.ApprovedDesign}" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Job.DesignRevision.RevisionLabel}" />
+              <TextBlock Grid.Row="7" Classes="label" Text="{l:T Col.DeliveredAt}" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Job.DeliveredAt, Converter={x:Static l:Conv.Date}}" />
+              <TextBlock Grid.Row="8" Classes="label" Text="{l:T Col.Description}" /><TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Job.Description}" Classes="wrap" />
+              <TextBlock Grid.Row="9" Classes="label" Text="{l:T Col.Notes}" /><TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding Job.Notes}" Classes="wrap" />
+            </Grid>
+          </Border>
+          <Border Classes="card" Grid.Column="2" VerticalAlignment="Top">
+            <StackPanel Spacing="6">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Command="{Binding AddAttachmentCommand}">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoAttach}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Attachment.Add}" /></StackPanel>
+                </Button>
+                <TextBlock Classes="h3" Text="{l:T Attachment.Title}" VerticalAlignment="Center" />
+              </DockPanel>
+              <ItemsControl ItemsSource="{Binding Attachments}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="svc:AttachmentRow">
+                    <Button Classes="link" Content="{Binding FileName}" Command="{Binding $parent[UserControl].((vm:JobDetailViewModel)DataContext).OpenAttachmentCommand}" CommandParameter="{Binding}" Margin="0,2" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

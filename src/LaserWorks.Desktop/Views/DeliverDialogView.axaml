@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.DeliverDialogView"
+             x:DataType="vm:DeliverDialogViewModel">
+  <StackPanel>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Job.DeliveryNote}" /><TextBox Text="{Binding Note}" Classes="multiline" /></StackPanel>
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.RemnantDialogView"
+             x:DataType="vm:RemnantDialogViewModel">
+  <StackPanel Spacing="4">
+    <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="3" IsVisible="{Binding !IsCreate}"><TextBlock Classes="label" Text="{l:T Col.Remnant}" /><ComboBox ItemsSource="{Binding Remnants}" SelectedItem="{Binding Remnant}" Name="cmbRemnant" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" IsVisible="{Binding IsCreate}"><TextBlock Classes="label" Text="{l:T Col.Warehouse}" />
+        <ComboBox ItemsSource="{Binding Warehouses}" SelectedItem="{Binding Warehouse}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Warehouse"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2" IsVisible="{Binding IsCreate}"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3" IsVisible="{Binding NeedsJob}"><TextBlock Classes="label" Text="{l:T Col.Job}" /><ComboBox ItemsSource="{Binding Jobs}" SelectedItem="{Binding Job}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" IsVisible="{Binding !IsConsume}"><TextBlock Classes="label" Text="{l:T Col.LengthCm}" /><NumericUpDown Value="{Binding Length}" Minimum="0" Name="numRemLength" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2" IsVisible="{Binding !IsConsume}"><TextBlock Classes="label" Text="{l:T Col.WidthCm}" /><NumericUpDown Value="{Binding Width}" Minimum="0" Name="numRemWidth" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" IsVisible="{Binding !IsConsume}"><TextBlock Classes="label" Text="{l:T Remnant.CostOptional}" /><NumericUpDown Value="{Binding Cost}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.Column="2" IsVisible="{Binding !IsConsume}"><TextBlock Classes="label" Text="{l:T Stock.NotesReason}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    </Grid>
+    <CheckBox IsChecked="{Binding Scrap}" Content="{l:T Remnant.ScrapIt}" IsVisible="{Binding IsAdjust}" />
+    <Border Classes="soft" IsVisible="{Binding CostPreview, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding CostPreview}" /></Border>
+    <TextBlock Classes="muted small wrap" Text="{l:T Remnant.Help}" />
+  </StackPanel>
+</UserControl>

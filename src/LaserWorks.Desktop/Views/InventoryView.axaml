@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.InventoryView"
+             x:DataType="vm:InventoryViewModel">
+  <TabControl SelectedIndex="{Binding SelectedTab}">
+    <TabItem Header="{l:T Inventory.Transactions}"><ContentControl Content="{Binding Transactions}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Nav.Remnants}"><ContentControl Content="{Binding Remnants}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Inventory.Calculator}"><ContentControl Content="{Binding Calculator}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Inventory.LaserParameters}"><ContentControl Content="{Binding Parameters}" Margin="0,10,0,0" /></TabItem>
+  </TabControl>
+</UserControl>

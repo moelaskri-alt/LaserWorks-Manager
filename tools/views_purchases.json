@@ -1,0 +1,19 @@
+[
+ {"name":"SuppliersView","vm":"SuppliersViewModel","open":"OpenCommand","serverSort":true,
+  "actions":[["Supplier.Pay","PayCommand",true],["Common.Edit","OpenCommand",true],["Common.Delete","DeleteCommand",true,false," Classes=\"danger\""],["Supplier.New","NewCommand",false,true]],
+  "columns":[["Col.Code","Code",null,"100","Code"],["Col.Name","Name",null,"2*","Name"],["Col.Phone","Phone",null,"130"],["Col.Email","Email",null,"1.4*"],["Col.PaymentTerms","PaymentTermsDays",null,"100"],["Col.Balance","Balance","money","130"],["Col.Active","IsActive","bool","70"]]},
+ {"name":"PurchaseOrdersView","vm":"PurchaseOrdersViewModel","open":"OpenCommand",
+  "actions":[["Common.Open","OpenCommand",true],["PO.New","NewCommand",false,true]],
+  "columns":[["Col.Number","Number",null,"110"],["Col.Date","Date","date","95"],["Col.ExpectedDate","ExpectedDate","date","110"],["Col.Supplier","Supplier",null,"2*"],["Col.Status","Status","enum","130"],["Col.Subtotal","Subtotal","money","120"],["Col.Tax","TaxAmount","money","100"],["Col.Total","Total","money","120"]]},
+ {"name":"ReceiptsView","vm":"ReceiptsViewModel","rowClasses":true,"hint":"Receipt.Hint",
+  "actions":[["Receipt.PostInvoice","InvoiceCommand",true],["PurchaseReturn.Title","ReturnCommand",true],["Receipt.New","NewCommand",false,true]],
+  "columns":[["Col.Number","Number",null,"110"],["Col.Date","Date","date","95"],["Col.Supplier","Supplier",null,"2*"],["Col.PurchaseOrder","PurchaseOrder",null,"110"],["Col.Warehouse","Warehouse",null,"*"],["Col.Value","Subtotal","money","120"],["Col.Invoiced","IsInvoiced","bool","80"]]},
+ {"name":"SupplierInvoicesView","vm":"SupplierInvoicesViewModel","rowClasses":true,
+  "filters":"          <CheckBox IsChecked=\"{Binding OpenOnly}\" Content=\"{l:T Filter.UnpaidOnly}\" />",
+  "columns":[["Col.Number","Number",null,"110"],["Col.SupplierInvoiceNo","SupplierInvoiceNo",null,"120"],["Col.Date","Date","date","95"],["Col.DueDate","DueDate","date","95"],["Col.Supplier","Supplier",null,"2*"],["Col.Receipt","Receipt",null,"110"],["Col.Subtotal","Subtotal","money","110"],["Col.Tax","TaxAmount","money","90"],["Col.Total","Total","money","110"],["Col.Paid","PaidAmount","money","100"],["Col.Balance","Balance","money","100"]]},
+ {"name":"SupplierPaymentsView","vm":"SupplierPaymentsViewModel",
+  "actions":[["SupplierPayment.Title","NewCommand",false,true]],
+  "columns":[["Col.Number","Number",null,"110"],["Col.Date","Date","date","95"],["Col.Supplier","Supplier",null,"2*"],["Col.Invoice","Invoice",null,"110"],["Col.Method","Method","enum","90"],["Col.Reference","Reference",null,"*"],["Col.Amount","Amount","money","120"]]},
+ {"name":"PurchaseReturnsView","vm":"PurchaseReturnsViewModel",
+  "columns":[["Col.Number","Number",null,"110"],["Col.Date","Date","date","95"],["Col.Supplier","Supplier",null,"2*"],["Col.Receipt","Receipt",null,"110"],["Col.Subtotal","Subtotal","money","110"],["Col.Tax","TaxAmount","money","90"],["Col.Total","Total","money","110"],["Col.Reason","Reason",null,"1.5*"]]}
+]

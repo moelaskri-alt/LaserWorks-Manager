@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ReconciliationView"
+             x:DataType="vm:ReconciliationViewModel">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+      <Button DockPanel.Dock="Right" Content="{l:T Accounting.RunChecks}" Command="{Binding LoadCommand}" />
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Border Classes="banner-success" IsVisible="{Binding AllPassed}"><TextBlock Text="{l:T Accounting.AllReconciled}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+        <Border Classes="banner-error" IsVisible="{Binding !AllPassed}"><TextBlock Text="{l:T Accounting.NotReconciled}" Classes="error" /></Border>
+      </StackPanel>
+    </DockPanel>
+    <TextBlock DockPanel.Dock="Top" Classes="muted wrap" Text="{l:T Accounting.ReconciliationHelp}" Margin="0,0,0,8" />
+    <DataGrid ItemsSource="{Binding Checks}">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{l:T Col.Status}" Width="80" MinWidth="80">
+          <DataTemplate x:DataType="svc:ReconciliationCheck">
+            <Panel Margin="8,0">
+              <l:Ico Data="{StaticResource IcoCheck}" Foreground="{DynamicResource SuccessBrush}" IsVisible="{Binding Passed}" />
+              <l:Ico Data="{StaticResource IcoAlert}" Foreground="{DynamicResource DangerBrush}" IsVisible="{Binding !Passed}" />
+            </Panel>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Accounting.Check}" Binding="{Binding Name}" Width="3*" MinWidth="160" />
+        <DataGridTextColumn Header="{l:T Accounting.Expected}" Binding="{Binding Expected, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Accounting.ActualValue}" Binding="{Binding Actual, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Difference}" Binding="{Binding Difference, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

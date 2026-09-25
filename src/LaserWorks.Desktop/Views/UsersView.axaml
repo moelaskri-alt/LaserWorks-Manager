@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.UsersView"
+             x:DataType="vm:UsersViewModel">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8">
+      <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+      <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+    </StackPanel>
+    <TabControl SelectedIndex="{Binding SelectedTab}">
+      <TabItem Header="{l:T Users.Users}">
+        <DockPanel Margin="0,10,0,0">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+            <Button Classes="primary" Content="{l:T Users.New}" Command="{Binding NewUserCommand}" />
+            <Button Content="{l:T Common.Edit}" Command="{Binding EditUserCommand}" CommandParameter="{Binding SelectedUser}" IsEnabled="{Binding SelectedUser, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Content="{l:T Users.ResetPassword}" Command="{Binding ResetPasswordCommand}" CommandParameter="{Binding SelectedUser}" IsEnabled="{Binding SelectedUser, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Content="{l:T Users.Unlock}" Command="{Binding UnlockCommand}" CommandParameter="{Binding SelectedUser}" IsEnabled="{Binding SelectedUser, Converter={x:Static l:Conv.NotNull}}" />
+          </StackPanel>
+          <DataGrid ItemsSource="{Binding Users}" IsReadOnly="True" SelectedItem="{Binding SelectedUser}" l:GridBehaviors.OpenCommand="{Binding EditUserCommand}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Login.Username}" Binding="{Binding Username}" Width="*" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Col.FullName}" Binding="{Binding FullName}" Width="2*" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Col.Role}" Binding="{Binding Role, Converter={x:Static l:Conv.Enum}}" Width="*" MinWidth="80" />
+              <DataGridCheckBoxColumn Header="{l:T Col.Active}" Binding="{Binding IsActive}" IsReadOnly="True" Width="70" MinWidth="70" />
+              <DataGridTextColumn Header="{l:T Users.LastLogin}" Binding="{Binding LastLoginAt, Converter={x:Static l:Conv.DateTimeShort}}" Width="140" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Users.LockedUntil}" Binding="{Binding LockoutUntil, Converter={x:Static l:Conv.DateTimeShort}}" Width="140" MinWidth="140" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+      <TabItem Header="{l:T Users.Permissions}">
+        <DockPanel Margin="0,10,0,0">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+            <TextBlock Text="{l:T Col.Role}" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding MatrixRole}" Width="200">
+              <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Classes="primary" Content="{l:T Common.Save}" Command="{Binding SaveMatrixCommand}" />
+            <TextBlock Classes="muted" Text="{l:T Users.AdminAlwaysAll}" VerticalAlignment="Center" />
+          </StackPanel>
+          <DataGrid ItemsSource="{Binding Matrix}" IsReadOnly="False" CanUserSortColumns="False">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Users.Module}" Binding="{Binding Module, Converter={x:Static l:Conv.Enum}}" IsReadOnly="True" Width="2*" MinWidth="140" />
+              <DataGridTemplateColumn Header="{l:T Perm.View}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding View}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Create}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Create}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Edit}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Edit}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Delete}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Delete}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Post}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Post}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Approve}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Approve}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Print}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Print}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Perm.Export}" Width="*" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Export}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+      <TabItem Header="{l:T Users.Audit}"><ContentControl Content="{Binding Audit}" Margin="0,10,0,0" /></TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

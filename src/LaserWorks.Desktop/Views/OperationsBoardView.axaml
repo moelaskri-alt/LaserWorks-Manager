@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.OperationsBoardView"
+             x:DataType="vm:OperationsBoardViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Width="150" />
+          <CheckBox IsChecked="{Binding OpenJobsOnly}" Content="{l:T Filter.OpenJobsOnly}" />
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Content="{l:T Col.Job}" Command="{Binding OpenJobCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+          <Button Content="{l:T Operation.Start}" Command="{Binding StartCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+          <Button Classes="primary" Content="{l:T Operation.Complete}" Command="{Binding CompleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.OpenCommand="{Binding CompleteCommand}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Job}" Binding="{Binding JobNumber}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" Width="1.3*" MinWidth="91" />
+        <DataGridTextColumn Header="#" Binding="{Binding Sequence}" Width="40" MinWidth="40" />
+        <DataGridTextColumn Header="{l:T Col.Operation}" Binding="{Binding OperationType, Converter={x:Static l:Conv.Enum}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Employee}" Binding="{Binding Employee}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Machine}" Binding="{Binding Machine}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.PlannedHours}" Binding="{Binding PlannedHours, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.ActualHours}" Binding="{Binding ActualHours, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.StartTime}" Binding="{Binding StartTime, Converter={x:Static l:Conv.DateTimeShort}}" Width="130" MinWidth="130" />
+        <DataGridTextColumn Header="{l:T Col.DueDate}" Binding="{Binding DueDate, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Cost}" Binding="{Binding TotalCost, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

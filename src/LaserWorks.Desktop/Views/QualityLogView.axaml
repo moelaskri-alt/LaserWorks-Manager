@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.QualityLogView"
+             x:DataType="vm:QualityLogViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters><ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Width="170" /></c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <Button Content="{l:T Col.Job}" Command="{Binding OpenJobCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.OpenCommand="{Binding OpenJobCommand}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Job}" Binding="{Binding JobNumber}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" Width="1.4*" MinWidth="98" />
+        <DataGridTextColumn Header="{l:T Col.Inspector}" Binding="{Binding Inspector}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Produced}" Binding="{Binding QuantityProduced, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Accepted}" Binding="{Binding QuantityAccepted, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Rejected}" Binding="{Binding QuantityRejected, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.AcceptanceRate}" Binding="{Binding AcceptanceRate, Converter={x:Static l:Conv.Percent}}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Notes}" Binding="{Binding Notes}" Width="2*" MinWidth="140" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.AccountEditorView"
+             x:DataType="vm:AccountEditorViewModel">
+  <StackPanel>
+    <Border Classes="banner-warning" IsVisible="{Binding IsSystem}" Margin="0,0,0,8"><TextBlock Classes="wrap" Text="{l:T Account.SystemHint}" /></Border>
+    <Grid ColumnDefinitions="*,12,*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Type}" />
+        <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding Type}" IsEnabled="{Binding !IsSystem}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    </Grid>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Account.NameAr}" /><TextBox Text="{Binding NameAr}" /></StackPanel>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Account.NameEn}" /><TextBox Text="{Binding NameEn}" /></StackPanel>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Account.Parent}" />
+      <ComboBox ItemsSource="{Binding Parents}" SelectedItem="{Binding Parent}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Account"><TextBlock><Run Text="{Binding Code}" /><Run Text=" " /><Run Text="{Binding Converter={x:Static l:Conv.BiName}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    <StackPanel Orientation="Horizontal" Spacing="16">
+      <CheckBox IsChecked="{Binding IsPostable}" Content="{l:T Account.Postable}" IsEnabled="{Binding !IsSystem}" />
+      <CheckBox IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+      <CheckBox IsChecked="{Binding IsCashOrBank}" Content="{l:T Account.CashOrBank}" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

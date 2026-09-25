@@ -1,0 +1,5 @@
+[
+ {"name":"AuditLogView","vm":"AuditLogViewModel","serverSort":true,
+  "filters":"          <ComboBox ItemsSource=\"{Binding Actions}\" SelectedItem=\"{Binding Action}\" Width=\"130\" />\n          <CalendarDatePicker SelectedDate=\"{Binding From}\" Width=\"130\" SelectedDateFormat=\"Custom\" CustomDateFormatString=\"yyyy-MM-dd\" />\n          <CalendarDatePicker SelectedDate=\"{Binding To}\" Width=\"130\" SelectedDateFormat=\"Custom\" CustomDateFormatString=\"yyyy-MM-dd\" />",
+  "columns":[["Col.Date","Timestamp","dt","140","Timestamp"],["Col.User","Username",null,"110","Username"],["Col.Action","Action","enum","90","Action"],["Col.Entity","Entity",null,"130","Entity"],["Col.RecordId","RecordId",null,"80"],["Col.Details","Details",null,"4*"]]}
+]

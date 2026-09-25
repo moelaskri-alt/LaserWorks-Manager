@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ChartOfAccountsView"
+             x:DataType="vm:ChartOfAccountsViewModel">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+        <Button Content="{l:T Accounting.Ledger}" Command="{Binding LedgerCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+        <Button Content="{l:T Accounting.OpeningBalance}" Command="{Binding OpeningBalanceCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+        <Button Content="{l:T Common.Edit}" Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+        <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+          <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" /></Button>
+        <Button Classes="primary" Content="{l:T Account.New}" Command="{Binding NewCommand}" />
+      </StackPanel>
+      <TextBox Text="{Binding Search}" Watermark="{l:T Common.SearchHint}" Width="300" HorizontalAlignment="Left" />
+    </DockPanel>
+    <Border DockPanel.Dock="Top" Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}" Margin="0,0,0,8"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.OpenCommand="{Binding LedgerCommand}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Account.NameAr}" Binding="{Binding NameAr}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Account.NameEn}" Binding="{Binding NameEn}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Type, Converter={x:Static l:Conv.Enum}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Account.Parent}" Binding="{Binding ParentCode}" Width="80" MinWidth="80" />
+        <DataGridCheckBoxColumn Header="{l:T Account.Postable}" Binding="{Binding IsPostable}" Width="80" MinWidth="80" />
+        <DataGridCheckBoxColumn Header="{l:T Account.System}" Binding="{Binding IsSystem}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Balance}" Binding="{Binding Balance, Converter={x:Static l:Conv.Money}}" Width="140" MinWidth="140" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

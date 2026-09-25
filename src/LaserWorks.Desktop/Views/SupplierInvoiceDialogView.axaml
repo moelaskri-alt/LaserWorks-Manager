@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SupplierInvoiceDialogView"
+             x:DataType="vm:SupplierInvoiceDialogViewModel">
+  <StackPanel>
+    <TextBlock Classes="h3" Text="{Binding ReceiptInfo}" Margin="0,0,0,10" />
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.SupplierInvoiceNo}" /><TextBox Text="{Binding SupplierInvoiceNo}" /></StackPanel>
+    <Grid ColumnDefinitions="*,12,*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.DueDate}" /><CalendarDatePicker SelectedDate="{Binding DueDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    </Grid>
+    <TextBlock Classes="muted small wrap" Text="{l:T SupplierInvoice.Help}" />
+  </StackPanel>
+</UserControl>

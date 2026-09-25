@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.CustomerEditorView"
+             x:DataType="vm:CustomerEditorViewModel">
+  <Grid ColumnDefinitions="*,16,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" Watermark="{l:T Common.AutoNumber}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Name}" /><TextBox Text="{Binding Name}" Name="txtName" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Phone}" /><TextBox Text="{Binding Phone}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Email}" /><TextBox Text="{Binding Email}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Address}" /><TextBox Text="{Binding Address}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.TaxNumber}" /><TextBox Text="{Binding TaxNumber}" /></StackPanel>
+    <Grid Grid.Row="3" Grid.Column="2" ColumnDefinitions="*,12,*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.CreditLimit}" /><NumericUpDown Value="{Binding CreditLimit}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.PaymentTermsDays}" /><NumericUpDown Value="{Binding PaymentTermsDays}" Minimum="0" FormatString="0" /></StackPanel>
+    </Grid>
+    <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" Classes="multiline" /></StackPanel>
+    <StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="20">
+      <CheckBox IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+    </StackPanel>
+    <StackPanel Classes="field" Grid.Row="5" Grid.Column="2" IsVisible="{Binding CanPostOpening}">
+      <TextBlock Classes="label" Text="{l:T Customer.OpeningBalance}" /><NumericUpDown Value="{Binding OpeningBalance}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.FiscalPeriodsView"
+             x:DataType="vm:FiscalPeriodsViewModel">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+        <Button Content="{l:T Period.Close}" Command="{Binding CloseCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+        <Button Content="{l:T Period.Reopen}" Command="{Binding ReopenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBlock Text="{l:T Period.NewYearStart}" VerticalAlignment="Center" />
+        <CalendarDatePicker SelectedDate="{Binding NewYearStart}" Width="140" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+        <Button Content="{l:T Period.CreateYear}" Command="{Binding CreateYearCommand}" />
+      </StackPanel>
+    </DockPanel>
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8">
+      <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+      <TextBlock Classes="muted wrap" Text="{l:T Period.Hint}" />
+    </StackPanel>
+    <DataGrid ItemsSource="{Binding Periods}" SelectedItem="{Binding Selected}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Period.Year}" Binding="{Binding FiscalYear.Name}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="#" Binding="{Binding PeriodNo}" Width="50" MinWidth="50" />
+        <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Filter.From}" Binding="{Binding StartDate, Converter={x:Static l:Conv.Date}}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Filter.To}" Binding="{Binding EndDate, Converter={x:Static l:Conv.Date}}" Width="*" MinWidth="80" />
+        <DataGridCheckBoxColumn Header="{l:T Period.Closed}" Binding="{Binding IsClosed}" Width="80" MinWidth="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

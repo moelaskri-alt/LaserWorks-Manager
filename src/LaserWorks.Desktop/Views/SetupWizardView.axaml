@@ -1,0 +1,179 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SetupWizardView"
+             x:DataType="vm:SetupWizardViewModel">
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Background="{DynamicResource SidebarBrush}" Padding="28,18">
+      <DockPanel>
+        <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" Width="110"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Lang}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Image Source="avares://LaserWorksManager/Assets/logo128.png" Width="40" Height="40" />
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="{l:T Setup.Title}" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding StepText}" Foreground="{DynamicResource SidebarTextBrush}" />
+          </StackPanel>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="28,12">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Button Content="{l:T Common.Back}" Command="{Binding BackCommand}" IsEnabled="{Binding !IsFirst}" MinWidth="100" />
+          <Button Classes="primary" Content="{l:T Common.Next}" Command="{Binding NextCommand}" IsVisible="{Binding !IsLast}" MinWidth="100" Name="btnNext" />
+          <Button Classes="primary" Content="{l:T Setup.Finish}" Command="{Binding FinishCommand}" IsVisible="{Binding IsLast}" MinWidth="140" Name="btnFinish" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
+          <TextBlock Text="{Binding ProgressText}" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" Classes="muted" />
+          <TextBlock Classes="error" Text="{Binding ErrorMessage}" VerticalAlignment="Center" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <ScrollViewer>
+      <Border Classes="card" Margin="28,20" MaxWidth="980" HorizontalAlignment="Stretch" Padding="24">
+        <StackPanel Spacing="14">
+          <TextBlock Text="{Binding StepTitle}" Classes="h1" />
+          <TextBlock Text="{l:T Setup.Intro}" Classes="muted wrap" IsVisible="{Binding IsStep1}" />
+
+          <!-- 1 company -->
+          <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto,Auto" IsVisible="{Binding IsStep1}">
+            <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Company.Name}" /><TextBox Text="{Binding CompanyName}" Name="txtCompany" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.TaxNumber}" /><TextBox Text="{Binding TaxNumber}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Phone}" /><TextBox Text="{Binding Phone}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Email}" /><TextBox Text="{Binding Email}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Address}" /><TextBox Text="{Binding Address}" /></StackPanel>
+          </Grid>
+
+          <!-- 2 currency / tax / costing -->
+          <Grid ColumnDefinitions="*,20,*,20,*" RowDefinitions="Auto,Auto,Auto" IsVisible="{Binding IsStep2}">
+            <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Company.Currency}" /><TextBox Text="{Binding CurrencyCode}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.CurrencySymbol}" /><TextBox Text="{Binding CurrencySymbol}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.DecimalPlaces}" /><NumericUpDown Value="{Binding DecimalPlaces}" Minimum="0" Maximum="4" FormatString="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Company.TaxRate}" /><NumericUpDown Value="{Binding TaxRate}" Minimum="0" Maximum="100" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.DefaultMargin}" /><NumericUpDown Value="{Binding MarginPercent}" Minimum="0" Maximum="99" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Company.OverheadRate}" /><NumericUpDown Value="{Binding OverheadPercent}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Company.LaborRate}" /><NumericUpDown Value="{Binding LaborRate}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Company.ElectricityPrice}" /><NumericUpDown Value="{Binding ElectricityPrice}" Minimum="0" /></StackPanel>
+          </Grid>
+
+          <!-- 3 fiscal year -->
+          <StackPanel IsVisible="{Binding IsStep3}" Spacing="8" MaxWidth="360" HorizontalAlignment="Left">
+            <TextBlock Classes="label" Text="{l:T Setup.FiscalYearStart}" />
+            <CalendarDatePicker SelectedDate="{Binding FiscalYearStart}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+            <TextBlock Classes="muted wrap" Text="{l:T Setup.FiscalYearHelp}" />
+          </StackPanel>
+
+          <!-- 4 warehouses -->
+          <StackPanel IsVisible="{Binding IsStep4}" Spacing="8">
+            <TextBlock Classes="label" Text="{l:T Setup.WarehousesHelp}" />
+            <TextBox Text="{Binding WarehouseNames}" Classes="multiline" Height="120" />
+          </StackPanel>
+
+          <!-- 5 machines -->
+          <StackPanel IsVisible="{Binding IsStep5}" Spacing="8">
+            <TextBlock Classes="muted wrap" Text="{l:T Setup.MachinesHelp}" />
+            <DataGrid ItemsSource="{Binding Machines}" IsReadOnly="False" Height="230" CanUserSortColumns="False">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
+                <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Type}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.PowerWatts}" Binding="{Binding PowerWatts}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.LoadKw}" Binding="{Binding LoadKw}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.PurchaseCost}" Binding="{Binding PurchaseCost}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.UsefulLife}" Binding="{Binding LifeYears}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.ResidualValue}" Binding="{Binding ResidualValue}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Machine.AnnualHours}" Binding="{Binding AnnualHours}" Width="90" MinWidth="90" />
+                <DataGridTextColumn Header="{l:T Machine.MaintenancePerYear}" Binding="{Binding MaintenancePerYear}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Width="44" MinWidth="44">
+                  <DataTemplate x:DataType="vm:SetupMachineRow">
+                    <Button Classes="ghost" Command="{Binding $parent[UserControl].((vm:SetupWizardViewModel)DataContext).RemoveMachineCommand}" CommandParameter="{Binding}">
+                      <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+                    </Button>
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <Button Content="{l:T Setup.AddMachine}" Command="{Binding AddMachineCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+
+          <!-- 6 materials -->
+          <StackPanel IsVisible="{Binding IsStep6}" Spacing="8">
+            <TextBlock Classes="muted wrap" Text="{l:T Setup.MaterialsHelp}" />
+            <DataGrid ItemsSource="{Binding Materials}" IsReadOnly="False" Height="230" CanUserSortColumns="False">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
+                <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding MaterialType}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Thickness}" Binding="{Binding Thickness}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Length}" Binding="{Binding Length}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Width}" Binding="{Binding Width}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Unit}" Binding="{Binding UnitCode}" Width="80" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding UnitCost}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Setup.OpeningQty}" Binding="{Binding OpeningQuantity}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Width="44" MinWidth="44">
+                  <DataTemplate x:DataType="vm:SetupMaterialRow">
+                    <Button Classes="ghost" Command="{Binding $parent[UserControl].((vm:SetupWizardViewModel)DataContext).RemoveMaterialCommand}" CommandParameter="{Binding}">
+                      <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+                    </Button>
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <Button Content="{l:T Setup.AddMaterial}" Command="{Binding AddMaterialCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+
+          <!-- 7 users -->
+          <StackPanel IsVisible="{Binding IsStep7}" Spacing="10">
+            <TextBlock Classes="h3" Text="{l:T Setup.AdminAccount}" />
+            <Grid ColumnDefinitions="*,16,*,16,*,16,*">
+              <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Login.Username}" /><TextBox Text="{Binding AdminUsername}" /></StackPanel>
+              <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.FullName}" /><TextBox Text="{Binding AdminFullName}" /></StackPanel>
+              <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Login.Password}" /><TextBox Text="{Binding AdminPassword}" PasswordChar="●" Name="txtAdminPassword" /></StackPanel>
+              <StackPanel Classes="field" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Account.ConfirmPassword}" /><TextBox Text="{Binding AdminPasswordConfirm}" PasswordChar="●" Name="txtAdminPassword2" /></StackPanel>
+            </Grid>
+            <TextBlock Classes="muted small" Text="{l:T Err.PasswordPolicy}" />
+            <TextBlock Classes="h3" Text="{l:T Setup.OtherUsers}" Margin="0,8,0,0" />
+            <DataGrid ItemsSource="{Binding Users}" IsReadOnly="False" Height="170" CanUserSortColumns="False">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Login.Username}" Binding="{Binding Username}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.FullName}" Binding="{Binding FullName}" Width="2*" MinWidth="140" />
+                <DataGridTemplateColumn Header="{l:T Col.Role}" Width="*" MinWidth="80">
+                  <DataTemplate x:DataType="vm:SetupUserRow">
+                    <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:SetupWizardViewModel)DataContext).Roles}" SelectedItem="{Binding Role}">
+                      <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{l:T Login.Password}" Binding="{Binding Password}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Width="44" MinWidth="44">
+                  <DataTemplate x:DataType="vm:SetupUserRow">
+                    <Button Classes="ghost" Command="{Binding $parent[UserControl].((vm:SetupWizardViewModel)DataContext).RemoveUserCommand}" CommandParameter="{Binding}">
+                      <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+                    </Button>
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <Button Content="{l:T Setup.AddUser}" Command="{Binding AddUserCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+
+          <!-- 8 opening balances -->
+          <StackPanel IsVisible="{Binding IsStep8}" Spacing="10" MaxWidth="520" HorizontalAlignment="Left">
+            <TextBlock Classes="muted wrap" Text="{l:T Setup.OpeningHelp}" />
+            <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Setup.OpeningCash}" /><NumericUpDown Value="{Binding OpeningCash}" /></StackPanel>
+            <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Setup.OpeningBank}" /><NumericUpDown Value="{Binding OpeningBank}" /></StackPanel>
+          </StackPanel>
+
+          <!-- 9 demo data -->
+          <StackPanel IsVisible="{Binding IsStep9}" Spacing="12">
+            <CheckBox IsChecked="{Binding LoadDemoData}" Content="{l:T Setup.LoadDemo}" Name="chkDemo" />
+            <TextBlock Classes="muted wrap" Text="{l:T Setup.DemoHelp}" />
+            <Border Classes="banner-warning">
+              <TextBlock Classes="wrap" Text="{l:T Setup.FinishHelp}" />
+            </Border>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

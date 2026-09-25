@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.CustomersView"
+             x:DataType="vm:CustomersViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <ComboBox ItemsSource="{Binding ActiveFilters}" SelectedItem="{Binding ActiveFilter}" Width="130">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Filter}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoOpen}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Customer.Profile}" /></StackPanel>
+          </Button>
+          <Button Command="{Binding EditCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanEdit}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoEdit}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Edit}" /></StackPanel>
+          </Button>
+          <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
+            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+          </Button>
+          <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}" Name="btnNew">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Customer.New}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+              l:GridBehaviors.ServerSort="True" l:GridBehaviors.OpenCommand="{Binding OpenCommand}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" SortMemberPath="Code" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" SortMemberPath="Name" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Phone}" Binding="{Binding Phone}" SortMemberPath="Phone" Width="130" MinWidth="130" />
+        <DataGridTextColumn Header="{l:T Col.Email}" Binding="{Binding Email}" SortMemberPath="Email" Width="1.4*" MinWidth="98" />
+        <DataGridTextColumn Header="{l:T Col.TaxNumber}" Binding="{Binding TaxNumber}" Width="140" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.CreditLimit}" Binding="{Binding CreditLimit, Converter={x:Static l:Conv.Money}}" SortMemberPath="CreditLimit" Width="120" MinWidth="120" />
+        <DataGridTextColumn Header="{l:T Col.PaymentTerms}" Binding="{Binding PaymentTermsDays}" SortMemberPath="PaymentTermsDays" Width="100" MinWidth="100" />
+        <DataGridTemplateColumn Header="{l:T Col.Balance}" Width="130" MinWidth="130">
+          <DataTemplate x:DataType="svc:CustomerRow">
+            <TextBlock Text="{Binding Balance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Balance, Converter={x:Static l:Conv.VarianceBrush}}" VerticalAlignment="Center" Margin="6,0" />
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridCheckBoxColumn Header="{l:T Col.Active}" Binding="{Binding IsActive}" Width="70" MinWidth="70" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

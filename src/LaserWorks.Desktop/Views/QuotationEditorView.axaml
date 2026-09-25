@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.QuotationEditorView"
+             x:DataType="vm:QuotationEditorViewModel">
+  <Grid ColumnDefinitions="*,16,280">
+    <StackPanel Spacing="8">
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsSaved}">
+        <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+        <TextBlock Classes="muted" Text="{Binding EstimateNumber, StringFormat='← {0}'}" IsVisible="{Binding EstimateNumber, Converter={x:Static l:Conv.NotEmpty}}" VerticalAlignment="Center" />
+        <Button Classes="link" Content="{Binding JobNumber, StringFormat='→ {0}'}" Command="{Binding OpenJobCommand}" IsVisible="{Binding HasJob}" />
+      </StackPanel>
+      <Grid ColumnDefinitions="2*,12,*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" IsEnabled="{Binding IsDraft}">
+        <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Customer}" /><ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding Customer}" /></StackPanel>
+        <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+        <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.ValidUntil}" /><CalendarDatePicker SelectedDate="{Binding ValidUntil}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Description}" /><TextBox Text="{Binding Description}" Classes="multiline" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.SellingPrice}" /><NumericUpDown Value="{Binding SellingPrice}" Minimum="0" Name="numQuotePrice" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Discount}" /><NumericUpDown Value="{Binding DiscountAmount}" Minimum="0" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.PaymentTerms}" /><TextBox Text="{Binding PaymentTerms}" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.TaxRate}" /><NumericUpDown Value="{Binding TaxRate}" Minimum="0" Maximum="100" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.DeliveryDays}" /><NumericUpDown Value="{Binding DeliveryDays}" Minimum="0" FormatString="0" /></StackPanel>
+        <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+      </Grid>
+      <WrapPanel>
+        <Button Content="{l:T Quotation.MarkSent}" Command="{Binding MarkSentCommand}" IsVisible="{Binding CanSend}" Margin="0,0,6,6" Name="btnMarkSent" />
+        <Button Classes="primary" Content="{l:T Common.Approve}" Command="{Binding ApproveCommand}" IsVisible="{Binding CanApprove}" Margin="0,0,6,6" Name="btnApproveQuote" />
+        <Button Classes="danger" Content="{l:T Common.Reject}" Command="{Binding RejectCommand}" IsVisible="{Binding CanReject}" Margin="0,0,6,6" />
+        <Button Content="{l:T Quotation.NewVersion}" Command="{Binding NewVersionCommand}" IsVisible="{Binding CanNewVersion}" Margin="0,0,6,6" />
+        <Button Command="{Binding PdfCommand}" CommandParameter="pdf" IsVisible="{Binding IsSaved}" Margin="0,0,6,6" Name="btnQuotePdf">
+          <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoExport}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="PDF" /></StackPanel>
+        </Button>
+        <Button Command="{Binding PdfCommand}" CommandParameter="print" IsVisible="{Binding IsSaved}" Margin="0,0,6,6">
+          <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPrint}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Print}" /></StackPanel>
+        </Button>
+      </WrapPanel>
+      <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+      <Border Classes="soft" IsVisible="{Binding CanCreateJob}">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h3" Text="{l:T Quotation.CreateJob}" />
+          <Grid ColumnDefinitions="*,10,*,10,*,10,*">
+            <StackPanel><TextBlock Classes="label" Text="{l:T Col.DueDate}" /><CalendarDatePicker SelectedDate="{Binding JobDueDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+            <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Priority}" />
+              <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding JobPriority}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+            <StackPanel Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding JobMachine}" /></StackPanel>
+            <StackPanel Grid.Column="6"><TextBlock Classes="label" Text="{l:T Col.Operator}" /><ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding JobOperator}" /></StackPanel>
+          </Grid>
+          <Button Classes="primary" Command="{Binding CreateJobCommand}" HorizontalAlignment="Left" Name="btnCreateJob">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoJobs}" Foreground="White" /><TextBlock Text="{l:T Quotation.CreateJob}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <StackPanel Grid.Column="2" Spacing="10">
+      <Border Classes="soft">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+          <TextBlock Text="{l:T Col.NetAmount}" Margin="0,3" /><TextBlock Grid.Column="1" Text="{Binding NetAmount, Converter={x:Static l:Conv.Money}}" HorizontalAlignment="Right" />
+          <TextBlock Grid.Row="1" Text="{l:T Col.Tax}" Margin="0,3" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TaxAmount, Converter={x:Static l:Conv.Money}}" HorizontalAlignment="Right" />
+          <TextBlock Grid.Row="2" Text="{l:T Col.Total}" FontWeight="SemiBold" Margin="0,3" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Total, Converter={x:Static l:Conv.Money}}" FontWeight="SemiBold" FontSize="15" HorizontalAlignment="Right" />
+          <Separator Grid.Row="3" Grid.ColumnSpan="2" />
+          <TextBlock Grid.Row="4" Text="{l:T Col.EstimatedCost}" Margin="0,3" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding EstimatedCost, Converter={x:Static l:Conv.Money}}" HorizontalAlignment="Right" />
+          <TextBlock Grid.Row="5" Text="{l:T Col.Profit}" Margin="0,3" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Profit, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Profit, Converter={x:Static l:Conv.SignBrush}}" HorizontalAlignment="Right" />
+          <TextBlock Grid.Row="6" Text="{l:T Col.Margin}" Margin="0,3" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding MarginPercent, Converter={x:Static l:Conv.Percent}}" HorizontalAlignment="Right" />
+        </Grid>
+      </Border>
+      <Border Classes="soft" IsVisible="{Binding IsSaved}">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="h3" Text="{l:T Quotation.Versions}" />
+          <ItemsControl ItemsSource="{Binding Versions}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="svc:QuotationRow">
+                <DockPanel Margin="0,2">
+                  <TextBlock DockPanel.Dock="Right" Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" Classes="muted small" VerticalAlignment="Center" />
+                  <Button Classes="link" Content="{Binding DisplayNumber}" Command="{Binding $parent[UserControl].((vm:QuotationEditorViewModel)DataContext).OpenVersionCommand}" CommandParameter="{Binding}" />
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </Grid>
+</UserControl>

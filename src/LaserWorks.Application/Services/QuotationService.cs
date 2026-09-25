@@ -45,6 +45,9 @@ public sealed class QuotationService : ServiceBase
             .ToListAsync();
     }
 
+    public async Task<Lookup?> JobForAsync(long quotationId) => await ReadAsync(db => db.Jobs.AsNoTracking().Where(j => j.QuotationId == quotationId)
+        .Select(j => new Lookup(j.Id, j.Number, j.Title)).FirstOrDefaultAsync());
+
     public async Task<Quotation?> GetAsync(long id) => await ReadAsync(db => db.Quotations.AsNoTracking().Include(q => q.Customer).Include(q => q.Request).Include(q => q.Estimate).FirstOrDefaultAsync(q => q.Id == id));
 
     /// <summary>Marks sent quotations past their validity date as expired.</summary>

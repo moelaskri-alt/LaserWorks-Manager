@@ -37,7 +37,7 @@ public sealed class DemoDataService
         if (await HasBusinessDataAsync()) throw new DomainException("Err.DemoRequiresEmpty");
         var clock = _ctx.Clock as MutableClock;
         var today = DateTime.Today;
-        var start = today.AddDays(-110);
+        var start = today.AddDays(-95);
         void At(DateTime d, int hour = 10) => clock?.Set(d.Date.AddHours(hour));
         var rnd = new Random(20260925);
         try

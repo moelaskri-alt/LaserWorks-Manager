@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.QualityCheckDialogView"
+             x:DataType="vm:QualityCheckDialogViewModel">
+  <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Inspector}" /><ComboBox ItemsSource="{Binding Inspectors}" SelectedItem="{Binding Inspector}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Produced}" /><NumericUpDown Value="{Binding QuantityProduced}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Accepted}" /><NumericUpDown Value="{Binding QuantityAccepted}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Rejected}" /><NumericUpDown Value="{Binding QuantityRejected}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.ReworkQty}" /><NumericUpDown Value="{Binding ReworkQuantity}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.Status}" />
+      <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" Name="cmbQcStatus"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+  </Grid>
+</UserControl>

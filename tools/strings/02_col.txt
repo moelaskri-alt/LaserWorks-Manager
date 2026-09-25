@@ -1,0 +1,214 @@
+Col.AcceptanceRate|Acceptance %|نسبة القبول
+Col.Accepted|Accepted|المقبول
+Col.Account|Account|الحساب
+Col.Action|Action|الإجراء
+Col.Active|Active|نشط
+Col.Actual|Actual|الفعلي
+Col.ActualCost|Actual cost|التكلفة الفعلية
+Col.ActualHours|Actual hours|الساعات الفعلية
+Col.ActualUtilization|Actual utilization|الاستغلال الفعلي
+Col.Address|Address|العنوان
+Col.Aging0_30|1–30 days|1–30 يوم
+Col.Aging31_60|31–60 days|31–60 يوم
+Col.Aging61_90|61–90 days|61–90 يوم
+Col.Aging90|Over 90 days|أكثر من 90 يوم
+Col.AgingBucket|Aging|فترة التقادم
+Col.Amount|Amount|المبلغ
+Col.ApprovedDesign|Approved design|التصميم المعتمد
+Col.Area|Area|المساحة
+Col.Assessment|Assessment|التقييم
+Col.AvailableHours|Available hours|الساعات المتاحة
+Col.AverageCost|Average cost|متوسط التكلفة
+Col.AvgPurchaseCost|Avg. purchase cost|متوسط تكلفة الشراء
+Col.AvgUtilization|Avg. utilization|متوسط الاستغلال
+Col.Balance|Balance|الرصيد
+Col.BalanceAfter|Balance after|الرصيد بعد الحركة
+Col.Category|Category|الفئة
+Col.ChargedToJobs|Charged to jobs|المحمّل على الأعمال
+Col.ClosingCredit|Closing credit|رصيد ختامي دائن
+Col.ClosingDebit|Closing debit|رصيد ختامي مدين
+Col.Code|Code|الرمز
+Col.Cogs|Cost of goods sold|تكلفة المبيعات
+Col.CogsReversed|COGS reversed|تكلفة المبيعات المعكوسة
+Col.Component|Cost component|عنصر التكلفة
+Col.Cost|Cost|التكلفة
+Col.CostCenter|Cost center|مركز التكلفة
+Col.CostEntries|Cost entries|قيود التكلفة
+Col.Credit|Credit|دائن
+Col.CreditLimit|Credit limit|حد الائتمان
+Col.Customer|Customer|العميل
+Col.CuttingLength|Cutting length (m)|طول القص (م)
+Col.DamageWaste|Damage / waste|التلف / الهدر
+Col.Date|Date|التاريخ
+Col.DaysLeft|Days left|الأيام المتبقية
+Col.DaysOverdue|Days overdue|أيام التأخير
+Col.Debit|Debit|مدين
+Col.DeliveredAt|Delivered|تاريخ التسليم
+Col.DeliveryDays|Delivery (days)|مدة التسليم (أيام)
+Col.DeliveryTime|Delivery time|وقت التسليم
+Col.DepreciationPerHour|Depreciation / h|الإهلاك / ساعة
+Col.Description|Description|الوصف
+Col.Designer|Designer|المصمم
+Col.Details|Details|التفاصيل
+Col.Difference|Difference|الفرق
+Col.Dimensions|Dimensions|الأبعاد
+Col.DirectMachineExpenses|Direct machine expenses|مصروفات الماكينة المباشرة
+Col.Discount|Discount|الخصم
+Col.Document|Document|المستند
+Col.DueDate|Due date|تاريخ الاستحقاق
+Col.Efficiency|Efficiency %|نسبة الكفاءة
+Col.ElectricityPerHour|Electricity / h|الكهرباء / ساعة
+Col.Email|Email|البريد الإلكتروني
+Col.Employee|Employee|الموظف
+Col.EndTime|End|النهاية
+Col.EngravingArea|Engraving area (cm²)|مساحة الحفر (سم²)
+Col.Entity|Record type|نوع السجل
+Col.Entry|Entry|القيد
+Col.Estimate|Estimate|التقدير
+Col.Estimated|Estimated|المقدّر
+Col.EstimatedCost|Estimated cost|التكلفة المقدرة
+Col.Estimates|Estimates|التقديرات
+Col.ExpectedDate|Expected date|التاريخ المتوقع
+Col.Files|Files|الملفات
+Col.Flags|Flags|التنبيهات
+Col.FullName|Full name|الاسم الكامل
+Col.GrossProfit|Gross profit|مجمل الربح
+Col.HourlyCost|Hourly cost|التكلفة بالساعة
+Col.HourlyRate|Hourly rate|السعر بالساعة
+Col.Hours|Hours|الساعات
+Col.Inspector|Inspector|المفتش
+Col.Invoice|Invoice|الفاتورة
+Col.Invoiced|Invoiced|المفوتر
+Col.Issued|Issued|المصروف
+Col.Job|Job|أمر العمل
+Col.Jobs|Jobs|الأعمال
+Col.Kind|Kind|النوع
+Col.LastCost|Last cost|آخر تكلفة
+Col.Length|Length|الطول
+Col.LengthCm|Length (cm)|الطول (سم)
+Col.Machine|Machine|الماكينة
+Col.MachineCostAbsorbed|Machine cost absorbed|تكلفة الماكينة المحمّلة
+Col.MachineHours|Machine hours|ساعات الماكينة
+Col.MachineMinutes|Machine minutes|دقائق الماكينة
+Col.MachineVariancePct|Machine variance %|انحراف الماكينة %
+Col.MainReason|Main reason|السبب الرئيسي
+Col.MaintenancePerHour|Maintenance / h|الصيانة / ساعة
+Col.Margin|Margin %|هامش الربح %
+Col.Markup|Markup %|نسبة الإضافة %
+Col.Material|Material|المادة
+Col.MaterialCost|Material cost|تكلفة المواد
+Col.MaterialVariancePct|Material variance %|انحراف المواد %
+Col.MaterialsIssued|Materials issued|المواد المصروفة
+Col.MaxCost|Max cost|أعلى تكلفة
+Col.Method|Method|الطريقة
+Col.MinCost|Min cost|أدنى تكلفة
+Col.MinimumStock|Minimum stock|الحد الأدنى للمخزون
+Col.Month|Month|الشهر
+Col.Name|Name|الاسم
+Col.NetAmount|Net amount|المبلغ الصافي
+Col.NetConsumed|Net consumed|صافي المستهلك
+Col.NetRevenue|Net revenue|صافي الإيراد
+Col.NotYetDue|Not yet due|غير مستحق بعد
+Col.Notes|Notes|ملاحظات
+Col.Number|No.|الرقم
+Col.OnHand|On hand|الرصيد المتاح
+Col.OpenInvoices|Open invoices|الفواتير المفتوحة
+Col.OpenJobs|Open jobs|الأعمال المفتوحة
+Col.OpeningCredit|Opening credit|رصيد افتتاحي دائن
+Col.OpeningDebit|Opening debit|رصيد افتتاحي مدين
+Col.Operation|Operation|العملية
+Col.Operations|Operations|العمليات
+Col.OperationsDone|Operations done|العمليات المنجزة
+Col.Operator|Operator|المشغّل
+Col.OperatorPerHour|Operator / h|المشغّل / ساعة
+Col.OrderDate|Order date|تاريخ الطلب
+Col.OrderValue|Order value|قيمة الطلب
+Col.Other|Other|أخرى
+Col.Overdue|Overdue|متأخر
+Col.OverheadPerHour|Overhead / h|التكاليف غير المباشرة / ساعة
+Col.Paid|Paid|المدفوع
+Col.PaymentTerms|Payment terms (days)|شروط الدفع (أيام)
+Col.PaymentTermsDays|Payment terms (days)|مدة السداد (أيام)
+Col.PeriodCredit|Period credit|دائن الفترة
+Col.PeriodDebit|Period debit|مدين الفترة
+Col.Phone|Phone|الهاتف
+Col.PlannedHours|Planned hours|الساعات المخططة
+Col.PriceChange|Price change|تغير السعر
+Col.Priority|Priority|الأولوية
+Col.Produced|Produced|المنتَج
+Col.Profit|Profit|الربح
+Col.PurchaseCost|Purchase cost|تكلفة الشراء
+Col.PurchaseOrder|Purchase order|أمر الشراء
+Col.PurchaseValue|Purchase value|قيمة المشتريات
+Col.Quantity|Quantity|الكمية
+Col.QuantityPurchased|Qty purchased|الكمية المشتراة
+Col.QuantityUsed|Qty used|الكمية المستخدمة
+Col.Quotation|Quotation|عرض السعر
+Col.Reason|Reason|السبب
+Col.Receipt|Receipt|الاستلام
+Col.Received|Received|المستلم
+Col.RecordId|Record ID|رقم السجل
+Col.Records|Records|السجلات
+Col.Reference|Reference|المرجع
+Col.Refund|Refund|المسترد
+Col.Rejected|Rejected|المرفوض
+Col.Remnant|Remnant|القطعة المتبقية
+Col.RemnantsCreated|Remnants created|البواقي المنشأة
+Col.RemnantsUsed|Remnants used|البواقي المستخدمة
+Col.ReorderLevel|Reorder level|حد إعادة الطلب
+Col.Request|Request|الطلب
+Col.RequiredDate|Required date|التاريخ المطلوب
+Col.Returned|Returned|المرتجع
+Col.Revenue|Revenue|الإيراد
+Col.Revision|Revision|المراجعة
+Col.Revisions|Revisions|المراجعات
+Col.Rework|Rework|إعادة التشغيل
+Col.ReworkQty|Rework qty|كمية إعادة التشغيل
+Col.Role|Role|الدور
+Col.SalesPrice|Sales price|سعر البيع
+Col.ScrapPct|Scrap %|نسبة الهالك
+Col.ScrapQty|Scrap qty|كمية الهالك
+Col.SellingPrice|Selling price|سعر البيع
+Col.SellingPriceNet|Selling price (net)|سعر البيع (صافي)
+Col.Sequence|Seq.|التسلسل
+Col.Share|Share %|النسبة %
+Col.SheetsEstimated|Sheets estimated|الألواح المقدّرة
+Col.SheetsIssued|Sheets issued|الألواح المصروفة
+Col.Sold|Sold|المباع
+Col.Source|Source|المصدر
+Col.SourceJob|Source job|العمل المصدر
+Col.StartTime|Start|البداية
+Col.Status|Status|الحالة
+Col.StockValue|Stock value|قيمة المخزون
+Col.Subtotal|Subtotal|المجموع الفرعي
+Col.SuggestedOrder|Suggested order|الكمية المقترحة للطلب
+Col.SuggestedPrice|Suggested price|السعر المقترح
+Col.Supplier|Supplier|المورد
+Col.SupplierInvoiceNo|Supplier invoice no.|رقم فاتورة المورد
+Col.Tax|Tax|الضريبة
+Col.TaxNumber|Tax number|الرقم الضريبي
+Col.TaxRate|Tax rate %|نسبة الضريبة %
+Col.Thickness|Thickness (mm)|السماكة (مم)
+Col.ThicknessMm|Thickness (mm)|السماكة (مم)
+Col.Title|Title|العنوان
+Col.Total|Total|الإجمالي
+Col.TotalCost|Total cost|إجمالي التكلفة
+Col.TotalInvoiced|Total invoiced|إجمالي المفوتر
+Col.TotalVariance|Total variance|إجمالي الانحراف
+Col.Type|Type|النوع
+Col.Unallocated|Unallocated|غير مخصص
+Col.Unit|Unit|الوحدة
+Col.UnitCost|Unit cost|تكلفة الوحدة
+Col.UnitPrice|Unit price|سعر الوحدة
+Col.UsedIn|Used in|استُخدم في
+Col.User|User|المستخدم
+Col.Utilization|Utilization %|نسبة الاستغلال
+Col.ValidUntil|Valid until|صالح حتى
+Col.Value|Value|القيمة
+Col.Variance|Variance|الانحراف
+Col.VariancePercent|Variance %|نسبة الانحراف
+Col.Warehouse|Warehouse|المستودع
+Col.WasteArea|Waste area|مساحة الهدر
+Col.Width|Width|العرض
+Col.WidthCm|Width (cm)|العرض (سم)
+Col.WrittenOff|Written off|المشطوب

@@ -1,0 +1,138 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.kpi">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Margin" Value="0,0,10,10" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.kpi:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Border.chart">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Margin" Value="0,0,10,10" />
+    </Style>
+  </UserControl.Styles>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+      <TextBlock Text="{l:T Dashboard.Period}" VerticalAlignment="Center" Classes="muted" />
+      <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" Width="190" Name="cmbPreset">
+        <ComboBox.ItemTemplate>
+          <DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Prefixed}, ConverterParameter=Period}" /></DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <CalendarDatePicker SelectedDate="{Binding From}" IsEnabled="{Binding IsCustom}" Width="140" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+      <TextBlock Text="—" VerticalAlignment="Center" />
+      <CalendarDatePicker SelectedDate="{Binding To}" IsEnabled="{Binding IsCustom}" Width="140" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+      <Button Classes="primary" Command="{Binding RefreshCommand}">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <l:Ico Data="{StaticResource IcoRefresh}" Foreground="White" Width="15" Height="15" />
+          <TextBlock Text="{l:T Common.Refresh}" />
+        </StackPanel>
+      </Button>
+      <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+      <TextBlock Classes="error" Text="{Binding ErrorMessage}" VerticalAlignment="Center" />
+    </StackPanel>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+      <StackPanel>
+        <UniformGrid Columns="5" Name="kpis">
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Sales">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.SalesToday}" /><TextBlock Classes="kpi" Text="{Binding Data.SalesToday, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{Binding Currency}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Sales">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.SalesMonth}" /><TextBlock Classes="kpi" Text="{Binding Data.SalesThisMonth, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{Binding Data.SalesInRange, Converter={x:Static l:Conv.Money}, StringFormat={}Σ {0}}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Profit">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.GrossProfit}" /><TextBlock Classes="kpi" Text="{Binding Data.GrossProfit, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Data.GrossProfit, Converter={x:Static l:Conv.SignBrush}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.InPeriod}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Profit">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.GrossMargin}" /><TextBlock Classes="kpi" Text="{Binding Data.GrossMarginPercent, Converter={x:Static l:Conv.Percent}}" Foreground="{Binding Data.GrossMarginPercent, Converter={x:Static l:Conv.SignBrush}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.InPeriod}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Receivables">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.Receivables}" /><TextBlock Classes="kpi" Text="{Binding Data.OutstandingReceivables, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.OpenInvoices}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="OpenJobs">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.OpenJobs}" /><TextBlock Classes="kpi" Text="{Binding Data.OpenJobs}" /><TextBlock Classes="muted small" Text="{l:T Kpi.NotDelivered}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Quotations">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.PendingQuotations}" /><TextBlock Classes="kpi" Text="{Binding Data.PendingQuotations}" /><TextBlock Classes="muted small" Text="{l:T Kpi.DraftSent}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="DueSoon">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.JobsDueSoon}" /><TextBlock Classes="kpi" Text="{Binding Data.JobsDueSoon}" Foreground="{DynamicResource WarningBrush}" /><TextBlock Classes="muted small" Text="{l:T Kpi.Next7Days}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Overdue">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.OverdueJobs}" /><TextBlock Classes="kpi" Text="{Binding Data.OverdueJobs}" Foreground="{DynamicResource DangerBrush}" /><TextBlock Classes="muted small" Text="{l:T Kpi.PastDueDate}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Cash">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.CashBalance}" /><TextBlock Classes="kpi" Text="{Binding Data.CashBalance, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.CashAndBank}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Material">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.MaterialCost}" /><TextBlock Classes="kpi" Text="{Binding Data.MaterialCost, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.ActualInPeriod}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Machine">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.MachineCost}" /><TextBlock Classes="kpi" Text="{Binding Data.MachineCost, Converter={x:Static l:Conv.Money}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.ActualInPeriod}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Scrap">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.ScrapPercent}" /><TextBlock Classes="kpi" Text="{Binding Data.ScrapPercent, Converter={x:Static l:Conv.Percent}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.OfMaterial}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="Scrap">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.ReworkPercent}" /><TextBlock Classes="kpi" Text="{Binding Data.ReworkPercent, Converter={x:Static l:Conv.Percent}}" /><TextBlock Classes="muted small" Text="{l:T Kpi.OfJobCost}" /></StackPanel>
+          </Button>
+          <Button Classes="kpi" Command="{Binding DrillCommand}" CommandParameter="LowStock">
+            <StackPanel Spacing="2"><TextBlock Classes="label" Text="{l:T Kpi.LowStock}" /><TextBlock Classes="kpi" Text="{Binding Data.LowStockItems}" /><TextBlock Classes="muted small" Text="{l:T Kpi.BelowReorder}" /></StackPanel>
+          </Button>
+        </UniformGrid>
+
+        <Grid ColumnDefinitions="2*,*" RowDefinitions="280,280,300">
+          <Border Classes="chart">
+            <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.SalesTrend}" Margin="0,0,0,6" />
+              <c:Chart Kind="Line" Items="{Binding Data.SalesTrend}" PointCommand="{Binding OpenPointCommand}" /></DockPanel>
+          </Border>
+          <Border Classes="chart" Grid.Column="1">
+            <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.JobsByStatus}" Margin="0,0,0,6" />
+              <c:Chart Kind="Donut" Items="{Binding Data.JobsByStatus}" LabelPrefix="Enum.JobStatus." PointCommand="{Binding OpenPointCommand}" /></DockPanel>
+          </Border>
+          <Border Classes="chart" Grid.Row="1">
+            <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.GrossProfitTrend}" Margin="0,0,0,6" />
+              <c:Chart Kind="Column" Items="{Binding Data.GrossProfitTrend}" PointCommand="{Binding OpenPointCommand}" /></DockPanel>
+          </Border>
+          <Border Classes="chart" Grid.Row="1" Grid.Column="1">
+            <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.CostComposition}" Margin="0,0,0,6" />
+              <c:Chart Kind="Donut" Items="{Binding Data.CostComposition}" LabelPrefix="Enum.CostComponent." PointCommand="{Binding OpenPointCommand}" /></DockPanel>
+          </Border>
+          <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,*,*">
+            <Border Classes="chart">
+              <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.TopCustomers}" Margin="0,0,0,6" />
+                <c:Chart Kind="HorizontalBar" Items="{Binding Data.TopCustomers}" PointCommand="{Binding OpenCustomerCommand}" /></DockPanel>
+            </Border>
+            <Border Classes="chart" Grid.Column="1">
+              <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.TopJobs}" Margin="0,0,0,6" />
+                <c:Chart Kind="HorizontalBar" Items="{Binding Data.TopJobs}" PointCommand="{Binding OpenJobCommand}" /></DockPanel>
+            </Border>
+            <Border Classes="chart" Grid.Column="2">
+              <DockPanel><TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Chart.MaterialConsumption}" Margin="0,0,0,6" />
+                <c:Chart Kind="HorizontalBar" Items="{Binding Data.MaterialConsumption}" PointCommand="{Binding OpenMaterialCommand}" /></DockPanel>
+            </Border>
+          </Grid>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

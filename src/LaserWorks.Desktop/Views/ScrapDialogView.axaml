@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ScrapDialogView"
+             x:DataType="vm:ScrapDialogViewModel">
+  <StackPanel Spacing="6">
+    <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Type}" />
+        <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding Type}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" IsVisible="{Binding !IsRework}"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" IsVisible="{Binding IsRework}"><TextBlock Classes="label" Text="{l:T Col.Hours}" /><NumericUpDown Value="{Binding Hours}" Minimum="0" Name="numReworkHours" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" Name="numScrapQty" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Employee}" /><ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding Employee}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.Operation}" />
+        <ComboBox ItemsSource="{Binding Operations}" SelectedItem="{Binding Operation}">
+          <ComboBox.ItemTemplate><DataTemplate x:DataType="svc:OperationRow"><TextBlock Text="{Binding OperationType, Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Scrap.ManualCost}" /><NumericUpDown Value="{Binding Cost}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Reason}" /><TextBox Text="{Binding Reason}" Name="txtScrapReason" /></StackPanel>
+    </Grid>
+    <TextBlock Classes="muted small wrap" Text="{l:T Scrap.Help}" IsVisible="{Binding !IsRework}" />
+    <TextBlock Classes="muted small wrap" Text="{l:T Scrap.ReworkHelp}" IsVisible="{Binding IsRework}" />
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ReceiptDialogView"
+             x:DataType="vm:ReceiptDialogViewModel">
+  <StackPanel Spacing="8">
+    <Grid ColumnDefinitions="2*,12,*,12,*,12,*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Supplier}" /><ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding Supplier}" IsEnabled="{Binding !FromOrder}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Warehouse}" />
+        <ComboBox ItemsSource="{Binding Warehouses}" SelectedItem="{Binding Warehouse}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Warehouse"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Col.Reference}" /><TextBox Text="{Binding DeliveryRef}" /></StackPanel>
+    </Grid>
+    <DockPanel>
+      <Button DockPanel.Dock="Right" Content="{l:T Invoice.AddLine}" Command="{Binding AddLineCommand}" IsVisible="{Binding !FromOrder}" />
+      <TextBlock Classes="h3" Text="{l:T Invoice.Lines}" VerticalAlignment="Center" />
+    </DockPanel>
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="False" CanUserSortColumns="False" MinHeight="140" MaxHeight="280">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{l:T Col.Material}" Width="2*" MinWidth="140">
+          <DataTemplate x:DataType="vm:ReceiptLineVm">
+            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:ReceiptDialogViewModel)DataContext).Materials}" SelectedItem="{Binding Material}" BorderThickness="0" />
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding UnitCost}" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.TaxRate}" Binding="{Binding TaxRate}" Width="80" MinWidth="80" />
+      </DataGrid.Columns>
+    </DataGrid>
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    <TextBlock Classes="muted small wrap" Text="{l:T Receipt.Help}" />
+  </StackPanel>
+</UserControl>

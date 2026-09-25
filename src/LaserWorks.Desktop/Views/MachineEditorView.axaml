@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.MachineEditorView"
+             x:DataType="vm:MachineEditorViewModel">
+  <Grid ColumnDefinitions="*,16,270">
+    <Grid ColumnDefinitions="*,12,*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" Watermark="{l:T Common.AutoNumber}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Name}" /><TextBox Text="{Binding Name}" Name="txtMachineName" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Type}" /><TextBox Text="{Binding MachineType}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Machine.PowerWatts}" /><NumericUpDown Value="{Binding LaserPowerWatts}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Machine.LoadKw}" /><NumericUpDown Value="{Binding ElectricalLoadKw}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Machine.PurchaseCost}" /><NumericUpDown Value="{Binding PurchaseCost}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Machine.UsefulLife}" /><NumericUpDown Value="{Binding UsefulLifeYears}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Machine.ResidualValue}" /><NumericUpDown Value="{Binding ResidualValue}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Machine.AnnualHours}" /><NumericUpDown Value="{Binding AnnualWorkingHours}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Machine.ElectricityPrice}" /><NumericUpDown Value="{Binding ElectricityPricePerKwh}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Machine.MaintenancePerYear}" /><NumericUpDown Value="{Binding MaintenanceCostPerYear}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4"><TextBlock Classes="label" Text="{l:T Machine.OperatorPerHour}" /><NumericUpDown Value="{Binding OperatorCostPerHour}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Machine.OverheadPerYear}" /><NumericUpDown Value="{Binding OtherOverheadPerYear}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Machine.OverrideRate}" />
+        <DockPanel><CheckBox DockPanel.Dock="Left" IsChecked="{Binding UseHourlyCostOverride}" MinWidth="0" /><NumericUpDown Value="{Binding HourlyCostOverride}" Minimum="0" IsEnabled="{Binding UseHourlyCostOverride}" /></DockPanel></StackPanel>
+      <StackPanel Grid.Row="5" Grid.ColumnSpan="5" Spacing="6">
+        <TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" />
+        <CheckBox IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+        <TextBlock Classes="muted small wrap" Text="{l:T Machine.OperatorHelp}" />
+      </StackPanel>
+    </Grid>
+    <Border Grid.Column="2" Classes="soft" VerticalAlignment="Top">
+      <StackPanel Spacing="6">
+        <TextBlock Classes="h3" Text="{l:T Machine.RateBreakdown}" />
+        <TextBlock Classes="error" Text="{Binding RateError}" IsVisible="{Binding RateError, Converter={x:Static l:Conv.NotEmpty}}" />
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+          <TextBlock Text="{l:T Machine.Depreciation}" Margin="0,3" /><TextBlock Grid.Column="1" Text="{Binding Rate.DepreciationPerHour, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="1" Text="{l:T Machine.Electricity}" Margin="0,3" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Rate.ElectricityPerHour, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="2" Text="{l:T Machine.Maintenance}" Margin="0,3" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Rate.MaintenancePerHour, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="3" Text="{l:T Machine.Operator}" Margin="0,3" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Rate.OperatorPerHour, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="4" Text="{l:T Machine.Overhead}" Margin="0,3" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Rate.OverheadPerHour, Converter={x:Static l:Conv.Money}}" />
+          <Separator Grid.Row="5" Grid.ColumnSpan="2" />
+          <TextBlock Grid.Row="6" Text="{l:T Machine.Calculated}" Margin="0,3" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Rate.CalculatedRate, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="7" Text="{l:T Col.HourlyRate}" FontWeight="SemiBold" Margin="0,3" /><TextBlock Grid.Row="7" Grid.Column="1" FontWeight="SemiBold" FontSize="16" Foreground="{DynamicResource AccentBrush}" Text="{Binding Rate.EffectiveRate, Converter={x:Static l:Conv.Money}}" Name="txtMachineRate" />
+        </Grid>
+        <TextBlock Classes="muted small wrap" Text="{l:T Machine.FormulaHelp}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

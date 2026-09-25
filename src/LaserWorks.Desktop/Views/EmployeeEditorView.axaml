@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.EmployeeEditorView"
+             x:DataType="vm:EmployeeEditorViewModel">
+  <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Code}" /><TextBox Text="{Binding Code}" Watermark="{l:T Common.AutoNumber}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Name}" /><TextBox Text="{Binding Name}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Role}" /><TextBox Text="{Binding Role}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.HourlyCost}" /><NumericUpDown Value="{Binding HourlyCost}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Phone}" /><TextBox Text="{Binding Phone}" /></StackPanel>
+    <CheckBox Grid.Row="3" IsChecked="{Binding IsActive}" Content="{l:T Col.Active}" />
+  </Grid>
+</UserControl>

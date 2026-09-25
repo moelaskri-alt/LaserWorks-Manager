@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.MaterialsView"
+             x:DataType="vm:MaterialsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ComboBox ItemsSource="{Binding Kinds}" SelectedItem="{Binding Kind}" Width="150" />
+          <CheckBox IsChecked="{Binding LowOnly}" Content="{l:T Filter.LowStockOnly}" />
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Content="{l:T Stock.Movements}">
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuItem Header="{l:T Stock.Opening}" Command="{Binding MovementCommand}" CommandParameter="Opening" />
+                <MenuItem Header="{l:T Stock.Adjust}" Command="{Binding MovementCommand}" CommandParameter="Adjust" />
+                <MenuItem Header="{l:T Stock.IssueToJob}" Command="{Binding MovementCommand}" CommandParameter="IssueToJob" />
+                <MenuItem Header="{l:T Stock.Transfer}" Command="{Binding MovementCommand}" CommandParameter="Transfer" />
+                <MenuItem Header="{l:T Stock.Scrap}" Command="{Binding MovementCommand}" CommandParameter="Scrap" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+          <Button Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoEdit}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Edit}" /></StackPanel>
+          </Button>
+          <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
+            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
+          </Button>
+          <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}" Name="btnNewMaterial">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Material.New}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.ServerSort="True" l:GridBehaviors.OpenCommand="{Binding OpenCommand}" l:GridBehaviors.RowClasses="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" SortMemberPath="Code" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" SortMemberPath="Name" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Category}" Binding="{Binding Category}" SortMemberPath="Category.Name" Width="*" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Kind}" Binding="{Binding Kind, Converter={x:Static l:Conv.Enum}}" SortMemberPath="Kind" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Thickness}" Binding="{Binding Thickness, Converter={x:Static l:Conv.Number}}" SortMemberPath="Thickness" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Length}" Binding="{Binding Length, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.Width}" Binding="{Binding Width, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.Unit}" Binding="{Binding Unit}" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.OnHand}" Binding="{Binding QuantityOnHand, Converter={x:Static l:Conv.Number}}" SortMemberPath="QuantityOnHand" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.AverageCost}" Binding="{Binding AverageCost, Converter={x:Static l:Conv.Money}}" SortMemberPath="AverageCost" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.StockValue}" Binding="{Binding StockValue, Converter={x:Static l:Conv.Money}}" SortMemberPath="StockValue" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.ReorderLevel}" Binding="{Binding ReorderLevel, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+        <DataGridCheckBoxColumn Header="{l:T Col.Active}" Binding="{Binding IsActive}" Width="60" MinWidth="60" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SalesReturnDialogView"
+             x:DataType="vm:SalesReturnDialogViewModel">
+  <StackPanel Spacing="8">
+    <TextBlock Classes="h3"><Run Text="{l:T Col.Invoice}" /><Run Text=": " /><Run Text="{Binding InvoiceNumber}" /></TextBlock>
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="False" CanUserSortColumns="False" MaxHeight="260">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" IsReadOnly="True" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Sold}" Binding="{Binding Sold, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.Returned}" Binding="{Binding AlreadyReturned, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.UnitPrice}" Binding="{Binding UnitPrice, Converter={x:Static l:Conv.Money}}" IsReadOnly="True" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Return.OriginalCost}" Binding="{Binding UnitCost, Converter={x:Static l:Conv.Money}}" IsReadOnly="True" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Return.QtyToReturn}" Binding="{Binding Quantity}" Width="100" MinWidth="100" />
+        <DataGridTemplateColumn Header="{l:T Return.Restock}" Width="80" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Restock}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+    <Grid ColumnDefinitions="*,12,*,12,2*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Refund}" />
+        <ComboBox ItemsSource="{Binding Methods}" SelectedItem="{Binding RefundMethod}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Reason}" /><TextBox Text="{Binding Reason}" /></StackPanel>
+    </Grid>
+    <TextBlock Classes="muted small wrap" Text="{l:T Return.Help}" />
+  </StackPanel>
+</UserControl>

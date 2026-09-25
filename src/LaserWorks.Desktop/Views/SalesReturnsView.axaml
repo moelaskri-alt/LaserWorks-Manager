@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.SalesReturnsView"
+             x:DataType="vm:SalesReturnsViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10" />
+    <TextBlock DockPanel.Dock="Top" Classes="muted" Text="{l:T Return.Hint}" Margin="0,0,0,8" />
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Number}" Binding="{Binding Number}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+        <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" Width="1.6*" MinWidth="112" />
+        <DataGridTextColumn Header="{l:T Col.Invoice}" Binding="{Binding InvoiceNumber}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.NetAmount}" Binding="{Binding Subtotal, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Tax}" Binding="{Binding TaxAmount, Converter={x:Static l:Conv.Money}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Total}" Binding="{Binding Total, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.CogsReversed}" Binding="{Binding CogsReversed, Converter={x:Static l:Conv.Money}}" Width="120" MinWidth="120" />
+        <DataGridTextColumn Header="{l:T Col.Refund}" Binding="{Binding RefundMethod, Converter={x:Static l:Conv.Enum}}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Reason}" Binding="{Binding Reason}" Width="1.6*" MinWidth="112" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

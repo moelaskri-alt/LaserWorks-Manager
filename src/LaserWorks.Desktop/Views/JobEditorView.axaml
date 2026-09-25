@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.JobEditorView"
+             x:DataType="vm:JobEditorViewModel">
+  <Grid ColumnDefinitions="*,12,*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Customer}" /><ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding Customer}" IsEnabled="{Binding !IsInvoiced}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" IsEnabled="{Binding !IsInvoiced}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Title}" /><TextBox Text="{Binding Title}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Description}" /><TextBox Text="{Binding Description}" Classes="multiline" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.OrderDate}" /><CalendarDatePicker SelectedDate="{Binding OrderDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.DueDate}" /><CalendarDatePicker SelectedDate="{Binding DueDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Priority}" />
+      <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    <StackPanel Classes="field" Grid.Row="4"><TextBlock Classes="label" Text="{l:T Col.EstimatedCost}" /><NumericUpDown Value="{Binding EstimatedCost}" Minimum="0" IsEnabled="{Binding CostEditable}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="4" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.SellingPriceNet}" /><NumericUpDown Value="{Binding SellingPrice}" Minimum="0" IsEnabled="{Binding !IsInvoiced}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="4" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="5"><TextBlock Classes="label" Text="{l:T Col.Operator}" /><ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding Operator}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+  </Grid>
+</UserControl>

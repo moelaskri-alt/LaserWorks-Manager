@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.StockMovementDialogView"
+             x:DataType="vm:StockMovementDialogViewModel">
+  <StackPanel Spacing="4">
+    <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" Name="cmbStockMaterial" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Warehouse}" />
+        <ComboBox ItemsSource="{Binding Warehouses}" SelectedItem="{Binding Warehouse}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Warehouse"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2" IsVisible="{Binding IsTransfer}"><TextBlock Classes="label" Text="{l:T Stock.ToWarehouse}" />
+        <ComboBox ItemsSource="{Binding Warehouses}" SelectedItem="{Binding ToWarehouse}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Warehouse"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2" IsVisible="{Binding NeedsJob}"><TextBlock Classes="label" Text="{l:T Col.Job}" /><ComboBox ItemsSource="{Binding Jobs}" SelectedItem="{Binding Job}" IsEnabled="{Binding !JobFixed}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" Name="numStockQty" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="16" IsVisible="{Binding IsAdjust}" Margin="0,0,0,10">
+        <RadioButton IsChecked="{Binding Increase}" Content="{l:T Stock.Increase}" GroupName="adj" />
+        <RadioButton IsChecked="{Binding Decrease}" Content="{l:T Stock.Decrease}" GroupName="adj" />
+      </StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2" IsVisible="{Binding NeedsCost}"><TextBlock Classes="label" Text="{l:T Col.UnitCost}" /><NumericUpDown Value="{Binding UnitCost}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Stock.NotesReason}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    </Grid>
+    <Border Classes="soft"><TextBlock Classes="wrap" Text="{Binding Hint}" /></Border>
+  </StackPanel>
+</UserControl>

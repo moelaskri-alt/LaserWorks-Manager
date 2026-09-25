@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Controls.ListToolbar"
+             x:DataType="vm:IListPage"
+             x:Name="Root">
+  <StackPanel Spacing="8">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="8,0,0,0">
+        <ContentPresenter Content="{Binding #Root.Actions}" />
+        <Button ToolTip.Tip="{l:T Common.Refresh}" Command="{Binding RefreshCommand}">
+          <l:Ico Data="{StaticResource IcoRefresh}" Foreground="{DynamicResource MutedBrush}" />
+        </Button>
+        <l:ColumnChooser Target="{Binding #Root.Grid}" ToolTip.Tip="{l:T Common.Columns}" IsVisible="{Binding #Root.Grid, Converter={x:Static l:Conv.NotNull}}">
+          <l:Ico Data="{StaticResource IcoColumns}" Foreground="{DynamicResource MutedBrush}" />
+        </l:ColumnChooser>
+        <Button ToolTip.Tip="{l:T Common.Export}" IsVisible="{Binding CanExport}" Name="btnExport">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <l:Ico Data="{StaticResource IcoExport}" Foreground="{DynamicResource MutedBrush}" />
+            <TextBlock Text="{l:T Common.Export}" />
+          </StackPanel>
+          <Button.Flyout>
+            <MenuFlyout>
+              <MenuItem Header="PDF" Command="{Binding ExportCommand}" CommandParameter="pdf" />
+              <MenuItem Header="Excel (.xlsx)" Command="{Binding ExportCommand}" CommandParameter="xlsx" />
+              <MenuItem Header="CSV" Command="{Binding ExportCommand}" CommandParameter="csv" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
+        <Button ToolTip.Tip="{l:T Common.Print}" Command="{Binding PrintCommand}" IsVisible="{Binding CanPrint}">
+          <l:Ico Data="{StaticResource IcoPrint}" Foreground="{DynamicResource MutedBrush}" />
+        </Button>
+      </StackPanel>
+      <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="6">
+        <Grid Width="240">
+          <TextBox Text="{Binding Search}" Watermark="{l:T Common.SearchHint}" Padding="30,5,8,5" Name="txtSearch" />
+          <l:Ico Data="{StaticResource IcoSearch}" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Left" Margin="9,0,0,0" Width="15" Height="15" IsHitTestVisible="False" />
+        </Grid>
+        <ContentPresenter Content="{Binding #Root.Filters}" VerticalAlignment="Center" />
+      </WrapPanel>
+    </Grid>
+    <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Classes="link" Content="✕" Command="{Binding DismissMessagesCommand}" />
+        <TextBlock Classes="error" Text="{Binding ErrorMessage}" />
+      </DockPanel>
+    </Border>
+    <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Classes="link" Content="✕" Command="{Binding DismissMessagesCommand}" />
+        <TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" />
+      </DockPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

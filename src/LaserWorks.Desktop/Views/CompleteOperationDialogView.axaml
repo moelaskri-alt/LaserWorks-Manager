@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.CompleteOperationDialogView"
+             x:DataType="vm:CompleteOperationDialogViewModel">
+  <StackPanel Spacing="6">
+    <TextBlock Classes="muted"><Run Text="{l:T Col.PlannedHours}" /><Run Text=": " /><Run Text="{Binding PlannedHours}" /></TextBlock>
+    <Grid ColumnDefinitions="*,12,*,12,*" RowDefinitions="Auto,Auto,Auto,Auto">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Operation.LaborHours}" /><NumericUpDown Value="{Binding LaborHours}" Minimum="0" Name="numLaborHours" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.MachineHours}" /><NumericUpDown Value="{Binding MachineHours}" Minimum="0" Name="numMachineHours" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Employee}" /><ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding Employee}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.StartTime}" /><TextBox Text="{Binding StartTime, Converter={x:Static l:DateTimeTextConverter.Instance}}" Watermark="yyyy-MM-dd HH:mm" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.EndTime}" /><TextBox Text="{Binding EndTime, Converter={x:Static l:DateTimeTextConverter.Instance}}" Watermark="yyyy-MM-dd HH:mm" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.ScrapQty}" /><NumericUpDown Value="{Binding ScrapQuantity}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.ReworkQty}" /><NumericUpDown Value="{Binding ReworkQuantity}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+    </Grid>
+    <Border Classes="banner-success"><TextBlock Classes="wrap" Text="{Binding CostPreview}" /></Border>
+  </StackPanel>
+</UserControl>

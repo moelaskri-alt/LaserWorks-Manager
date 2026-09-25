@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.AuditLogView"
+             x:DataType="vm:AuditLogViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Filters>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ComboBox ItemsSource="{Binding Actions}" SelectedItem="{Binding Action}" Width="130" />
+          <CalendarDatePicker SelectedDate="{Binding From}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+          <CalendarDatePicker SelectedDate="{Binding To}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" />
+        </StackPanel>
+      </c:ListToolbar.Filters>
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.ServerSort="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Timestamp, Converter={x:Static l:Conv.DateTimeShort}}" SortMemberPath="Timestamp" Width="140" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.User}" Binding="{Binding Username}" SortMemberPath="Username" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Action}" Binding="{Binding Action, Converter={x:Static l:Conv.Enum}}" SortMemberPath="Action" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Entity}" Binding="{Binding Entity}" SortMemberPath="Entity" Width="130" MinWidth="130" />
+        <DataGridTextColumn Header="{l:T Col.RecordId}" Binding="{Binding RecordId}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.Details}" Binding="{Binding Details}" Width="4*" MinWidth="160" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

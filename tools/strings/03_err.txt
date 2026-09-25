@@ -1,0 +1,171 @@
+Err.AccessDenied|You do not have permission: {0} — {1}.|ليست لديك صلاحية: {0} — {1}.
+Err.AccountHasEntries|This account has journal entries and cannot be deleted or changed.|هذا الحساب عليه قيود ولا يمكن حذفه أو تغييره.
+Err.AccountInactive|Account {0} is inactive.|الحساب {0} غير نشط.
+Err.AccountNotFound|Account not found.|الحساب غير موجود.
+Err.AccountNotPostable|Account {0} is a header account and cannot receive entries.|الحساب {0} حساب رئيسي ولا يقبل القيود.
+Err.AmountPositive|The amount must be greater than zero.|يجب أن يكون المبلغ أكبر من صفر.
+Err.AnnualHoursRequired|Annual working hours must be greater than zero.|يجب أن تكون ساعات التشغيل السنوية أكبر من صفر.
+Err.CannotCancelJobWithCost|A job with posted costs cannot be cancelled. Return the materials and reverse the costs first.|لا يمكن إلغاء عمل عليه تكاليف مرحّلة. أرجع المواد واعكس التكاليف أولاً.
+Err.CannotDemoteSelf|You cannot change your own role or deactivate yourself.|لا يمكنك تغيير دورك أو تعطيل حسابك.
+Err.ConstraintViolation|The record is referenced by other data or violates a uniqueness rule.|السجل مرتبط ببيانات أخرى أو يخالف قاعدة عدم التكرار.
+Err.CreditLimitExceeded|Credit limit {0} would be exceeded (new balance {1}).|سيتم تجاوز حد الائتمان {0} (الرصيد الجديد {1}).
+Err.Database|Database error|خطأ في قاعدة البيانات
+Err.DateRangeInvalid|The start date must be on or before the end date.|يجب أن يكون تاريخ البداية قبل تاريخ النهاية أو مساوياً له.
+Err.DecimalPlacesRange|Decimal places must be between 0 and 4.|يجب أن تكون المنازل العشرية بين 0 و 4.
+Err.DemoRequiresEmpty|Demo data can only be loaded into an empty database.|لا يمكن تحميل البيانات التجريبية إلا في قاعدة بيانات فارغة.
+Err.DimensionsRequired|Length and width must be greater than zero.|يجب أن يكون الطول والعرض أكبر من صفر.
+Err.DiscountExceedsPrice|The discount cannot exceed the line amount.|لا يمكن أن يتجاوز الخصم قيمة البند.
+Err.DocumentNotPosted|The document is not posted.|المستند غير مرحّل.
+Err.DocumentPosted|The document is already posted and cannot be edited.|المستند مرحّل مسبقاً ولا يمكن تعديله.
+Err.DueBeforeStart|The due date cannot be before the order date.|لا يمكن أن يكون تاريخ الاستحقاق قبل تاريخ الطلب.
+Err.DuplicateCode|The code "{0}" is already used.|الرمز "{0}" مستخدم مسبقاً.
+Err.DuplicateUsername|The username "{0}" already exists.|اسم المستخدم "{0}" موجود مسبقاً.
+Err.EfficiencyRange|Efficiency must be between 1% and 100%.|يجب أن تكون الكفاءة بين 1% و 100%.
+Err.EmailInvalid|The email address is not valid.|البريد الإلكتروني غير صالح.
+Err.EndBeforeStart|The end time cannot be before the start time.|لا يمكن أن يكون وقت النهاية قبل وقت البداية.
+Err.EstimateEmpty|The estimate has no cost lines.|التقدير لا يحتوي على بنود تكلفة.
+Err.EstimateFinal|The estimate is final and cannot be changed. Duplicate it to make a new version.|التقدير نهائي ولا يمكن تعديله. انسخه لإنشاء نسخة جديدة.
+Err.ExpenseAccountRequired|Select an expense account for this category.|اختر حساب مصروف لهذه الفئة.
+Err.ExportNotAvailable|Export is not available for this list.|التصدير غير متاح لهذه القائمة.
+Err.FileNotFound|File not found: {0}|الملف غير موجود: {0}
+Err.FileTooLarge|The file is too large (maximum 50 MB).|الملف كبير جداً (الحد الأقصى 50 ميجابايت).
+Err.FiscalYearOverlap|The fiscal year overlaps an existing period.|السنة المالية تتداخل مع فترة موجودة.
+Err.HoursRequired|Enter machine or labor hours.|أدخل ساعات الماكينة أو العمالة.
+Err.ImmutableRecord|{0} records are permanent and cannot be changed or deleted.|سجلات {0} دائمة ولا يمكن تعديلها أو حذفها.
+Err.InUseCannotDelete|This record is used by other documents and cannot be deleted. Deactivate it instead.|هذا السجل مستخدم في مستندات أخرى ولا يمكن حذفه. قم بتعطيله بدلاً من ذلك.
+Err.InsufficientStock|Insufficient stock: available {0}, required {1}.|المخزون غير كافٍ: المتاح {0}، المطلوب {1}.
+Err.InsufficientStockWarehouse|Insufficient stock of {0} in this warehouse: available {1}, required {2}.|المخزون غير كافٍ من {0} في هذا المستودع: المتاح {1}، المطلوب {2}.
+Err.InvalidJournalLine|Each journal line needs an account and either a debit or a credit amount.|كل سطر قيد يحتاج إلى حساب ومبلغ مدين أو دائن.
+Err.InvalidStatusTransition|Cannot change status from "{0}" to "{1}".|لا يمكن تغيير الحالة من "{0}" إلى "{1}".
+Err.InvoiceCustomerMismatch|The invoice belongs to another customer.|الفاتورة تخص عميلاً آخر.
+Err.InvoiceNotPosted|The invoice is not posted.|الفاتورة غير مرحّلة.
+Err.JobAlreadyInvoiced|This job has already been invoiced.|تمت فوترة هذا العمل مسبقاً.
+Err.JobClosed|Job {0} is closed.|أمر العمل {0} مغلق.
+Err.JobCustomerMismatch|The job belongs to another customer.|أمر العمل يخص عميلاً آخر.
+Err.JobInvoiced|The job is invoiced; this change is not allowed.|أمر العمل مفوتر؛ هذا التغيير غير مسموح.
+Err.JobNotCompleted|The job is not completed yet.|أمر العمل لم يكتمل بعد.
+Err.JobNotInQuality|The job is not in quality check.|أمر العمل ليس في مرحلة فحص الجودة.
+Err.JobNotInvoiced|The job has not been invoiced yet.|لم تتم فوترة أمر العمل بعد.
+Err.JobNotReadyForInvoice|Only completed or delivered jobs can be invoiced.|يمكن فوترة الأعمال المكتملة أو المسلّمة فقط.
+Err.JournalMinLines|A journal entry needs at least two lines.|يحتاج القيد إلى سطرين على الأقل.
+Err.KindChangeWithStock|The material kind cannot change while it has stock or movements.|لا يمكن تغيير نوع المادة ما دام لها رصيد أو حركات.
+Err.LastAdministrator|At least one active administrator is required.|يجب وجود مسؤول نشط واحد على الأقل.
+Err.LinesRequired|Add at least one line.|أضف بنداً واحداً على الأقل.
+Err.MarginBelow100|The margin must be below 100%.|يجب أن يكون هامش الربح أقل من 100%.
+Err.MarginRange|The margin must be between 0% and 99%.|يجب أن يكون هامش الربح بين 0% و 99%.
+Err.NegativeValue|Negative values are not allowed.|القيم السالبة غير مسموحة.
+Err.NoCustomers|Add a customer first.|أضف عميلاً أولاً.
+Err.NonNegative|{0} cannot be negative.|لا يمكن أن يكون {0} سالباً.
+Err.NotFound|The record was not found. It may have been deleted.|السجل غير موجود. ربما تم حذفه.
+Err.NotSignedIn|You are not signed in.|لم تقم بتسجيل الدخول.
+Err.NothingToInvoice|There is nothing left to invoice.|لا يوجد ما يمكن فوترته.
+Err.OnlyPostedCanBeReversed|Only posted entries can be reversed.|يمكن عكس القيود المرحّلة فقط.
+Err.OperationNotPending|The operation has already started.|العملية بدأت بالفعل.
+Err.OperationNotPosted|The operation cost is not posted.|تكلفة العملية غير مرحّلة.
+Err.OperationPosted|The operation cost is posted; it cannot be edited.|تكلفة العملية مرحّلة؛ لا يمكن تعديلها.
+Err.OperationsInProgress|Complete all operations first.|أكمل جميع العمليات أولاً.
+Err.OrderNotApproved|The purchase order is not approved.|أمر الشراء غير معتمد.
+Err.OverrideTooLow|The override value is too low.|القيمة المُدخلة يدوياً منخفضة جداً.
+Err.ParentMustBeHeader|The parent must be a header (non-postable) account.|يجب أن يكون الحساب الأب حساباً رئيسياً (غير قابل للترحيل).
+Err.ParentTypeMismatch|The parent account must be of the same type.|يجب أن يكون الحساب الأب من النوع نفسه.
+Err.PasswordMismatch|The passwords do not match.|كلمتا المرور غير متطابقتين.
+Err.PasswordPolicy|The password must be at least 8 characters and contain letters and digits.|يجب أن تتكون كلمة المرور من 8 أحرف على الأقل وتحتوي على حروف وأرقام.
+Err.PaymentExceedsBalance|The payment exceeds the open balance {0} (entered {1}).|الدفعة تتجاوز الرصيد المفتوح {0} (المُدخل {1}).
+Err.PaymentMethodNotCash|Choose cash or bank for this payment.|اختر النقدية أو البنك لهذه الدفعة.
+Err.PercentRange|{0} must be between 0 and 100.|يجب أن يكون {0} بين 0 و 100.
+Err.PeriodClosed|The accounting period is closed ({0}).|الفترة المحاسبية مغلقة ({0}).
+Err.PieceLargerThanSheet|Piece "{0}" does not fit on the sheet.|القطعة "{0}" لا تتسع في اللوح.
+Err.PieceSizeInvalid|Piece "{0}" needs a positive length, width and quantity.|القطعة "{0}" تحتاج إلى طول وعرض وكمية موجبة.
+Err.Positive|{0} must be greater than zero.|يجب أن يكون {0} أكبر من صفر.
+Err.PostedEntryImmutable|Posted entry {0} cannot be changed. Reverse it instead.|لا يمكن تعديل القيد المرحّل {0}. قم بعكسه بدلاً من ذلك.
+Err.PriceRequired|Enter a selling price.|أدخل سعر البيع.
+Err.QualityQuantities|Accepted + rejected + rework must equal the inspected quantity.|يجب أن يساوي المقبول + المرفوض + إعادة التشغيل الكمية المفحوصة.
+Err.QuantityNonZero|The quantity cannot be zero.|لا يمكن أن تكون الكمية صفراً.
+Err.QuantityPositive|The quantity must be greater than zero.|يجب أن تكون الكمية أكبر من صفر.
+Err.QuotationExpired|The quotation has expired.|انتهت صلاحية عرض السعر.
+Err.QuotationHasJob|A job was already created from this quotation.|تم إنشاء أمر عمل من عرض السعر هذا مسبقاً.
+Err.QuotationNotApproved|The quotation is not approved.|عرض السعر غير معتمد.
+Err.QuotationNotDraft|Only draft quotations can be edited.|يمكن تعديل عروض الأسعار المسودة فقط.
+Err.QuotationOldVersion|A newer version of this quotation exists.|توجد نسخة أحدث من عرض السعر هذا.
+Err.ReceiptAlreadyInvoiced|This receipt is already invoiced.|تمت فوترة هذا الاستلام مسبقاً.
+Err.RemnantCostRequired|Enter the remnant cost.|أدخل تكلفة القطعة المتبقية.
+Err.RemnantExceedsJobMaterial|The remnant value exceeds the job material cost ({0} available, {1} entered).|قيمة القطعة المتبقية تتجاوز تكلفة مواد العمل (المتاح {0}، المُدخل {1}).
+Err.RemnantLargerThanSheet|The remnant cannot be larger than the sheet.|لا يمكن أن تكون القطعة المتبقية أكبر من اللوح.
+Err.RemnantNotAvailable|Remnant {0} is not available.|القطعة المتبقية {0} غير متاحة.
+Err.RequestLocked|The request was converted to a job and is locked.|تم تحويل الطلب إلى أمر عمل وهو مقفل.
+Err.Required|{0} is required.|{0} مطلوب.
+Err.ResidualExceedsCost|The residual value cannot exceed the purchase cost.|لا يمكن أن تتجاوز القيمة المتبقية تكلفة الشراء.
+Err.ReturnBeforeInvoice|The return date cannot be before the invoice date.|لا يمكن أن يكون تاريخ الإرجاع قبل تاريخ الفاتورة.
+Err.ReturnExceedsIssued|You can return at most {0} (entered {1}).|يمكنك إرجاع {0} كحد أقصى (المُدخل {1}).
+Err.ReturnExceedsReceived|You can return at most {0} (entered {1}).|يمكنك إرجاع {0} كحد أقصى (المُدخل {1}).
+Err.ReturnExceedsSold|You can return at most {0} (entered {1}).|يمكنك إرجاع {0} كحد أقصى (المُدخل {1}).
+Err.ReverseThroughDocument|This entry belongs to a document; cancel or return the document instead.|هذا القيد يخص مستنداً؛ قم بإلغاء المستند أو إرجاعه بدلاً من ذلك.
+Err.RevisionLocked|Approved or superseded revisions cannot be edited.|لا يمكن تعديل المراجعات المعتمدة أو المستبدلة.
+Err.SameWarehouse|Source and destination warehouses must differ.|يجب أن يختلف المستودع المصدر عن المستودع الوجهة.
+Err.ScrapExceedsMaterial|The scrap cost exceeds the job material cost ({0} available, {1} entered).|تكلفة الهالك تتجاوز تكلفة مواد العمل (المتاح {0}، المُدخل {1}).
+Err.SequenceCannotGoBack|The next number for {0} cannot go back.|لا يمكن إرجاع الرقم التالي لـ {0} للخلف.
+Err.SequenceInvalid|The numbering settings for {0} are invalid.|إعدادات الترقيم لـ {0} غير صالحة.
+Err.SetupAlreadyDone|Setup has already been completed.|تم إكمال الإعداد مسبقاً.
+Err.SheetSizeRequired|Enter the sheet length and width.|أدخل طول اللوح وعرضه.
+Err.SupplierMismatch|The documents belong to different suppliers.|المستندات تخص موردين مختلفين.
+Err.SupplierRequiredForCredit|A supplier is required for credit purchases.|المورد مطلوب للمشتريات الآجلة.
+Err.SystemAccountMissing|System account {0} is missing from the chart of accounts.|حساب النظام {0} غير موجود في دليل الحسابات.
+Err.SystemRecord|System records cannot be deleted.|لا يمكن حذف سجلات النظام.
+Err.UnbalancedEntry|The entry is not balanced: debit {0}, credit {1}.|القيد غير متوازن: مدين {0}، دائن {1}.
+Err.Unexpected|Unexpected error|خطأ غير متوقع
+Err.UnitCostRequired|Enter the unit cost.|أدخل تكلفة الوحدة.
+Err.UseConvertToJob|Use "Create job" on the approved quotation.|استخدم "إنشاء أمر عمل" من عرض السعر المعتمد.
+Err.UseDeliver|Use the Deliver action to mark the job as delivered.|استخدم إجراء التسليم لتعليم العمل كمُسلَّم.
+Err.UseSubledgerOpening|Enter this opening balance from the customer, supplier or material screen.|أدخل هذا الرصيد الافتتاحي من شاشة العميل أو المورد أو المادة.
+Err.UsernameInvalid|The username must be 3–32 letters, digits, dots or underscores.|يجب أن يتكون اسم المستخدم من 3 إلى 32 حرفاً أو رقماً أو نقطة أو شرطة سفلية.
+Err.ValidityBeforeDate|The validity date cannot be before the quotation date.|لا يمكن أن يكون تاريخ الصلاحية قبل تاريخ عرض السعر.
+Err.WrongPassword|The current password is incorrect.|كلمة المرور الحالية غير صحيحة.
+Field.Code|Code|الرمز
+Field.CreditLimit|Credit limit|حد الائتمان
+Field.Description|Description|الوصف
+Field.Discount|Discount|الخصم
+Field.EstimatedCost|Estimated cost|التكلفة المقدرة
+Field.HourlyCost|Hourly cost|التكلفة بالساعة
+Field.Name|Name|الاسم
+Field.PlannedHours|Planned hours|الساعات المخططة
+Field.Quantity|Quantity|الكمية
+Field.Reason|Reason|السبب
+Field.SellingPrice|Selling price|سعر البيع
+Field.Tax|Tax rate|نسبة الضريبة
+Field.Thickness|Thickness|السماكة
+Field.Title|Title|العنوان
+Field.Passes|Passes|عدد المرات
+Field.Speed|Speed|السرعة
+Field.Power|Power|القدرة
+Field.PaymentTerms|Payment terms|شروط الدفع
+Field.Account|Account|الحساب
+Field.Category|Category|الفئة
+Field.CompanyName|Company name|اسم الشركة
+Field.Currency|Currency|العملة
+Field.Customer|Customer|العميل
+Field.FullName|Full name|الاسم الكامل
+Field.Job|Job|أمر العمل
+Field.Machine|Machine|الماكينة
+Field.Material|Material|المادة
+Field.Party|Customer / supplier|العميل / المورد
+Field.Request|Request|الطلب
+Field.Supplier|Supplier|المورد
+Field.Unit|Unit|الوحدة
+Field.Warehouse|Warehouse|المستودع
+Msg.Approved|Approved.|تم الاعتماد.
+Msg.ConfirmApproveRevision|Approve revision {0} as the final design? Other revisions will be superseded.|اعتماد المراجعة {0} كتصميم نهائي؟ سيتم استبدال المراجعات الأخرى.
+Msg.ConfirmCancelJob|Cancel this job? This cannot be undone.|إلغاء أمر العمل هذا؟ لا يمكن التراجع عن ذلك.
+Msg.ConfirmDelete|Delete "{0}"?|حذف "{0}"؟
+Msg.Deleted|Deleted.|تم الحذف.
+Msg.DemoLoaded|Demo data loaded.|تم تحميل البيانات التجريبية.
+Msg.EstimateFinalized|The estimate is now final.|أصبح التقدير نهائياً.
+Msg.Exported|Exported: {0}|تم التصدير: {0}
+Msg.FileSavedAt|File saved: {0}|تم حفظ الملف: {0}
+Msg.JobClosed|The job was closed and its costs transferred.|تم إغلاق أمر العمل وتحويل تكاليفه.
+Msg.JobCreated|Job created.|تم إنشاء أمر العمل.
+Msg.NewVersion|A new version was created.|تم إنشاء نسخة جديدة.
+Msg.Posted|Posted.|تم الترحيل.
+Msg.ProductionCompleted|Production completed.|اكتمل الإنتاج.
+Msg.QuotationSent|The quotation was marked as sent.|تم تعليم عرض السعر كمُرسَل.
+Msg.Reversed|The entry was reversed.|تم عكس القيد.
+Msg.Saved|Saved.|تم الحفظ.

@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.PurchasesView"
+             x:DataType="vm:PurchasesViewModel">
+  <TabControl SelectedIndex="{Binding SelectedTab}">
+    <TabItem Header="{l:T Purchases.Suppliers}"><ContentControl Content="{Binding Suppliers}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Purchases.Orders}"><ContentControl Content="{Binding Orders}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Purchases.Receipts}"><ContentControl Content="{Binding Receipts}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Purchases.Invoices}"><ContentControl Content="{Binding Invoices}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Purchases.Payments}"><ContentControl Content="{Binding Payments}" Margin="0,10,0,0" /></TabItem>
+    <TabItem Header="{l:T Purchases.Returns}"><ContentControl Content="{Binding Returns}" Margin="0,10,0,0" /></TabItem>
+  </TabControl>
+</UserControl>

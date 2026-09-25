@@ -1,0 +1,266 @@
+Enum.UserRole.Administrator|Administrator|مسؤول النظام
+Enum.UserRole.Manager|Manager|مدير
+Enum.UserRole.Accountant|Accountant|محاسب
+Enum.UserRole.Sales|Sales|مبيعات
+Enum.UserRole.Production|Production|إنتاج
+Enum.UserRole.Storekeeper|Storekeeper|أمين مستودع
+Enum.Permission.View|View|عرض
+Enum.Permission.Create|Create|إنشاء
+Enum.Permission.Edit|Edit|تعديل
+Enum.Permission.Delete|Delete|حذف
+Enum.Permission.Post|Post|ترحيل
+Enum.Permission.Approve|Approve|اعتماد
+Enum.Permission.Print|Print|طباعة
+Enum.Permission.Export|Export|تصدير
+Enum.AppModule.Dashboard|Dashboard|لوحة التحكم
+Enum.AppModule.Customers|Customers|العملاء
+Enum.AppModule.Requests|Customer requests|طلبات العملاء
+Enum.AppModule.Jobs|Jobs|أوامر العمل
+Enum.AppModule.Design|Design & revisions|التصميم والمراجعات
+Enum.AppModule.Estimates|Cost estimation|تقدير التكلفة
+Enum.AppModule.Quotations|Quotations|عروض الأسعار
+Enum.AppModule.Production|Production|الإنتاج
+Enum.AppModule.Inventory|Materials & inventory|المواد والمخزون
+Enum.AppModule.Machines|Machines|الماكينات
+Enum.AppModule.Employees|Employees & labor|الموظفون والعمالة
+Enum.AppModule.Expenses|Expenses|المصروفات
+Enum.AppModule.Sales|Sales & invoicing|المبيعات والفواتير
+Enum.AppModule.Purchases|Purchases|المشتريات
+Enum.AppModule.Accounting|Accounting|المحاسبة
+Enum.AppModule.Profitability|Job profitability|ربحية الأعمال
+Enum.AppModule.Reports|Reports|التقارير
+Enum.AppModule.Settings|Settings|الإعدادات
+Enum.AppModule.Backup|Backup & restore|النسخ الاحتياطي والاستعادة
+Enum.AppModule.Users|Users & permissions|المستخدمون والصلاحيات
+Enum.AuditAction.Created|Created|إنشاء
+Enum.AuditAction.Updated|Updated|تعديل
+Enum.AuditAction.Deleted|Deleted|حذف
+Enum.AuditAction.Posted|Posted|ترحيل
+Enum.AuditAction.Approved|Approved|اعتماد
+Enum.AuditAction.Reversed|Reversed|عكس
+Enum.AuditAction.Login|Sign-in|تسجيل دخول
+Enum.AuditAction.LoginFailed|Failed sign-in|محاولة دخول فاشلة
+Enum.AuditAction.Logout|Sign-out|تسجيل خروج
+Enum.AuditAction.Backup|Backup|نسخ احتياطي
+Enum.AuditAction.Restore|Restore|استعادة
+Enum.AuditAction.StatusChanged|Status changed|تغيير الحالة
+Enum.AccountType.Asset|Asset|أصول
+Enum.AccountType.Liability|Liability|خصوم
+Enum.AccountType.Equity|Equity|حقوق الملكية
+Enum.AccountType.Revenue|Revenue|إيرادات
+Enum.AccountType.Expense|Expense|مصروفات
+Enum.JournalStatus.Draft|Draft|مسودة
+Enum.JournalStatus.Posted|Posted|مرحّل
+Enum.JournalStatus.Reversed|Reversed|معكوس
+Enum.MaterialKind.RawMaterial|Raw material|مادة خام
+Enum.MaterialKind.Consumable|Consumable|مستهلكات
+Enum.MaterialKind.FinishedGood|Finished good|منتج تام
+Enum.RequestStatus.New|New|جديد
+Enum.RequestStatus.UnderReview|Under review|قيد المراجعة
+Enum.RequestStatus.Designing|Designing|قيد التصميم
+Enum.RequestStatus.Estimating|Estimating|قيد التسعير
+Enum.RequestStatus.Quoted|Quoted|تم التسعير
+Enum.RequestStatus.Approved|Approved|معتمد
+Enum.RequestStatus.Rejected|Rejected|مرفوض
+Enum.RequestStatus.ConvertedToJob|Converted to job|محوّل إلى أمر عمل
+Enum.RevisionStatus.Draft|Draft|مسودة
+Enum.RevisionStatus.UnderReview|Under review|قيد المراجعة
+Enum.RevisionStatus.Approved|Approved|معتمد
+Enum.RevisionStatus.Superseded|Superseded|مستبدل
+Enum.RevisionStatus.Rejected|Rejected|مرفوض
+Enum.EstimateStatus.Draft|Draft|مسودة
+Enum.EstimateStatus.Final|Final|نهائي
+Enum.QuotationStatus.Draft|Draft|مسودة
+Enum.QuotationStatus.Sent|Sent|مُرسل
+Enum.QuotationStatus.Approved|Approved|معتمد
+Enum.QuotationStatus.Rejected|Rejected|مرفوض
+Enum.QuotationStatus.Expired|Expired|منتهي الصلاحية
+Enum.QuotationStatus.Superseded|Superseded|مستبدل
+Enum.JobStatus.New|New|جديد
+Enum.JobStatus.Planned|Planned|مخطط
+Enum.JobStatus.InProduction|In production|قيد الإنتاج
+Enum.JobStatus.QualityCheck|Quality check|فحص الجودة
+Enum.JobStatus.Completed|Completed|مكتمل
+Enum.JobStatus.Delivered|Delivered|مُسلَّم
+Enum.JobStatus.Invoiced|Invoiced|مفوتر
+Enum.JobStatus.Closed|Closed|مغلق
+Enum.JobStatus.Cancelled|Cancelled|ملغى
+Enum.JobPriority.Low|Low|منخفضة
+Enum.JobPriority.Normal|Normal|عادية
+Enum.JobPriority.High|High|عالية
+Enum.JobPriority.Urgent|Urgent|عاجلة
+Enum.OperationType.Design|Design|تصميم
+Enum.OperationType.MaterialPreparation|Material preparation|تجهيز المواد
+Enum.OperationType.Cutting|Cutting|قص
+Enum.OperationType.Engraving|Engraving|حفر
+Enum.OperationType.Cleaning|Cleaning|تنظيف
+Enum.OperationType.Assembly|Assembly|تجميع
+Enum.OperationType.Finishing|Finishing|تشطيب
+Enum.OperationType.Packaging|Packaging|تغليف
+Enum.OperationStatus.Pending|Pending|معلّقة
+Enum.OperationStatus.InProgress|In progress|قيد التنفيذ
+Enum.OperationStatus.Done|Done|منجزة
+Enum.ScrapType.NormalScrap|Normal scrap|هالك طبيعي
+Enum.ScrapType.AbnormalScrap|Abnormal scrap|هالك غير طبيعي
+Enum.ScrapType.Rework|Rework|إعادة تشغيل
+Enum.ScrapType.Damage|Damage|تلف
+Enum.ScrapType.MaterialWaste|Material waste|هدر مواد
+Enum.QualityStatus.Pending|Pending|معلّق
+Enum.QualityStatus.Passed|Passed|ناجح
+Enum.QualityStatus.Failed|Failed|راسب
+Enum.QualityStatus.ReworkRequired|Rework required|يتطلب إعادة تشغيل
+Enum.CostComponent.Material|Material|المواد
+Enum.CostComponent.Machine|Machine time|وقت الماكينة
+Enum.CostComponent.Labor|Labor|العمالة
+Enum.CostComponent.Design|Design|التصميم
+Enum.CostComponent.Setup|Setup|التجهيز
+Enum.CostComponent.Finishing|Finishing|التشطيب
+Enum.CostComponent.Packaging|Packaging|التغليف
+Enum.CostComponent.Consumables|Consumables|المستهلكات
+Enum.CostComponent.Maintenance|Maintenance allocation|تخصيص الصيانة
+Enum.CostComponent.Overhead|Overhead|التكاليف غير المباشرة
+Enum.CostComponent.Scrap|Scrap allowance|مخصص الهالك
+Enum.CostComponent.Rework|Rework|إعادة التشغيل
+Enum.CostComponent.OtherDirect|Other direct costs|تكاليف مباشرة أخرى
+Enum.ComponentMode.Auto|Automatic|تلقائي
+Enum.ComponentMode.Manual|Manual|يدوي
+Enum.OverheadMethod.PercentOfDirectCost|% of direct cost|نسبة من التكلفة المباشرة
+Enum.OverheadMethod.PerMachineHour|Per machine hour|لكل ساعة ماكينة
+Enum.InventoryTxType.OpeningBalance|Opening balance|رصيد افتتاحي
+Enum.InventoryTxType.PurchaseReceipt|Purchase receipt|استلام مشتريات
+Enum.InventoryTxType.PurchaseReturn|Purchase return|مرتجع مشتريات
+Enum.InventoryTxType.MaterialIssue|Issue to job|صرف لأمر عمل
+Enum.InventoryTxType.MaterialReturn|Return from job|إرجاع من أمر عمل
+Enum.InventoryTxType.Transfer|Transfer|تحويل
+Enum.InventoryTxType.Adjustment|Adjustment|تسوية
+Enum.InventoryTxType.Scrap|Scrap|هالك
+Enum.InventoryTxType.RemnantCreation|Remnant created|إنشاء قطعة متبقية
+Enum.InventoryTxType.RemnantConsumption|Remnant used|استخدام قطعة متبقية
+Enum.InventoryTxType.RemnantAdjustment|Remnant adjustment|تسوية قطعة متبقية
+Enum.InventoryTxType.SalesIssue|Sales issue|صرف مبيعات
+Enum.InventoryTxType.SalesReturn|Sales return|مرتجع مبيعات
+Enum.InventoryTxType.FinishedGoodsReceipt|Finished goods receipt|استلام منتج تام
+Enum.RemnantStatus.Available|Available|متاحة
+Enum.RemnantStatus.Consumed|Used|مستخدمة
+Enum.RemnantStatus.Scrapped|Scrapped|مشطوبة
+Enum.PurchaseOrderStatus.Draft|Draft|مسودة
+Enum.PurchaseOrderStatus.Approved|Approved|معتمد
+Enum.PurchaseOrderStatus.PartiallyReceived|Partially received|مستلم جزئياً
+Enum.PurchaseOrderStatus.Received|Received|مستلم
+Enum.PurchaseOrderStatus.Cancelled|Cancelled|ملغى
+Enum.DocumentStatus.Draft|Draft|مسودة
+Enum.DocumentStatus.Posted|Posted|مرحّل
+Enum.DocumentStatus.Cancelled|Cancelled|ملغى
+Enum.PaymentMethod.Cash|Cash|نقداً
+Enum.PaymentMethod.Bank|Bank|بنك
+Enum.PaymentMethod.OnCredit|On credit|آجل
+Enum.InvoiceLineType.Job|Job|أمر عمل
+Enum.InvoiceLineType.StockItem|Stock item|صنف مخزني
+Enum.InvoiceLineType.Service|Service|خدمة
+Enum.AttachmentOwner.Request|Request|طلب
+Enum.AttachmentOwner.DesignRevision|Design revision|مراجعة تصميم
+Enum.AttachmentOwner.Job|Job|أمر عمل
+Enum.AttachmentOwner.Quotation|Quotation|عرض سعر
+Enum.AttachmentOwner.Expense|Expense|مصروف
+Enum.SequenceKey.Customer|Customers|العملاء
+Enum.SequenceKey.Supplier|Suppliers|الموردون
+Enum.SequenceKey.Employee|Employees|الموظفون
+Enum.SequenceKey.Machine|Machines|الماكينات
+Enum.SequenceKey.Material|Materials|المواد
+Enum.SequenceKey.Request|Customer requests|طلبات العملاء
+Enum.SequenceKey.Estimate|Estimates|التقديرات
+Enum.SequenceKey.Quotation|Quotations|عروض الأسعار
+Enum.SequenceKey.Job|Jobs|أوامر العمل
+Enum.SequenceKey.Invoice|Invoices|الفواتير
+Enum.SequenceKey.SalesReturn|Sales returns|مرتجعات المبيعات
+Enum.SequenceKey.CustomerPayment|Customer payments|مقبوضات العملاء
+Enum.SequenceKey.PurchaseOrder|Purchase orders|أوامر الشراء
+Enum.SequenceKey.PurchaseReceipt|Purchase receipts|استلامات المشتريات
+Enum.SequenceKey.SupplierInvoice|Supplier invoices|فواتير الموردين
+Enum.SequenceKey.SupplierPayment|Supplier payments|مدفوعات الموردين
+Enum.SequenceKey.PurchaseReturn|Purchase returns|مرتجعات المشتريات
+Enum.SequenceKey.Expense|Expenses|المصروفات
+Enum.SequenceKey.Journal|Journal entries|القيود اليومية
+Enum.SequenceKey.InventoryTx|Inventory movements|حركات المخزون
+Enum.SequenceKey.Remnant|Remnants|البواقي
+Enum.SequenceKey.Scrap|Scrap records|سجلات الهالك
+Enum.LoginResult.Success|Success|نجاح
+Enum.LoginResult.InvalidCredentials|Invalid credentials|بيانات دخول غير صحيحة
+Enum.LoginResult.LockedOut|Locked out|مقفل
+Enum.LoginResult.Inactive|Inactive|غير نشط
+Stock.Opening|Opening stock|رصيد افتتاحي
+Stock.Adjust|Stock adjustment|تسوية مخزون
+Stock.IssueToJob|Issue material to job|صرف مواد لأمر عمل
+Stock.ReturnFromJob|Return material from job|إرجاع مواد من أمر عمل
+Stock.Transfer|Transfer between warehouses|تحويل بين المستودعات
+Stock.Scrap|Write off scrap|شطب هالك
+Stock.AvailableHint|Available: {0} {1} · average cost {2}|المتاح: {0} {1} · متوسط التكلفة {2}
+Stock.Decrease|Decrease|نقص
+Stock.Increase|Increase|زيادة
+Stock.IssuedToJobHint|Net issued to this job: {0} at average {1}|صافي المصروف لهذا العمل: {0} بمتوسط {1}
+Stock.Movements|Stock movements|حركات المخزون
+Stock.NewMovement|New movement|حركة جديدة
+Stock.NotesReason|Reason / notes|السبب / ملاحظات
+Stock.ToWarehouse|To warehouse|إلى المستودع
+Remnant.CreateFromJob|Create remnant from job|إنشاء قطعة متبقية من أمر عمل
+Remnant.CreateFromStock|Create remnant from stock sheet|إنشاء قطعة متبقية من لوح مخزني
+Remnant.Consume|Use remnant|استخدام قطعة متبقية
+Remnant.Adjust|Adjust remnant|تسوية قطعة متبقية
+Remnant.CostOptional|Value (leave empty for area-proportional cost)|القيمة (اتركها فارغة لحساب التكلفة حسب المساحة)
+Remnant.CostPreview|Estimated remnant value: {0}|القيمة التقديرية للقطعة المتبقية: {0}
+Remnant.Help|Remnants are reusable offcuts. Their value is moved out of the job (or sheet) cost into remnant inventory.|البواقي قطع قابلة لإعادة الاستخدام. تُنقل قيمتها من تكلفة العمل (أو اللوح) إلى مخزون البواقي.
+Remnant.ScrapIt|Scrap remnant|شطب القطعة المتبقية
+Period.Today|Today|اليوم
+Period.Last7|Last 7 days|آخر 7 أيام
+Period.ThisMonth|This month|هذا الشهر
+Period.Last30|Last 30 days|آخر 30 يوماً
+Period.ThisQuarter|This quarter|هذا الربع
+Period.ThisYear|This year|هذه السنة
+Period.Last12Months|Last 12 months|آخر 12 شهراً
+Period.Custom|Custom range|فترة مخصصة
+Period.Close|Close period|إغلاق الفترة
+Period.Closed|Closed|مغلقة
+Period.CreateYear|Create fiscal year|إنشاء سنة مالية
+Period.Hint|Closed periods reject new postings. Reopen a period only to correct errors.|الفترات المغلقة ترفض القيود الجديدة. أعد فتح الفترة فقط لتصحيح الأخطاء.
+Period.NewYearStart|New fiscal year starts|بداية السنة المالية الجديدة
+Period.Reopen|Reopen period|إعادة فتح الفترة
+Period.Year|Fiscal year|السنة المالية
+Filter.Account|Account|الحساب
+Filter.All|All|الكل
+Filter.Active|Active|النشطون
+Filter.Inactive|Inactive|غير النشطين
+Filter.AllVersions|Show all versions|عرض جميع النسخ
+Filter.AsOf|As of|حتى تاريخ
+Filter.CompletedOnly|Completed jobs only|الأعمال المكتملة فقط
+Filter.Customer|Customer|العميل
+Filter.FlaggedOnly|Flagged only|المنبَّه عليها فقط
+Filter.From|From|من
+Filter.Job|Job|أمر العمل
+Filter.LowStockOnly|Low stock only|المخزون المنخفض فقط
+Filter.ManualOnly|Manual entries only|القيود اليدوية فقط
+Filter.OpenJobsOnly|Open jobs only|الأعمال المفتوحة فقط
+Filter.PendingOnly|Pending only|المعلّقة فقط
+Filter.To|To|إلى
+Filter.UnpaidOnly|Unpaid only|غير المدفوعة فقط
+Filter.Supplier|Supplier|المورد
+Filter.Status|Status|الحالة
+JobView.All|All jobs|جميع الأعمال
+JobView.Open|Open|المفتوحة
+JobView.DueSoon|Due in 7 days|تستحق خلال 7 أيام
+JobView.Overdue|Overdue|المتأخرة
+Doc.All|All documents|جميع المستندات
+Doc.Request|Request|طلب
+Doc.Job|Job|أمر عمل
+Doc.Payment|Payment|دفعة
+Doc.AuthorizedSignature|Authorized signature|التوقيع المعتمد
+Doc.BillTo|Bill to|فاتورة إلى
+Doc.CustomerAcceptance|Customer acceptance|موافقة العميل
+Doc.DeliveryDays|Delivery: {0} working days from approval|التسليم: {0} أيام عمل من تاريخ الموافقة
+Doc.DraftWatermark|DRAFT|مسودة
+Doc.Invoice|Invoice|فاتورة
+Doc.Quotation|Quotation|عرض سعر
+Doc.QuotationFooter|Prices are valid until the date shown. Work starts after written approval.|الأسعار سارية حتى التاريخ المذكور. يبدأ العمل بعد الموافقة الكتابية.
+Doc.QuotedTo|Quoted to|مقدم إلى
+Doc.Receipt|Receipt|سند قبض
+Doc.SupplierInvoice|Supplier invoice|فاتورة مورد
+Doc.TaxInvoice|Tax invoice|فاتورة ضريبية

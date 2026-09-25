@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:c="using:LaserWorks.Desktop.Controls"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.EmployeesView"
+             x:DataType="vm:EmployeesViewModel">
+  <DockPanel>
+    <c:ListToolbar DockPanel.Dock="Top" Grid="{Binding #grid}" Margin="0,0,0,10">
+      <c:ListToolbar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Command="{Binding OpenCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoEdit}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Edit}" /></StackPanel>
+          </Button>
+          <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
+            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" /></Button>
+          <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Employee.New}" /></StackPanel>
+          </Button>
+        </StackPanel>
+      </c:ListToolbar.Actions>
+    </c:ListToolbar>
+    <c:Pager DockPanel.Dock="Bottom" />
+    <DataGrid Name="grid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" l:GridBehaviors.ServerSort="True" l:GridBehaviors.OpenCommand="{Binding OpenCommand}">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" SortMemberPath="Code" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" SortMemberPath="Name" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Role}" Binding="{Binding Role}" SortMemberPath="Role" Width="1.5*" MinWidth="105" />
+        <DataGridTextColumn Header="{l:T Col.HourlyCost}" Binding="{Binding HourlyCost, Converter={x:Static l:Conv.Money}}" SortMemberPath="HourlyCost" Width="120" MinWidth="120" />
+        <DataGridTextColumn Header="{l:T Col.Phone}" Binding="{Binding Phone}" Width="130" MinWidth="130" />
+        <DataGridCheckBoxColumn Header="{l:T Col.Active}" Binding="{Binding IsActive}" Width="70" MinWidth="70" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

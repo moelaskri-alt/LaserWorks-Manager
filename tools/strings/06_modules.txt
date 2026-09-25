@@ -1,0 +1,345 @@
+Accounting.ActualValue|Actual|الفعلي
+Accounting.AllReconciled|All sub-ledgers reconcile with the general ledger.|جميع الدفاتر الفرعية مطابقة لدفتر الأستاذ العام.
+Accounting.Chart|Chart of accounts|دليل الحسابات
+Accounting.Check|Check|الفحص
+Accounting.Expected|Expected|المتوقع
+Accounting.Journals|Journal entries|القيود اليومية
+Accounting.Ledger|Account ledger|دفتر الأستاذ
+Accounting.NotReconciled|Some checks failed — review the differences below.|فشلت بعض الفحوصات — راجع الفروقات أدناه.
+Accounting.OpeningAmountHint|Opening amount (positive = normal balance side)|مبلغ الرصيد الافتتاحي (موجب = جهة الرصيد الطبيعية)
+Accounting.OpeningBalance|Opening balance|الرصيد الافتتاحي
+Accounting.Periods|Fiscal periods|الفترات المالية
+Accounting.Reconciliation|Reconciliation|المطابقة
+Accounting.ReconciliationHelp|Compares customer, supplier, inventory and WIP sub-ledgers with their control accounts and checks that the trial balance balances.|تقارن الدفاتر الفرعية للعملاء والموردين والمخزون والإنتاج تحت التشغيل مع حساباتها الرقابية وتتحقق من توازن ميزان المراجعة.
+Accounting.RunChecks|Run checks|تشغيل الفحوصات
+Attachment.Add|Attach file|إرفاق ملف
+Attachment.Title|Attachments|المرفقات
+Backup.ConfirmRestore|Restore from "{0}"? The current data will be replaced. A safety backup is created first and the application will reload.|الاستعادة من "{0}"؟ سيتم استبدال البيانات الحالية. سيتم إنشاء نسخة أمان أولاً ثم إعادة تحميل التطبيق.
+Backup.Create|Create backup|إنشاء نسخة احتياطية
+Backup.Created|Backup created: {0}|تم إنشاء النسخة الاحتياطية: {0}
+Backup.DataFolder|Data folder|مجلد البيانات
+Backup.File|File|الملف
+Backup.History|Backup history|سجل النسخ الاحتياطية
+Backup.Integrity|Database integrity|سلامة قاعدة البيانات
+Backup.IntegrityHelp|Runs the SQLite integrity check and verifies that the books balance.|يشغّل فحص سلامة SQLite ويتحقق من توازن الدفاتر.
+Backup.Invalid|The backup file is not valid: {0}|ملف النسخة الاحتياطية غير صالح: {0}
+Backup.Note|Note (optional)|ملاحظة (اختياري)
+Backup.Now|Back up now|نسخ احتياطي الآن
+Backup.OpenFolder|Open backup folder|فتح مجلد النسخ
+Backup.RestoreFile|Restore from file…|استعادة من ملف…
+Backup.RestoreHelp|Restore validates the backup checksum and database before replacing data, and always creates a safety backup of the current data first.|تتحقق الاستعادة من بصمة النسخة وقاعدة البيانات قبل استبدال البيانات، وتنشئ دائماً نسخة أمان من البيانات الحالية أولاً.
+Backup.RestoreSelected|Restore selected|استعادة المحدد
+Backup.Restored|Restore completed. Please sign in again.|اكتملت الاستعادة. يرجى تسجيل الدخول مرة أخرى.
+Backup.RunIntegrity|Run integrity check|تشغيل فحص السلامة
+Backup.Size|Size|الحجم
+Backup.SqliteOk|SQLite integrity check: OK|فحص سلامة SQLite: سليم
+Backup.To|Back up to…|نسخ احتياطي إلى…
+Backup.Valid|{0} is valid (created {1}, version {2}).|{0} صالح (أُنشئ في {1}، الإصدار {2}).
+Backup.Validate|Validate file…|التحقق من ملف…
+Backup.Verified|Verified|تم التحقق
+Calculator.FitPerPiece|Pieces per sheet (grid)|القطع في اللوح (شبكي)
+Calculator.FitPerSheet|Fit per sheet|العدد في اللوح
+Calculator.Help|Estimate how many sheets a job needs, the utilization and the material cost.|قدّر عدد الألواح التي يحتاجها العمل ونسبة الاستغلال وتكلفة المواد.
+Calculator.Note|Area method: sheets = ⌈pieces area ÷ (sheet area × efficiency)⌉. Grid method is an upper bound for rectangular nesting.|طريقة المساحة: الألواح = ⌈مساحة القطع ÷ (مساحة اللوح × الكفاءة)⌉. الطريقة الشبكية حد أعلى للترتيب المستطيل.
+Calculator.PiecesArea|Pieces area|مساحة القطع
+Calculator.Result|Result|النتيجة
+Calculator.Rotated|Rotated|مُدار
+Calculator.SheetsAlone|Sheets (this piece alone)|الألواح (لهذه القطعة وحدها)
+Calculator.SheetsByArea|Sheets by area|الألواح حسب المساحة
+Calculator.SheetsByGrid|Sheets by grid|الألواح حسب الشبكة
+Calculator.Units|Units to produce|الوحدات المطلوب إنتاجها
+Calculator.WastePercent|Waste %|نسبة الهدر
+Company.Currency|Currency code|رمز العملة
+Company.CurrencySymbol|Currency symbol|رمز العملة المختصر
+Company.DecimalPlaces|Decimal places|المنازل العشرية
+Company.DefaultMargin|Default target margin %|هامش الربح المستهدف الافتراضي %
+Company.DefaultMarkup|Default markup %|نسبة الإضافة الافتراضية %
+Company.ElectricityPrice|Electricity price per kWh|سعر الكيلوواط ساعة
+Company.LaborRate|Default labor rate per hour|سعر ساعة العمالة الافتراضي
+Company.MinimumMargin|Minimum acceptable margin %|الحد الأدنى المقبول لهامش الربح %
+Company.Name|Company name|اسم الشركة
+Company.OverheadRate|Overhead rate %|نسبة التكاليف غير المباشرة %
+Company.TaxNumber|Tax registration number|الرقم الضريبي
+Company.TaxRate|Default VAT rate %|نسبة ضريبة القيمة المضافة الافتراضية %
+Customer.Details|Details|البيانات
+Customer.Documents|Documents|المستندات
+Customer.Edit|Edit customer|تعديل العميل
+Customer.Name|Customer name|اسم العميل
+Customer.New|New customer|عميل جديد
+Customer.OpeningBalance|Opening balance (amount owed)|الرصيد الافتتاحي (المبلغ المستحق)
+Customer.Profile|Customer profile|ملف العميل
+Customer.Statement|Statement|كشف الحساب
+Employee.Edit|Edit employee|تعديل الموظف
+Employee.New|New employee|موظف جديد
+Estimate.AddLabor|Add labor|إضافة عمالة
+Estimate.AddMachine|Add machine time|إضافة وقت ماكينة
+Estimate.AddMaterial|Add material|إضافة مادة
+Estimate.AddPiece|Add piece|إضافة قطعة
+Estimate.ApplyWhatIfPrice|Use this price|استخدام هذا السعر
+Estimate.BelowMinimum|The selling price is below the minimum acceptable margin.|سعر البيع أقل من الحد الأدنى المقبول لهامش الربح.
+Estimate.ChargeFullSheets|Charge full sheets|احتساب ألواح كاملة
+Estimate.ConsumablesPerUnit|Consumables per unit|المستهلكات لكل وحدة
+Estimate.CostBreakdown|Cost breakdown|تفصيل التكلفة
+Estimate.CostPerSheet|Cost per sheet|تكلفة اللوح
+Estimate.CreateQuotation|Create quotation|إنشاء عرض سعر
+Estimate.DesignHours|Design hours|ساعات التصميم
+Estimate.DesignRate|Design rate / h|سعر ساعة التصميم
+Estimate.DirectCost|Direct cost|التكلفة المباشرة
+Estimate.Duplicate|Duplicate|نسخ
+Estimate.Efficiency|Nesting efficiency %|كفاءة الترتيب %
+Estimate.FinalLocked|This estimate is final and locked.|هذا التقدير نهائي ومقفل.
+Estimate.Finalize|Finalize|اعتماد نهائي
+Estimate.FindRemnants|Find remnants|البحث عن بواقٍ
+Estimate.FinishingPerUnit|Finishing per unit|التشطيب لكل وحدة
+Estimate.Labor|Labor|العمالة
+Estimate.MachineHours|Machine hours|ساعات الماكينة
+Estimate.MachineTime|Machine time|وقت الماكينة
+Estimate.Manual|Manual|يدوي
+Estimate.Materials|Materials|المواد
+Estimate.MinimumMargin|Minimum margin %|الحد الأدنى للهامش %
+Estimate.MinimumPrice|Minimum price|أدنى سعر
+Estimate.MinutesPerUnit|Minutes per unit|دقائق لكل وحدة
+Estimate.New|New estimate|تقدير جديد
+Estimate.NoRemnants|No suitable remnants found.|لم يتم العثور على بواقٍ مناسبة.
+Estimate.OtherCosts|Other costs|تكاليف أخرى
+Estimate.OverheadMethod|Overhead method|طريقة التكاليف غير المباشرة
+Estimate.OverheadRate|Overhead rate|معدل التكاليف غير المباشرة
+Estimate.PackagingPerUnit|Packaging per unit|التغليف لكل وحدة
+Estimate.Piece|Piece|القطعة
+Estimate.PiecesPerUnit|Pieces per unit|القطع لكل وحدة
+Estimate.Pricing|Pricing|التسعير
+Estimate.QtyPerUnit|Qty per unit|الكمية لكل وحدة
+Estimate.RemnantsFound|{0} remnant(s) available: {1}|{0} قطعة متبقية متاحة: {1}
+Estimate.ScrapAllowance|Scrap allowance %|مخصص الهالك %
+Estimate.SetupHours|Setup hours|ساعات التجهيز
+Estimate.SetupRate|Setup rate / h|سعر ساعة التجهيز
+Estimate.SheetBased|Sheet material|مادة ألواح
+Estimate.SheetLength|Sheet length|طول اللوح
+Estimate.SheetWidth|Sheet width|عرض اللوح
+Estimate.SheetsOverride|Sheets (manual)|الألواح (يدوي)
+Estimate.SheetsRequired|Sheets required|الألواح المطلوبة
+Estimate.Spacing|Spacing (mm)|المسافة بين القطع (مم)
+Estimate.SuggestedPrice|Suggested price|السعر المقترح
+Estimate.TargetMargin|Target margin %|هامش الربح المستهدف %
+Estimate.Title|Cost estimate|تقدير التكلفة
+Estimate.TotalCost|Total cost|إجمالي التكلفة
+Estimate.TotalQty|Total quantity|إجمالي الكمية
+Estimate.UnitCost|Unit cost|تكلفة الوحدة
+Estimate.UnitPrice|Unit price|سعر الوحدة
+Estimate.UseSuggested|Use suggested price|استخدام السعر المقترح
+Estimate.Utilization|Utilization|الاستغلال
+Estimate.Waste|Waste|الهدر
+Estimate.WhatIf|What-if pricing|تسعير افتراضي (ماذا لو)
+Estimate.WhatIfHelp|Try a margin or a price and see the resulting profit before committing.|جرّب هامشاً أو سعراً واطّلع على الربح الناتج قبل الاعتماد.
+Expense.Cancel|Cancel expense|إلغاء المصروف
+Expense.JobHint|Charged to the job as: {0}|يُحمَّل على أمر العمل كـ: {0}
+Expense.New|New expense|مصروف جديد
+Expense.PostNow|Post immediately|ترحيل فوراً
+Expense.SaveAndPost|Save and post|حفظ وترحيل
+Expense.Title|Expense|مصروف
+Inventory.Calculator|Utilization calculator|حاسبة الاستغلال
+Inventory.LaserParameters|Laser parameters|إعدادات الليزر
+Inventory.Transactions|Stock movements|حركات المخزون
+Invoice.AddLine|Add line|إضافة بند
+Invoice.ConfirmPost|Post this invoice? Posted invoices cannot be edited.|ترحيل هذه الفاتورة؟ لا يمكن تعديل الفواتير المرحّلة.
+Invoice.IgnoreCreditLimit|Allow exceeding the credit limit|السماح بتجاوز حد الائتمان
+Invoice.Item|Item|الصنف
+Invoice.Lines|Lines|البنود
+Invoice.New|New invoice|فاتورة جديدة
+Invoice.Post|Post invoice|ترحيل الفاتورة
+Invoice.Title|Sales invoice|فاتورة مبيعات
+Job.AddExpense|Add expense|إضافة مصروف
+Job.Cancel|Cancel job|إلغاء أمر العمل
+Job.Close|Close job|إغلاق أمر العمل
+Job.CompleteProduction|Complete production|إنهاء الإنتاج
+Job.CostSheetPdf|Cost sheet (PDF)|بطاقة التكلفة (PDF)
+Job.CreateInvoice|Create invoice|إنشاء فاتورة
+Job.CreateRemnant|Create remnant|إنشاء قطعة متبقية
+Job.Deliver|Deliver|تسليم
+Job.DeliveryNote|Delivery note|ملاحظة التسليم
+Job.Edit|Edit job|تعديل أمر العمل
+Job.IssueMaterial|Issue material|صرف مواد
+Job.New|New job|أمر عمل جديد
+Job.NewDirect|New job (without quotation)|أمر عمل جديد (بدون عرض سعر)
+Job.Plan|Plan|تخطيط
+Job.ReturnMaterial|Return material|إرجاع مواد
+Job.StartProduction|Start production|بدء الإنتاج
+Job.TabCost|Cost & variance|التكلفة والانحراف
+Job.TabDetails|Details|التفاصيل
+Job.TabMaterials|Materials|المواد
+Job.TabOperations|Operations|العمليات
+Job.TabQuality|Quality|الجودة
+Job.TabScrap|Scrap & rework|الهالك وإعادة التشغيل
+Job.Title|Job|أمر العمل
+Job.UseRemnant|Use remnant|استخدام قطعة متبقية
+Journal.AutoHint|Automatic entries are created by documents and can only be reversed through them.|القيود الآلية تنشئها المستندات ولا يمكن عكسها إلا من خلالها.
+Journal.Difference|Difference|الفرق
+Journal.IsReversal|Reversal|قيد عكسي
+Journal.New|New journal entry|قيد يومية جديد
+Journal.ReversalOf|Reversal of|عكس للقيد
+Journal.Reverse|Reverse|عكس القيد
+Journal.ReversedBy|Reversed by|معكوس بالقيد
+Journal.Tags|Analysis|التحليل
+Journal.Title|Journal entry|قيد يومية
+Journal.WasReversed|This entry was reversed.|تم عكس هذا القيد.
+LaserParam.Frequency|Frequency (Hz)|التردد (هرتز)
+LaserParam.New|New parameter set|إعداد جديد
+LaserParam.Passes|Passes|عدد المرات
+LaserParam.Power|Power %|القدرة %
+LaserParam.ReferenceOnly|Reference settings for operators; they do not affect costing.|إعدادات مرجعية للمشغلين؛ لا تؤثر على التكلفة.
+LaserParam.Speed|Speed (mm/s)|السرعة (مم/ث)
+LaserParam.Title|Laser parameters|إعدادات الليزر
+Machine.AnnualHours|Annual working hours|ساعات التشغيل السنوية
+Machine.Calculated|Calculated rate / h|السعر المحسوب / ساعة
+Machine.Depreciation|Depreciation|الإهلاك
+Machine.Edit|Edit machine|تعديل الماكينة
+Machine.Electricity|Electricity|الكهرباء
+Machine.ElectricityPrice|Electricity price per kWh|سعر الكيلوواط ساعة
+Machine.FormulaHelp|Hourly cost = depreciation + electricity + maintenance + operator + overhead per machine hour.|تكلفة الساعة = الإهلاك + الكهرباء + الصيانة + المشغّل + التكاليف غير المباشرة لكل ساعة تشغيل.
+Machine.LoadKw|Average load (kW)|متوسط الحمل (كيلوواط)
+Machine.Maintenance|Maintenance|الصيانة
+Machine.MaintenancePerYear|Maintenance per year|الصيانة سنوياً
+Machine.New|New machine|ماكينة جديدة
+Machine.Operator|Operator|المشغّل
+Machine.OperatorHelp|Include operator cost only if operator labor is not recorded separately on operations.|أضف تكلفة المشغّل فقط إذا لم تُسجَّل عمالة المشغّل بشكل منفصل على العمليات.
+Machine.OperatorPerHour|Operator cost / h|تكلفة المشغّل / ساعة
+Machine.Overhead|Overhead|التكاليف غير المباشرة
+Machine.OverheadPerYear|Overhead per year|التكاليف غير المباشرة سنوياً
+Machine.Overridden|Manual rate|سعر يدوي
+Machine.OverrideRate|Override hourly rate|سعر ساعة يدوي
+Machine.PowerWatts|Laser power (W)|قدرة الليزر (واط)
+Machine.PurchaseCost|Purchase cost|تكلفة الشراء
+Machine.RateBreakdown|Hourly rate breakdown|تفصيل سعر الساعة
+Machine.ResidualValue|Residual value|القيمة المتبقية
+Machine.UsefulLife|Useful life (years)|العمر الإنتاجي (سنوات)
+Material.Edit|Edit material|تعديل المادة
+Material.New|New material|مادة جديدة
+Material.Stock|Stock|المخزون
+Material.StockReadOnly|Stock and average cost change only through stock movements.|يتغير المخزون ومتوسط التكلفة فقط من خلال حركات المخزون.
+Operation.Complete|Complete|إنهاء
+Operation.CostPreview|Machine {0} + labor {1} = {2}|الماكينة {0} + العمالة {1} = {2}
+Operation.Edit|Edit operation|تعديل العملية
+Operation.IsRework|Rework operation|عملية إعادة تشغيل
+Operation.LaborHours|Labor hours|ساعات العمالة
+Operation.New|New operation|عملية جديدة
+Operation.PostCost|Post cost|ترحيل التكلفة
+Operation.Reopen|Reopen|إعادة فتح
+Operation.Start|Start|بدء
+PO.Cancel|Cancel order|إلغاء الأمر
+PO.New|New purchase order|أمر شراء جديد
+PO.Title|Purchase order|أمر شراء
+Payment.OnAccount|Unallocated (on account)|غير مخصص (تحت الحساب)
+Payment.Record|Record payment|تسجيل دفعة
+Production.Board|Operations board|لوحة العمليات
+PurchaseReturn.Title|Purchase return|مرتجع مشتريات
+Purchases.Invoices|Supplier invoices|فواتير الموردين
+Purchases.Orders|Purchase orders|أوامر الشراء
+Purchases.Payments|Supplier payments|مدفوعات الموردين
+Purchases.Receipts|Goods receipts|استلام البضائع
+Purchases.Returns|Purchase returns|مرتجعات المشتريات
+Purchases.Suppliers|Suppliers|الموردون
+Quality.Record|Record inspection|تسجيل فحص
+Quotation.CreateJob|Create job|إنشاء أمر عمل
+Quotation.MarkSent|Mark as sent|تعليم كمُرسل
+Quotation.New|New quotation|عرض سعر جديد
+Quotation.NewVersion|New version|نسخة جديدة
+Quotation.Title|Quotation|عرض سعر
+Quotation.Versions|Versions|النسخ
+Receipt.Help|Received goods increase stock at the order price; the supplier invoice later settles the difference.|البضائع المستلمة تزيد المخزون بسعر الأمر؛ وتسوي فاتورة المورد الفرق لاحقاً.
+Receipt.Hint|Receipts not yet invoiced are shown in "Goods received not invoiced".|الاستلامات غير المفوترة تظهر في "بضائع مستلمة غير مفوترة".
+Receipt.New|Receive goods|استلام بضائع
+Receipt.PostInvoice|Enter supplier invoice|إدخال فاتورة المورد
+Receipt.Title|Goods receipt|استلام بضائع
+Request.ChangeStatus|Change status|تغيير الحالة
+Request.CreateEstimate|Create estimate|إنشاء تقدير
+Request.Edit|Edit request|تعديل الطلب
+Request.New|New request|طلب جديد
+Request.SaveFirst|Save the request first.|احفظ الطلب أولاً.
+Return.Help|Stock items return to inventory at their original cost; job lines reverse revenue only.|الأصناف المخزنية تعود إلى المخزون بتكلفتها الأصلية؛ وبنود أوامر العمل تعكس الإيراد فقط.
+Return.Hint|Sales returns reverse revenue, tax and the original cost of returned stock.|مرتجعات المبيعات تعكس الإيراد والضريبة والتكلفة الأصلية للمخزون المرتجع.
+Return.OriginalCost|Original unit cost|تكلفة الوحدة الأصلية
+Return.QtyToReturn|Qty to return|الكمية المرتجعة
+Return.Restock|Return to stock|إرجاع للمخزون
+Return.Title|Sales return|مرتجع مبيعات
+Revision.ApproveFinal|Approve as final|اعتماد كنهائي
+Revision.AttachFile|Attach design file|إرفاق ملف تصميم
+Revision.CuttingLength|Cutting length (m)|طول القص (م)
+Revision.Edit|Edit revision|تعديل المراجعة
+Revision.EngravingArea|Engraving area (cm²)|مساحة الحفر (سم²)
+Revision.Files|Design files|ملفات التصميم
+Revision.Height|Height (mm)|الارتفاع (مم)
+Revision.Hint|Each request can have several design revisions; only one can be approved as final.|يمكن أن يكون لكل طلب عدة مراجعات تصميم؛ ويُعتمد واحد فقط كنهائي.
+Revision.Locked|This revision is locked.|هذه المراجعة مقفلة.
+Revision.MachineMinutes|Estimated machine minutes|دقائق الماكينة المقدرة
+Revision.New|New revision|مراجعة جديدة
+Revision.OpenRequest|Open request|فتح الطلب
+Revision.SubmitForReview|Submit for review|إرسال للمراجعة
+Revision.Title|Design revision|مراجعة تصميم
+Revision.Width|Width (mm)|العرض (مم)
+Sales.Invoices|Invoices|الفواتير
+Sales.Payments|Customer payments|مقبوضات العملاء
+Sales.Returns|Sales returns|مرتجعات المبيعات
+Scrap.Help|Normal scrap stays in the job cost; abnormal scrap and damage are recorded for analysis.|الهالك الطبيعي يبقى ضمن تكلفة العمل؛ ويُسجَّل الهالك غير الطبيعي والتلف للتحليل.
+Scrap.LogHint|All scrap, damage and rework recorded on jobs.|جميع الهالك والتلف وإعادة التشغيل المسجلة على الأعمال.
+Scrap.ManualCost|Cost (leave empty to calculate)|التكلفة (اتركها فارغة للحساب)
+Scrap.RecordRework|Record rework|تسجيل إعادة تشغيل
+Scrap.RecordScrap|Record scrap|تسجيل هالك
+Scrap.ReworkHelp|Rework hours are costed at the machine and labor rates and added to the job.|تُحتسب ساعات إعادة التشغيل بسعر الماكينة والعمالة وتُضاف إلى العمل.
+Settings.Categories|Material categories|فئات المواد
+Settings.Company|Company|الشركة
+Settings.ConfirmDemo|Load demo data into this empty database?|تحميل البيانات التجريبية في قاعدة البيانات الفارغة هذه؟
+Settings.Costing|Costing|التكاليف
+Settings.CostingMethod|Inventory costing: moving weighted average|تكلفة المخزون: المتوسط المرجح المتحرك
+Settings.Document|Document|المستند
+Settings.ExpenseCategories|Expense categories|فئات المصروفات
+Settings.HighScrap|High scrap warning %|تنبيه الهالك المرتفع %
+Settings.HighVariance|High variance warning %|تنبيه الانحراف المرتفع %
+Settings.IsSheet|Sheet|لوح
+Settings.JobComponent|Job cost component|عنصر تكلفة العمل
+Settings.Language|Default language|اللغة الافتراضية
+Settings.Lists|Lists|القوائم
+Settings.LoadDemo|Load demo data|تحميل بيانات تجريبية
+Settings.LowMargin|Low margin warning %|تنبيه الهامش المنخفض %
+Settings.NextNumber|Next number|الرقم التالي
+Settings.Numbering|Numbering|الترقيم
+Settings.Padding|Digits|عدد الخانات
+Settings.Prefix|Prefix|البادئة
+Settings.QuoteValidity|Quotation validity (days)|صلاحية عرض السعر (أيام)
+Settings.Units|Units of measure|وحدات القياس
+Setup.Title|First-run setup|الإعداد الأولي
+Setup.StepOf|Step {0} of {1}|الخطوة {0} من {1}
+Setup.Step1|Company|الشركة
+Setup.Step2|Currency, tax and costing|العملة والضريبة والتكاليف
+Setup.Step3|Fiscal year|السنة المالية
+Setup.Step4|Warehouses|المستودعات
+Setup.Step5|Machines|الماكينات
+Setup.Step6|Materials|المواد
+Setup.Step7|Users|المستخدمون
+Setup.Step8|Opening balances|الأرصدة الافتتاحية
+Setup.Step9|Finish|الإنهاء
+Setup.AddMachine|Add machine|إضافة ماكينة
+Setup.AddMaterial|Add material|إضافة مادة
+Setup.AddUser|Add user|إضافة مستخدم
+Setup.AdminAccount|Administrator account|حساب المسؤول
+Setup.DemoHelp|Demo data creates sample customers, jobs, invoices and purchases so you can explore the application. Use an empty database for real work.|تنشئ البيانات التجريبية عملاء وأعمالاً وفواتير ومشتريات نموذجية لاستكشاف التطبيق. استخدم قاعدة بيانات فارغة للعمل الفعلي.
+Setup.Finish|Finish setup|إنهاء الإعداد
+Setup.FinishHelp|Review your choices and finish. You can change most settings later.|راجع اختياراتك ثم أنهِ الإعداد. يمكنك تغيير معظم الإعدادات لاحقاً.
+Setup.FiscalYearHelp|Accounting periods are created for twelve months starting from this date.|تُنشأ الفترات المحاسبية لاثني عشر شهراً ابتداءً من هذا التاريخ.
+Setup.FiscalYearStart|Fiscal year start|بداية السنة المالية
+Setup.Intro|Welcome to LaserWorks Manager. This wizard prepares your company, costing defaults and first users.|مرحباً بك في LaserWorks Manager. يُجهّز هذا المعالج بيانات شركتك وإعدادات التكاليف والمستخدمين الأوائل.
+Setup.LoadDemo|Load demo data|تحميل بيانات تجريبية
+Setup.MachinesHelp|Add your laser machines. The hourly cost is calculated from these values.|أضف ماكينات الليزر لديك. تُحسب تكلفة الساعة من هذه القيم.
+Setup.MaterialsHelp|Add the materials you stock, with opening quantity and unit cost.|أضف المواد التي تخزّنها مع الكمية الافتتاحية وتكلفة الوحدة.
+Setup.OpeningBank|Opening bank balance|رصيد البنك الافتتاحي
+Setup.OpeningCash|Opening cash balance|رصيد النقدية الافتتاحي
+Setup.OpeningHelp|Opening balances are posted against opening balance equity.|تُرحَّل الأرصدة الافتتاحية مقابل حقوق ملكية الأرصدة الافتتاحية.
+Setup.OpeningQty|Opening qty|الكمية الافتتاحية
+Setup.OtherUsers|Other users|مستخدمون آخرون
+Setup.WarehousesHelp|At least one warehouse is required.|مطلوب مستودع واحد على الأقل.
+Supplier.Edit|Edit supplier|تعديل المورد
+Supplier.New|New supplier|مورد جديد
+Supplier.OpeningBalance|Opening balance (amount we owe)|الرصيد الافتتاحي (المبلغ المستحق علينا)
+Supplier.Pay|Pay supplier|سداد للمورد
+SupplierInvoice.Help|Matches the receipt: the difference to the received value adjusts inventory or cost of sales.|تُطابق الاستلام: الفرق عن القيمة المستلمة يعدّل المخزون أو تكلفة المبيعات.
+SupplierInvoice.Title|Supplier invoice|فاتورة مورد
+SupplierPayment.Title|Supplier payment|دفعة لمورد

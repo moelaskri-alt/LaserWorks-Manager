@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.BackupView"
+             x:DataType="vm:BackupViewModel">
+  <Grid ColumnDefinitions="*,14,380">
+    <DockPanel>
+      <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h3" Text="{l:T Backup.Create}" />
+          <TextBlock Classes="muted wrap"><Run Text="{l:T Backup.DataFolder}" /><Run Text=": " /><Run Text="{Binding DataFolder}" /></TextBlock>
+          <TextBox Text="{Binding Note}" Watermark="{l:T Backup.Note}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="primary" Command="{Binding BackupNowCommand}" Name="btnBackupNow">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoBackup}" Foreground="White" /><TextBlock Text="{l:T Backup.Now}" /></StackPanel>
+            </Button>
+            <Button Content="{l:T Backup.To}" Command="{Binding BackupToCommand}" />
+            <Button Content="{l:T Backup.OpenFolder}" Command="{Binding OpenFolderCommand}" />
+            <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+          </StackPanel>
+          <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+          <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+        </StackPanel>
+      </Border>
+      <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+          <Button Content="{l:T Backup.Validate}" Command="{Binding ValidateCommand}" />
+          <Button Classes="danger" Content="{l:T Backup.RestoreSelected}" Command="{Binding RestoreSelectedCommand}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanRestore}" />
+          <Button Classes="danger" Content="{l:T Backup.RestoreFile}" Command="{Binding RestoreCommand}" IsVisible="{Binding CanRestore}" />
+        </StackPanel>
+        <TextBlock Classes="h3" Text="{l:T Backup.History}" VerticalAlignment="Center" />
+      </DockPanel>
+      <TextBlock DockPanel.Dock="Top" Classes="wrap" Text="{Binding ValidationResult}" Margin="0,0,0,6" IsVisible="{Binding ValidationResult, Converter={x:Static l:Conv.NotEmpty}}" />
+      <DataGrid ItemsSource="{Binding History}" SelectedItem="{Binding Selected}">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding CreatedAt, Converter={x:Static l:Conv.DateTimeShort}}" Width="140" MinWidth="140" />
+          <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Kind}" Width="100" MinWidth="100" />
+          <DataGridTextColumn Header="{l:T Backup.File}" Binding="{Binding FilePath}" Width="3*" MinWidth="160" />
+          <DataGridTextColumn Header="{l:T Backup.Size}" Binding="{Binding SizeBytes, Converter={x:Static l:Conv.FileSize}}" Width="90" MinWidth="90" />
+          <DataGridCheckBoxColumn Header="{l:T Backup.Verified}" Binding="{Binding Validated}" Width="80" MinWidth="80" />
+          <DataGridTextColumn Header="{l:T Col.Notes}" Binding="{Binding Note}" Width="2*" MinWidth="140" />
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+    <Border Grid.Column="2" Classes="card" VerticalAlignment="Top">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h3" Text="{l:T Backup.Integrity}" />
+        <TextBlock Classes="muted wrap" Text="{l:T Backup.IntegrityHelp}" />
+        <Button Content="{l:T Backup.RunIntegrity}" Command="{Binding CheckIntegrityCommand}" Name="btnIntegrity" />
+        <ItemsControl ItemsSource="{Binding IntegrityResults}">
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" Classes="wrap" Margin="0,2" /></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Separator />
+        <TextBlock Classes="muted small wrap" Text="{l:T Backup.RestoreHelp}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

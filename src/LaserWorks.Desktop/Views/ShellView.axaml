@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ShellView"
+             x:DataType="vm:ShellViewModel">
+  <Grid ColumnDefinitions="232,*">
+    <!-- sidebar -->
+    <Border Background="{DynamicResource SidebarBrush}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="16,16,12,14">
+          <Image Source="avares://LaserWorksManager/Assets/logo128.png" Width="34" Height="34" />
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="LaserWorks" Foreground="White" FontWeight="SemiBold" FontSize="15" />
+            <TextBlock Text="Manager" Foreground="{DynamicResource SidebarGroupBrush}" FontSize="11" />
+          </StackPanel>
+        </StackPanel>
+        <Border DockPanel.Dock="Bottom" Padding="14,10" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SidebarHoverBrush}">
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding UserDisplay}" Foreground="White" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding RoleDisplay}" Foreground="{DynamicResource SidebarGroupBrush}" FontSize="11.5" />
+          </StackPanel>
+        </Border>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,12">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:NavGroup">
+                <StackPanel>
+                  <TextBlock Text="{Binding Title}" Foreground="{DynamicResource SidebarGroupBrush}" FontSize="11" FontWeight="SemiBold" Margin="18,12,12,4" />
+                  <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:NavItem">
+                        <Button Classes="nav" Classes.active="{Binding IsActive}" Command="{Binding $parent[UserControl].((vm:ShellViewModel)DataContext).NavigateToCommand}" CommandParameter="{Binding Key}"
+                                Name="{Binding Key, StringFormat=nav_{0}}">
+                          <StackPanel Orientation="Horizontal" Spacing="11">
+                            <l:Ico Data="{Binding Icon}" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+
+    <!-- content -->
+    <DockPanel Grid.Column="1">
+      <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,0,0,1" Padding="20,10">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+            <Button Classes="ghost" Command="{Binding ToggleLanguageCommand}" ToolTip.Tip="{l:T Shell.Language}" Name="btnLanguage">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <l:Ico Data="{StaticResource IcoGlobe}" Foreground="{DynamicResource MutedBrush}" />
+                <TextBlock Text="{Binding LanguageLabel}" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Classes="ghost" Command="{Binding CycleThemeCommand}" ToolTip.Tip="{l:T Shell.Theme}" Name="btnTheme">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <l:Ico Data="{StaticResource IcoMoon}" Foreground="{DynamicResource MutedBrush}" />
+                <TextBlock Text="{Binding ThemeLabel}" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Classes="ghost" Command="{Binding ChangePasswordCommand}" ToolTip.Tip="{l:T Account.ChangePassword}">
+              <l:Ico Data="{StaticResource IcoKey}" Foreground="{DynamicResource MutedBrush}" />
+            </Button>
+            <Button Classes="ghost" Command="{Binding LogoutCommand}" ToolTip.Tip="{l:T Shell.Logout}" Name="btnLogout">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <l:Ico Data="{StaticResource IcoLogout}" Foreground="{DynamicResource DangerBrush}" />
+                <TextBlock Text="{l:T Shell.Logout}" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="{Binding CurrentPage.Title}" Classes="h1" />
+            <TextBlock Text="{Binding CompanyName}" Classes="muted small" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+      <ContentControl Content="{Binding CurrentPage}" Margin="20,14,20,16" />
+    </DockPanel>
+  </Grid>
+</UserControl>

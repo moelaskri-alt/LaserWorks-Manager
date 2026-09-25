@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:rc="using:LaserWorks.Reporting.Core"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ReportsView"
+             x:DataType="vm:ReportsViewModel">
+  <Grid ColumnDefinitions="270,14,*">
+    <Border Classes="card" Padding="6">
+      <ListBox ItemsSource="{Binding AllReports}" SelectedItem="{Binding SelectedReport}" Name="lstReports" Background="Transparent">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:ReportItem">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <l:Ico Data="{StaticResource IcoReports}" Foreground="{DynamicResource MutedBrush}" Width="14" Height="14" />
+              <TextBlock Text="{Binding Title}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+    <DockPanel Grid.Column="2">
+      <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding SelectedReport.Title}" />
+          <WrapPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowRange}"><TextBlock Classes="label" Text="{l:T Filter.From}" /><CalendarDatePicker SelectedDate="{Binding From}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowRange}"><TextBlock Classes="label" Text="{l:T Filter.To}" /><CalendarDatePicker SelectedDate="{Binding To}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowAsOf}"><TextBlock Classes="label" Text="{l:T Filter.AsOf}" /><CalendarDatePicker SelectedDate="{Binding AsOf}" Width="130" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowCustomer}"><TextBlock Classes="label" Text="{l:T Filter.Customer}" /><ComboBox ItemsSource="{Binding CustomerList}" SelectedItem="{Binding Customer}" Width="220" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowSupplier}"><TextBlock Classes="label" Text="{l:T Col.Supplier}" /><ComboBox ItemsSource="{Binding SupplierList}" SelectedItem="{Binding Supplier}" Width="220" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowJob}"><TextBlock Classes="label" Text="{l:T Filter.Job}" /><ComboBox ItemsSource="{Binding JobList}" SelectedItem="{Binding Job}" Width="240" Name="cmbReportJob" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowMachine}"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding MachineList}" SelectedItem="{Binding Machine}" Width="200" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowMaterial}"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding MaterialList}" SelectedItem="{Binding Material}" Width="220" /></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowAccount}"><TextBlock Classes="label" Text="{l:T Filter.Account}" />
+              <ComboBox ItemsSource="{Binding AccountList}" SelectedItem="{Binding Account}" Width="260">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="e:Account"><TextBlock><Run Text="{Binding Code}" /><Run Text="  " /><Run Text="{Binding Converter={x:Static l:Conv.BiName}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate>
+              </ComboBox></StackPanel>
+            <StackPanel Margin="0,0,10,6" IsVisible="{Binding ShowStatus}"><TextBlock Classes="label" Text="{l:T Col.Status}" /><ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding Status}" Width="180" /></StackPanel>
+          </WrapPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Classes="primary" Command="{Binding RunCommand}" Name="btnRunReport">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlay}" Foreground="White" Width="14" Height="14" /><TextBlock Text="{l:T Report.Run}" /></StackPanel>
+            </Button>
+            <Button Content="PDF" Command="{Binding ExportCommand}" CommandParameter="pdf" Name="btnReportPdf" />
+            <Button Content="Excel" Command="{Binding ExportCommand}" CommandParameter="xlsx" Name="btnReportXlsx" />
+            <Button Content="CSV" Command="{Binding ExportCommand}" CommandParameter="csv" />
+            <Button Command="{Binding PrintCommand}"><StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPrint}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Print}" /></StackPanel></Button>
+            <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+            <TextBlock Classes="muted" Text="{Binding Summary}" VerticalAlignment="Center" />
+          </StackPanel>
+          <Border Classes="banner-error" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="error" Text="{Binding ErrorMessage}" /></Border>
+          <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+        </StackPanel>
+      </Border>
+      <ItemsControl DockPanel.Dock="Bottom" ItemsSource="{Binding Table.Notes}" Margin="0,6,0,0">
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" Classes="muted wrap" /></DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <DataGrid Name="grid" CanUserSortColumns="False" l:GridBehaviors.OpenCommand="{Binding OpenRowCommand}" />
+    </DockPanel>
+  </Grid>
+</UserControl>

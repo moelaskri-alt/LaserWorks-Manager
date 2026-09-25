@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.UtilizationCalculatorView"
+             x:DataType="vm:UtilizationCalculatorViewModel">
+  <Grid ColumnDefinitions="*,14,340">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="10">
+        <TextBlock Classes="muted wrap" Text="{l:T Calculator.Help}" />
+        <Border Classes="card">
+          <Grid ColumnDefinitions="2*,10,*,10,*,10,*,10,*,10,*" RowDefinitions="Auto,Auto">
+            <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.SheetLength}" /><NumericUpDown Value="{Binding SheetLength}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Estimate.SheetWidth}" /><NumericUpDown Value="{Binding SheetWidth}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Estimate.Spacing}" /><NumericUpDown Value="{Binding Spacing}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="8"><TextBlock Classes="label" Text="{l:T Estimate.Efficiency}" /><NumericUpDown Value="{Binding Efficiency}" Minimum="1" Maximum="100" /></StackPanel>
+            <StackPanel Classes="field" Grid.Column="10"><TextBlock Classes="label" Text="{l:T Estimate.CostPerSheet}" /><NumericUpDown Value="{Binding CostPerSheet}" Minimum="0" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Calculator.Units}" /><NumericUpDown Value="{Binding Quantity}" Minimum="1" /></StackPanel>
+            <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.SheetsOverride}" /><NumericUpDown Value="{Binding SheetsOverride}" Minimum="0" /></StackPanel>
+            <CheckBox Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="5" IsChecked="{Binding ChargeFullSheets}" Content="{l:T Estimate.ChargeFullSheets}" VerticalAlignment="Bottom" Margin="0,0,0,12" />
+          </Grid>
+        </Border>
+        <Border Classes="card">
+          <StackPanel Spacing="6">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="{l:T Estimate.AddPiece}" Command="{Binding AddPieceCommand}" />
+              <TextBlock Classes="h3" Text="{l:T Estimate.PiecesPerUnit}" VerticalAlignment="Center" />
+            </DockPanel>
+            <DataGrid ItemsSource="{Binding Pieces}" SelectedItem="{Binding SelectedPiece}" IsReadOnly="False" CanUserSortColumns="False" Height="220">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.LengthCm}" Binding="{Binding Length}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.WidthCm}" Binding="{Binding Width}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Estimate.QtyPerUnit}" Binding="{Binding QuantityPerUnit}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Width="44" MinWidth="44">
+                  <DataTemplate x:DataType="vm:PieceVm">
+                    <Button Classes="ghost" Padding="4" Command="{Binding $parent[UserControl].((vm:UtilizationCalculatorViewModel)DataContext).RemovePieceCommand}" CommandParameter="{Binding}">
+                      <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource DangerBrush}" Width="14" Height="14" /></Button>
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Classes="h3" Text="{l:T Calculator.FitPerPiece}" Margin="0,6,0,0" />
+            <DataGrid ItemsSource="{Binding Fits}" Height="160">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Calculator.FitPerSheet}" Binding="{Binding FitPerSheet}" Width="*" MinWidth="80" />
+                <DataGridTextColumn Header="{l:T Calculator.SheetsAlone}" Binding="{Binding SheetsIfAlone}" Width="*" MinWidth="80" />
+                <DataGridTemplateColumn Header="{l:T Calculator.Rotated}" Width="80" MinWidth="80"><DataTemplate><CheckBox IsChecked="{Binding Rotated}" HorizontalAlignment="Center" /></DataTemplate></DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+    <Border Grid.Column="2" Classes="card" VerticalAlignment="Top">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h3" Text="{l:T Calculator.Result}" />
+        <TextBlock Classes="error" Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={x:Static l:Conv.NotEmpty}}" />
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+          <TextBlock Text="{l:T Estimate.SheetsRequired}" Margin="0,4" /><TextBlock Grid.Column="1" FontSize="18" FontWeight="SemiBold" Text="{Binding Result.SheetsRequired, Converter={x:Static l:Conv.Number}}" Name="txtCalcSheets" />
+          <TextBlock Grid.Row="1" Text="{l:T Calculator.SheetsByArea}" Margin="0,4" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Result.SheetsByArea}" />
+          <TextBlock Grid.Row="2" Text="{l:T Calculator.SheetsByGrid}" Margin="0,4" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Result.SheetsByGrid}" />
+          <TextBlock Grid.Row="3" Text="{l:T Estimate.Utilization}" Margin="0,4" /><TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Result.UtilizationPercent, Converter={x:Static l:Conv.Percent}}" />
+          <TextBlock Grid.Row="4" Text="{l:T Calculator.PiecesArea}" Margin="0,4" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Result.PiecesArea, Converter={x:Static l:Conv.Number}}" />
+          <TextBlock Grid.Row="5" Text="{l:T Estimate.Waste}" Margin="0,4" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Result.WasteArea, Converter={x:Static l:Conv.Number}}" />
+          <TextBlock Grid.Row="6" Text="{l:T Calculator.WastePercent}" Margin="0,4" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Result.WastePercent, Converter={x:Static l:Conv.Percent}}" />
+          <TextBlock Grid.Row="7" Text="{l:T Col.MaterialCost}" Margin="0,4" FontWeight="SemiBold" /><TextBlock Grid.Row="7" Grid.Column="1" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Text="{Binding Result.MaterialCost, Converter={x:Static l:Conv.Money}}" />
+        </Grid>
+        <TextBlock Classes="muted small wrap" Text="{l:T Calculator.Note}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

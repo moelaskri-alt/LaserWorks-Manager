@@ -1,0 +1,131 @@
+# key | English | Arabic
+Common.Active|Active|نشط
+Common.Apply|Apply|تطبيق
+Common.Approve|Approve|اعتماد
+Common.AutoNumber|Auto-numbered on save|يُرقَّم تلقائياً عند الحفظ
+Common.Back|Back|السابق
+Common.Cancel|Cancel|إلغاء
+Common.Close|Close|إغلاق
+Common.Columns|Columns|الأعمدة
+Common.Confirm|Confirm|تأكيد
+Common.Delete|Delete|حذف
+Common.Edit|Edit|تعديل
+Common.Export|Export|تصدير
+Common.Inactive|Inactive|غير نشط
+Common.Information|Information|معلومات
+Common.Invoiced|Invoiced|مفوتر
+Common.Next|Next|التالي
+Common.No|No|لا
+Common.NotInvoiced|Not invoiced|غير مفوتر
+Common.OK|OK|موافق
+Common.Open|Open|فتح
+Common.Paid|Paid|مدفوع
+Common.Post|Post|ترحيل
+Common.Print|Print|طباعة
+Common.Refresh|Refresh|تحديث
+Common.Reject|Reject|رفض
+Common.Remove|Remove|إزالة
+Common.Reset|Reset|إعادة تعيين
+Common.ReworkOperation|Rework operation|عملية إعادة تشغيل
+Common.Save|Save|حفظ
+Common.SaveAndContinue|Save and continue|حفظ ومتابعة
+Common.SearchHint|Search…|بحث…
+Common.Total|Total|الإجمالي
+Common.Yes|Yes|نعم
+Common.Unpaid|Unpaid|غير مدفوع
+Common.PartiallyPaid|Partially paid|مدفوع جزئياً
+Common.Posted|Posted|مرحّل
+Common.Draft|Draft|مسودة
+Common.Cancelled|Cancelled|ملغى
+List.First|First page|الصفحة الأولى
+List.Last|Last page|الصفحة الأخيرة
+List.Next|Next page|الصفحة التالية
+List.Previous|Previous page|الصفحة السابقة
+List.PageInfo|Page {0} of {1} · {2} records|صفحة {0} من {1} · {2} سجل
+List.PageSize|Rows per page|عدد الصفوف
+Nav.Accounting|Accounting|المحاسبة
+Nav.Backup|Backup & Restore|النسخ الاحتياطي والاستعادة
+Nav.Customers|Customers|العملاء
+Nav.Dashboard|Dashboard|لوحة التحكم
+Nav.Design|Design & Revisions|التصميم والمراجعات
+Nav.Employees|Employees & Labor|الموظفون والعمالة
+Nav.Estimates|Cost Estimation|تقدير التكلفة
+Nav.Expenses|Expenses|المصروفات
+Nav.Inventory|Inventory|المخزون
+Nav.Jobs|Jobs|أوامر العمل
+Nav.Machines|Machines|الماكينات
+Nav.Materials|Materials|المواد
+Nav.Production|Production|الإنتاج
+Nav.Profitability|Job Profitability|ربحية الأعمال
+Nav.Purchases|Purchases|المشتريات
+Nav.Quality|Quality|الجودة
+Nav.Quotations|Quotations|عروض الأسعار
+Nav.Remnants|Remnants|البواقي
+Nav.Reports|Reports|التقارير
+Nav.Requests|Customer Requests|طلبات العملاء
+Nav.Sales|Sales & Invoicing|المبيعات والفواتير
+Nav.ScrapRework|Scrap & Rework|الهالك وإعادة التشغيل
+Nav.Settings|Settings|الإعدادات
+Nav.Users|Users & Permissions|المستخدمون والصلاحيات
+Nav.Warehouses|Warehouses|المستودعات
+NavGroup.Admin|Administration|الإدارة
+NavGroup.Finance|Finance|المالية
+NavGroup.Inventory|Inventory|المخزون
+NavGroup.Overview|Overview|نظرة عامة
+NavGroup.Production|Production|الإنتاج
+NavGroup.Sales|Sales|المبيعات
+Shell.Language|Language|اللغة
+Shell.Logout|Sign out|تسجيل الخروج
+Shell.OtherLanguage|Switch language|تبديل اللغة
+Shell.Theme|Theme|المظهر
+Theme.System|System theme|مظهر النظام
+Theme.Light|Light|فاتح
+Theme.Dark|Dark|داكن
+Login.Inactive|This user account is inactive.|حساب المستخدم هذا غير نشط.
+Login.Invalid|Invalid username or password.|اسم المستخدم أو كلمة المرور غير صحيحة.
+Login.LockedOut|Account locked after repeated failed attempts. Try again after {0}.|تم قفل الحساب بعد محاولات فاشلة متكررة. حاول مرة أخرى بعد {0}.
+Login.Password|Password|كلمة المرور
+Login.Question|Forgot your password? Ask an administrator to reset it.|نسيت كلمة المرور؟ اطلب من المسؤول إعادة تعيينها.
+Login.Required|Enter your username and password.|أدخل اسم المستخدم وكلمة المرور.
+Login.SignIn|Sign in|تسجيل الدخول
+Login.Tagline|Custom laser jobs — from request to profit|أعمال الليزر المخصصة — من الطلب إلى الربح
+Login.Title|Sign in to LaserWorks Manager|تسجيل الدخول إلى LaserWorks Manager
+Login.Username|Username|اسم المستخدم
+Account.ChangePassword|Change password|تغيير كلمة المرور
+Account.ConfirmPassword|Confirm new password|تأكيد كلمة المرور الجديدة
+Account.CurrentPassword|Current password|كلمة المرور الحالية
+Account.MustChange|You must change your password before continuing.|يجب تغيير كلمة المرور قبل المتابعة.
+Account.NewPassword|New password|كلمة المرور الجديدة
+Account.CashOrBank|Cash / bank account|حساب نقدية / بنك
+Account.Edit|Edit account|تعديل الحساب
+Account.NameAr|Name (Arabic)|الاسم (عربي)
+Account.NameEn|Name (English)|الاسم (إنجليزي)
+Account.New|New account|حساب جديد
+Account.Parent|Parent account|الحساب الأب
+Account.Postable|Postable (accepts entries)|قابل للترحيل (يقبل القيود)
+Account.System|System account|حساب نظام
+Account.SystemHint|System accounts are used by automatic postings; their code and type cannot be changed.|حسابات النظام تستخدمها القيود الآلية؛ لا يمكن تغيير رمزها أو نوعها.
+Perm.Approve|Approve|اعتماد
+Perm.Create|Create|إنشاء
+Perm.Delete|Delete|حذف
+Perm.Edit|Edit|تعديل
+Perm.Export|Export|تصدير
+Perm.Post|Post|ترحيل
+Perm.Print|Print|طباعة
+Perm.View|View|عرض
+Users.AdminAlwaysAll|Administrators always have every permission.|المسؤول يملك جميع الصلاحيات دائماً.
+Users.Audit|Audit trail|سجل التدقيق
+Users.Edit|Edit user|تعديل المستخدم
+Users.LastLogin|Last sign-in|آخر دخول
+Users.LockedUntil|Locked until|مقفل حتى
+Users.Module|Module|الوحدة
+Users.New|New user|مستخدم جديد
+Users.NewPassword|New password (min. 8 characters, letters and digits)|كلمة المرور الجديدة (8 أحرف على الأقل، حروف وأرقام)
+Users.Permissions|Role permissions|صلاحيات الأدوار
+Users.ResetPassword|Reset password|إعادة تعيين كلمة المرور
+Users.Unlock|Unlock|فك القفل
+Users.Users|Users|المستخدمون
+Lang.ar|العربية|العربية
+Lang.en|English|English
+Costing.WeightedAverage|Moving weighted average|المتوسط المرجح المتحرك
+Company.PaymentTerms|Default payment terms (printed on documents)|شروط الدفع الافتراضية (تُطبع على المستندات)

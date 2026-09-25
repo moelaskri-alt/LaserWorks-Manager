@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.LaserParameterEditorView"
+             x:DataType="vm:LaserParameterEditorViewModel">
+  <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.ThicknessMm}" /><NumericUpDown Value="{Binding Thickness}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Operation}" />
+      <ComboBox ItemsSource="{Binding Operations}" SelectedItem="{Binding OperationType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T LaserParam.Power}" /><NumericUpDown Value="{Binding PowerPercent}" Minimum="0" Maximum="100" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T LaserParam.Speed}" /><NumericUpDown Value="{Binding Speed}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T LaserParam.Frequency}" /><NumericUpDown Value="{Binding Frequency}" Minimum="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T LaserParam.Passes}" /><NumericUpDown Value="{Binding Passes}" Minimum="1" FormatString="0" /></StackPanel>
+    <StackPanel Classes="field" Grid.Row="4" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+  </Grid>
+</UserControl>

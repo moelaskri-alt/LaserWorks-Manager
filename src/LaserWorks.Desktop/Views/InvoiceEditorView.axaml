@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.InvoiceEditorView"
+             x:DataType="vm:InvoiceEditorViewModel">
+  <StackPanel Spacing="8">
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+    </StackPanel>
+    <Grid ColumnDefinitions="2*,12,*,12,*" IsEnabled="{Binding IsDraft}">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Customer}" /><ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding Customer}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.DueDate}" /><CalendarDatePicker SelectedDate="{Binding DueDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+    </Grid>
+    <DockPanel>
+      <Button DockPanel.Dock="Right" Content="{l:T Invoice.AddLine}" Command="{Binding AddLineCommand}" IsVisible="{Binding IsDraft}" />
+      <TextBlock Classes="h3" Text="{l:T Invoice.Lines}" VerticalAlignment="Center" />
+    </DockPanel>
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="{Binding !IsDraft}" CanUserSortColumns="False" MinHeight="140" MaxHeight="300">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{l:T Col.Type}" Width="120" MinWidth="120">
+          <DataTemplate x:DataType="vm:InvoiceLineVm">
+            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).LineTypes}" SelectedItem="{Binding LineType}" BorderThickness="0"
+                      IsEnabled="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).IsDraft}">
+              <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn Header="{l:T Invoice.Item}" Width="1.5*" MinWidth="105">
+          <DataTemplate x:DataType="vm:InvoiceLineVm">
+            <Panel IsEnabled="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).IsDraft}">
+              <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).Jobs}" SelectedItem="{Binding Job}" IsVisible="{Binding IsJob}" BorderThickness="0" />
+              <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).StockItems}" SelectedItem="{Binding Material}" IsVisible="{Binding IsStock}" BorderThickness="0" />
+            </Panel>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity}" Width="80" MinWidth="80" />
+        <DataGridTextColumn Header="{l:T Col.UnitPrice}" Binding="{Binding UnitPrice}" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Col.Discount}" Binding="{Binding DiscountAmount}" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.TaxRate}" Binding="{Binding TaxRate}" Width="70" MinWidth="70" />
+        <DataGridTextColumn Header="{l:T Col.Total}" Binding="{Binding LineTotal, Converter={x:Static l:Conv.Money}}" IsReadOnly="True" Width="110" MinWidth="110" />
+        <DataGridTextColumn Header="{l:T Col.Returned}" Binding="{Binding ReturnedQuantity, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="80" MinWidth="80" />
+        <DataGridTemplateColumn Width="40" MinWidth="40">
+          <DataTemplate x:DataType="vm:InvoiceLineVm">
+            <Button Classes="ghost" Padding="4" Command="{Binding RemoveCommand}" IsVisible="{Binding $parent[UserControl].((vm:InvoiceEditorViewModel)DataContext).IsDraft}">
+              <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource DangerBrush}" Width="14" Height="14" /></Button>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+    <Grid ColumnDefinitions="*,16,300">
+      <StackPanel Spacing="8">
+        <StackPanel Classes="field" IsEnabled="{Binding IsDraft}"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+        <CheckBox IsChecked="{Binding IgnoreCreditLimit}" Content="{l:T Invoice.IgnoreCreditLimit}" IsVisible="{Binding IsDraft}" />
+        <WrapPanel>
+          <Button Classes="primary" Content="{l:T Invoice.Post}" Command="{Binding PostCommand}" IsVisible="{Binding IsDraft}" Margin="0,0,6,6" Name="btnPostInvoice" />
+          <Button Content="{l:T Payment.Record}" Command="{Binding RecordPaymentCommand}" IsVisible="{Binding IsPosted}" Margin="0,0,6,6" Name="btnRecordPayment" />
+          <Button Content="{l:T Return.Title}" Command="{Binding CreateReturnCommand}" IsVisible="{Binding IsPosted}" Margin="0,0,6,6" />
+          <Button Command="{Binding PdfCommand}" CommandParameter="pdf" Margin="0,0,6,6" Name="btnInvoicePdf">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoExport}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="PDF" /></StackPanel></Button>
+          <Button Command="{Binding PdfCommand}" CommandParameter="print" Margin="0,0,6,6">
+            <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPrint}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Common.Print}" /></StackPanel></Button>
+        </WrapPanel>
+        <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Classes="wrap" Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
+      </StackPanel>
+      <Border Grid.Column="2" Classes="soft">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+          <TextBlock Text="{l:T Col.Subtotal}" Margin="0,2" /><TextBlock Grid.Column="1" Text="{Binding Subtotal, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="1" Text="{l:T Col.Discount}" Margin="0,2" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Discount, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="2" Text="{l:T Col.Tax}" Margin="0,2" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="3" Text="{l:T Col.Total}" FontWeight="SemiBold" Margin="0,2" /><TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" FontSize="15" Text="{Binding Total, Converter={x:Static l:Conv.Money}}" Name="txtInvoiceTotal" />
+          <TextBlock Grid.Row="4" Text="{l:T Col.Paid}" Margin="0,2" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Paid, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="5" Text="{l:T Col.Returned}" Margin="0,2" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Returned, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="6" Text="{l:T Col.Balance}" FontWeight="SemiBold" Margin="0,2" /><TextBlock Grid.Row="6" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Balance, Converter={x:Static l:Conv.Money}}" />
+          <TextBlock Grid.Row="7" Text="{l:T Col.Cogs}" Margin="0,2" IsVisible="{Binding IsPosted}" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Cogs, Converter={x:Static l:Conv.Money}}" IsVisible="{Binding IsPosted}" />
+          <TextBlock Grid.Row="8" Text="{l:T Col.GrossProfit}" Margin="0,2" IsVisible="{Binding IsPosted}" /><TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding GrossProfit, Converter={x:Static l:Conv.Money}}" Foreground="{Binding GrossProfit, Converter={x:Static l:Conv.SignBrush}}" IsVisible="{Binding IsPosted}" />
+        </Grid>
+      </Border>
+    </Grid>
+  </StackPanel>
+</UserControl>

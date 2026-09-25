@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.PurchaseReturnDialogView"
+             x:DataType="vm:PurchaseReturnDialogViewModel">
+  <StackPanel Spacing="8">
+    <DataGrid ItemsSource="{Binding Lines}" IsReadOnly="False" CanUserSortColumns="False" MaxHeight="260">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding Material}" IsReadOnly="True" Width="2*" MinWidth="140" />
+        <DataGridTextColumn Header="{l:T Col.Received}" Binding="{Binding Received, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.Returned}" Binding="{Binding AlreadyReturned, Converter={x:Static l:Conv.Number}}" IsReadOnly="True" Width="90" MinWidth="90" />
+        <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding UnitCost, Converter={x:Static l:Conv.Money}}" IsReadOnly="True" Width="100" MinWidth="100" />
+        <DataGridTextColumn Header="{l:T Return.QtyToReturn}" Binding="{Binding Quantity}" Width="110" MinWidth="110" />
+      </DataGrid.Columns>
+    </DataGrid>
+    <Grid ColumnDefinitions="*,12,2*">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Reason}" /><TextBox Text="{Binding Reason}" /></StackPanel>
+    </Grid>
+  </StackPanel>
+</UserControl>

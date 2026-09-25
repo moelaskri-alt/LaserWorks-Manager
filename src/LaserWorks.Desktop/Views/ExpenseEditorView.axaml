@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:e="using:LaserWorks.Domain.Entities"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.ExpenseEditorView"
+             x:DataType="vm:ExpenseEditorViewModel">
+  <StackPanel Spacing="4">
+    <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border>
+    <Grid ColumnDefinitions="*,12,*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" IsEnabled="{Binding IsDraft}">
+      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Date}" /><CalendarDatePicker SelectedDate="{Binding Date}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
+      <StackPanel Classes="field" Grid.Column="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Category}" />
+        <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:ExpenseCategory"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Description}" /><TextBox Text="{Binding Description}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Amount}" /><NumericUpDown Value="{Binding Amount}" Minimum="0" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Tax}" />
+        <DockPanel><Button DockPanel.Dock="Right" Content="%" Command="{Binding CalcTaxCommand}" Margin="4,0,0,0" /><NumericUpDown Value="{Binding TaxAmount}" Minimum="0" /></DockPanel></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Method}" />
+        <ComboBox ItemsSource="{Binding Methods}" SelectedItem="{Binding PaymentMethod}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3"><TextBlock Classes="label" Text="{l:T Col.Supplier}" /><ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding Supplier}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Job}" /><ComboBox ItemsSource="{Binding Jobs}" SelectedItem="{Binding Job}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="3" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Machine}" /><ComboBox ItemsSource="{Binding Machines}" SelectedItem="{Binding Machine}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4"><TextBlock Classes="label" Text="{l:T Col.CostCenter}" />
+        <ComboBox ItemsSource="{Binding CostCenters}" SelectedItem="{Binding CostCenter}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:CostCenter"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+      <StackPanel Classes="field" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Reference}" /><TextBox Text="{Binding Reference}" /></StackPanel>
+    </Grid>
+    <TextBlock Classes="muted small wrap" Text="{Binding JobHint}" IsVisible="{Binding JobHint, Converter={x:Static l:Conv.NotEmpty}}" />
+    <CheckBox IsChecked="{Binding PostNow}" Content="{l:T Expense.PostNow}" IsVisible="{Binding IsDraft}" />
+  </StackPanel>
+</UserControl>
