@@ -32,7 +32,15 @@ Test classes run one at a time (the language setting and the desktop app's servi
 | `Ui/UiSmokeTests` | every module and every tab rendered at 1366×768 in Arabic/Light (RTL) and English/Dark (LTR); fails on any binding error, error banner or missing translation |
 | `Ui/UiDialogTests` | every *New*, *Edit* and *Open* command on every module opened (62 dialogs and detail pages, Arabic and English) without binding errors |
 
-## Latest results (Linux, .NET 10.0.112, Release)
+## Latest results
+
+### Windows (GitHub Actions, Windows Server 2025, .NET SDK 10.0.401)
+
+Run [36207448127](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36207448127): build 0 warnings / 0 errors; **51 passed, 0 failed**; packaged exe smoke test passed
+(`Smoke test passed: screen SetupWizardViewModel`); demo company created with all 13 reconciliation checks passing;
+NSIS installer built; silent install, start of the installed exe and silent uninstall passed.
+
+### Linux (.NET 10.0.112, Release)
 
 **51 passed, 0 failed, 0 skipped** — total 2.6 minutes (4 vCPU, 15 GB RAM).
 
@@ -54,9 +62,7 @@ Performance on the large database (second run of each query, after warm-up):
 
 ## Not covered by automated tests
 
-- **Windows runtime validation is pending.** Everything above ran on Linux. The Windows build is produced
-  by cross-compiling; `.github/workflows/windows-release.yml` runs the same tests on `windows-latest`, starts
-  the packaged exe (`--smoke-test`), and installs, starts and uninstalls the installer silently. Its results
-  were not available when this release candidate was prepared.
+- **Interactive Windows validation is pending.** Windows was validated by automation only (tests, smoke tests and
+  a silent install on a Windows Server 2025 runner). No person has used the app by hand on Windows 10/11.
 - Native file pickers and printing: tests replace the picker with fixed paths; the Windows "print" verb is untested.
 - Visual review was done on headless screenshots at 1366×768; other resolutions and high-DPI scaling were not reviewed.

@@ -1,6 +1,6 @@
 # Final QA report — LaserWorks Manager 1.0.0-rc1
 
-**Status: RELEASE CANDIDATE — Windows runtime validation is pending.**
+**Status: RELEASE CANDIDATE.** Automated Windows validation passed; interactive Windows validation is pending.
 
 Build version: 1.0.0 (display 1.0.0-rc1), .NET 10.0.112, Avalonia 11.3, EF Core 10 / SQLite.
 Environment: Linux x64 (4 vCPU, 15 GB), headless Avalonia with Skia rendering, Xvfb for process-level smoke tests.
@@ -33,7 +33,9 @@ Environment: Linux x64 (4 vCPU, 15 GB), headless Avalonia with Skia rendering, X
 
 ## Tests
 
-- **Passed: 51. Failed: 0. Skipped: 0** (Release, 2.6 minutes). Details in [TESTING.md](TESTING.md).
+- **Linux: Passed 51, Failed 0, Skipped 0** (Release; repeated full runs clean). Details in [TESTING.md](TESTING.md).
+- **Windows (Server 2025 runner, run [36207448127](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36207448127)): Passed 51, Failed 0, Skipped 0**; packaged-exe smoke
+  test passed; installer silent install → start → uninstall passed.
 - Performance with 3,000 customers, 10,000 jobs, 10,000 invoices, 20,000 stock movements and 50,000 journal
   lines: every screen and report measured under 0.5 s.
 - Packaged application: `--smoke-test` of a single-file build (same packaging mode as the Windows exe, built for
@@ -73,18 +75,18 @@ Environment: Linux x64 (4 vCPU, 15 GB), headless Avalonia with Skia rendering, X
 
 ## Known risks
 
-- **Windows runtime validation is pending**: the Windows exe and installer were cross-built on Linux and have not
-  been started on Windows. Linux headless and Xvfb testing is not equivalent to Windows validation (file dialogs,
-  printing, fonts/DPI, SmartScreen, installer behaviour). The workflow `.github/workflows/windows-release.yml`
-  runs the full test suite, the packaged-exe smoke test and a silent install/start/uninstall on `windows-latest`.
+- **Interactive Windows validation is pending.** On Windows the app was exercised only by automation on a Windows
+  Server 2025 CI runner (tests, start-up smoke test, silent install/uninstall). Hands-on use on Windows 10/11 —
+  native file dialogs, printing, high-DPI scaling, SmartScreen, the interactive installer pages — has not happened.
 - Unsigned executable and installer (SmartScreen warning).
 - QuestPDF Community License applies to companies under USD 1M revenue.
 - SQLite is single-machine; sharing the data folder over a network drive is not supported.
 
 ## Release artifacts
 
-Built by `tools/release.sh` into `artifacts/release/` (not committed to git; the CI workflow publishes them as
-the `LaserWorksManager-windows` build artifact, and attaches them to a GitHub release for `v*` tags):
+Built natively on Windows by the CI workflow and published as the build artifact **LaserWorksManager-windows**
+of run [36207448127](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36207448127) (recommended for distribution; attached to a GitHub release for `v*` tags).
+The same set can be built locally with `tools/release.sh` into `artifacts/release/` (not committed to git):
 
 | File | Size |
 |---|---|

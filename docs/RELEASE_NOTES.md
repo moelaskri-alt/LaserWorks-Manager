@@ -32,10 +32,9 @@ First release candidate.
 
 ## Known limitations
 
-- **Windows runtime validation is pending.** The build, all automated tests and a start-up smoke test of the
-  real application ran on Linux; the Windows executable and installer were produced by cross-compilation and
-  have not yet been run on Windows. The included GitHub Actions workflow runs the tests, the packaged exe smoke
-  test and the installer build on a Windows runner.
+- **Interactive Windows validation is pending.** On Windows the release was validated by automation only
+  (all 51 tests, packaged-exe start-up smoke test, silent install/start/uninstall on a Windows Server 2025 runner);
+  it has not yet been used by hand on Windows 10/11.
 - The executable and installer are not code-signed, so Windows SmartScreen shows an "unknown publisher" warning.
 - Single currency; single company per database; no payroll or fixed-asset register (depreciation is included
   in machine rates and posted as an expense when you record it).
