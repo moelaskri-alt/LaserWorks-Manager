@@ -18,6 +18,7 @@
           <Button Classes="danger" Command="{Binding DeleteCommand}" CommandParameter="{Binding Selected}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" IsVisible="{Binding CanDelete}">
             <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" />
           </Button>
+          <Button Command="{Binding NewFromTemplateCommand}" IsVisible="{Binding CanCreate}" Name="btnNewFromTemplate" Content="{l:T Template.NewEstimate}" />
           <Button Classes="primary" Command="{Binding NewCommand}" IsVisible="{Binding CanCreate}">
             <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Estimate.New}" /></StackPanel>
           </Button>

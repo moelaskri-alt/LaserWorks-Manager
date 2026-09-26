@@ -53,6 +53,9 @@ public class AppDbContext : DbContext, IAppDb
     public DbSet<Job> Jobs => Set<Job>();
     public DbSet<JobCostEntry> JobCostEntries => Set<JobCostEntry>();
     public DbSet<JobOperation> JobOperations => Set<JobOperation>();
+    public DbSet<JobComponent> JobComponents => Set<JobComponent>();
+    public DbSet<RequestItem> RequestItems => Set<RequestItem>();
+    public DbSet<ProductTemplate> ProductTemplates => Set<ProductTemplate>();
     public DbSet<ScrapRecord> ScrapRecords => Set<ScrapRecord>();
     public DbSet<QualityCheck> QualityChecks => Set<QualityCheck>();
     public DbSet<SalesInvoice> SalesInvoices => Set<SalesInvoice>();
@@ -115,6 +118,7 @@ public class AppDbContext : DbContext, IAppDb
         m.Entity<Remnant>(e => { e.HasIndex(x => x.Code).IsUnique(); e.HasIndex(x => new { x.MaterialId, x.Status }); e.Ignore(x => x.Area); });
         m.Entity<InventoryTransaction>(e =>
         {
+            e.HasIndex(x => x.JobComponentId);
             e.HasIndex(x => x.Number);
             e.HasIndex(x => new { x.MaterialId, x.Date });
             e.HasIndex(x => x.JobId);
@@ -122,7 +126,7 @@ public class AppDbContext : DbContext, IAppDb
             e.HasIndex(x => new { x.SourceType, x.SourceId });
         });
 
-        m.Entity<CustomerRequest>(e => { e.HasIndex(x => x.Number).IsUnique(); e.HasIndex(x => x.CustomerId); e.HasIndex(x => x.Status); e.Property(x => x.Description).IsRequired().HasMaxLength(4000); e.Property(x => x.Notes).HasMaxLength(4000); });
+        m.Entity<CustomerRequest>(e => { e.HasMany(x => x.Items).WithOne(x => x.Request).HasForeignKey(x => x.RequestId).OnDelete(DeleteBehavior.Cascade); e.HasIndex(x => x.Number).IsUnique(); e.HasIndex(x => x.CustomerId); e.HasIndex(x => x.Status); e.Property(x => x.Description).IsRequired().HasMaxLength(4000); e.Property(x => x.Notes).HasMaxLength(4000); });
         m.Entity<Attachment>().HasIndex(x => new { x.OwnerType, x.OwnerId });
         m.Entity<DesignRevision>(e => { e.HasIndex(x => new { x.RequestId, x.RevisionNo }).IsUnique(); e.Property(x => x.Notes).HasMaxLength(4000); });
 
@@ -135,6 +139,8 @@ public class AppDbContext : DbContext, IAppDb
             e.HasMany(x => x.LaborLines).WithOne().HasForeignKey(x => x.EstimateId).OnDelete(DeleteBehavior.Cascade);
             e.Property(x => x.Description).HasMaxLength(4000);
         });
+        m.Entity<RequestItem>(e => { e.Property(x => x.Description).HasMaxLength(500); e.Property(x => x.Unit).HasMaxLength(30); e.Property(x => x.Notes).HasMaxLength(1000); });
+        m.Entity<EstimateMaterialLine>(e => { e.Property(x => x.Description).HasMaxLength(500); e.Property(x => x.Unit).HasMaxLength(30); });
         m.Entity<EstimateMaterialLine>().HasMany(x => x.Pieces).WithOne().HasForeignKey(x => x.MaterialLineId).OnDelete(DeleteBehavior.Cascade);
 
         m.Entity<Quotation>(e =>
@@ -157,8 +163,18 @@ public class AppDbContext : DbContext, IAppDb
             e.Property(x => x.Title).IsRequired().HasMaxLength(300);
             e.Property(x => x.Description).HasMaxLength(4000);
             e.HasMany(x => x.Operations).WithOne(x => x.Job).HasForeignKey(x => x.JobId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Components).WithOne(x => x.Job).HasForeignKey(x => x.JobId).OnDelete(DeleteBehavior.Cascade);
         });
-        m.Entity<JobCostEntry>(e => { e.HasIndex(x => new { x.JobId, x.Component }); e.HasIndex(x => x.Date); e.HasIndex(x => new { x.SourceType, x.SourceId }); });
+        m.Entity<JobComponent>(e =>
+        {
+            e.HasIndex(x => new { x.JobId, x.LineNo });
+            e.HasIndex(x => x.MaterialId);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.Property(x => x.Unit).HasMaxLength(30);
+            e.Property(x => x.Notes).HasMaxLength(1000);
+        });
+        m.Entity<ProductTemplate>(e => { e.HasIndex(x => x.Code).IsUnique(); e.Property(x => x.Name).IsRequired().HasMaxLength(300); });
+        m.Entity<JobCostEntry>(e => { e.HasIndex(x => x.JobComponentId); e.HasIndex(x => new { x.JobId, x.Component }); e.HasIndex(x => x.Date); e.HasIndex(x => new { x.SourceType, x.SourceId }); });
         m.Entity<ScrapRecord>(e => { e.HasIndex(x => x.Number).IsUnique(); e.HasIndex(x => x.JobId); });
         m.Entity<QualityCheck>().HasIndex(x => x.JobId);
 

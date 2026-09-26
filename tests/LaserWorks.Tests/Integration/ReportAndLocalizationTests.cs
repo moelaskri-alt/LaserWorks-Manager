@@ -34,7 +34,7 @@ public class ReportTests : IAsyncLifetime
     {
         Loc.Instance.SetLanguage(lang);
         var catalog = _t.Get<ReportCatalog>();
-        Assert.Equal(40, catalog.Reports.Count);
+        Assert.Equal(41, catalog.Reports.Count);
         var company = await _t.Get<SettingsService>().GetAsync();
         long jobId, customerId, accountId;
         await using (var db = _t.Get<IAppDbFactory>().Create())

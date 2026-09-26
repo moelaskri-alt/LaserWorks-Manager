@@ -52,8 +52,8 @@ public sealed partial class RequestsViewModel : ListPageViewModel<RequestRow>
     protected override ReportTable BuildExport(IReadOnlyList<RequestRow> rows)
     {
         var t = new ReportTable().Col("no", "Col.Number").Col("date", "Col.Date", K.Date).Col("customer", "Col.Customer", width: 1.6f).Col("desc", "Col.Description", width: 2.5f)
-            .Col("material", "Col.Material", width: 1.3f).Col("qty", "Col.Quantity", K.Number).Col("req", "Col.RequiredDate", K.Date).Col("status", "Col.Status");
-        foreach (var r in rows) t.Add(r.Number, r.RequestDate, r.Customer, r.Description, r.Material, r.Quantity, r.RequiredDate, r.Status);
+            .Col("items", "Col.RequestedItems", width: 1.6f).Col("qty", "Col.Quantity", K.Number).Col("req", "Col.RequiredDate", K.Date).Col("status", "Col.Status");
+        foreach (var r in rows) t.Add(r.Number, r.RequestDate, r.Customer, r.Description, r.Items, r.Quantity, r.RequiredDate, r.Status);
         return t;
     }
 
@@ -92,19 +92,22 @@ public sealed partial class RequestEditorViewModel : DialogViewModel
 
     public override string TitleKey => _id == 0 ? "Request.New" : "Request.Edit";
     public override string Title => _id == 0 ? L[TitleKey] : $"{L[TitleKey]} — {Number}";
-    public override double DialogWidth => 980;
+    public override double DialogWidth => 1120;
 
     [ObservableProperty] private string? _number;
     [ObservableProperty] private Lookup? _customer;
     [ObservableProperty] private DateTime? _requestDate = DateTime.Today;
     [ObservableProperty] private string? _description;
     [ObservableProperty] private string? _dimensions;
-    [ObservableProperty] private MaterialLookup? _material;
-    [ObservableProperty] private decimal _thickness;
     [ObservableProperty] private decimal _quantity = 1;
     [ObservableProperty] private DateTime? _requiredDate;
     [ObservableProperty] private string? _notes;
     [ObservableProperty] private RequestStatus _status;
+    [ObservableProperty] private RequestItemVm? _selectedItem;
+    [ObservableProperty] private int _selectedTab;
+    /// <summary>Requested materials, purchased components, consumables, packaging and services (unlimited lines).</summary>
+    public ObservableCollection<RequestItemVm> Items { get; } = new();
+    public IReadOnlyList<ComponentCategory> Categories { get; } = Enum.GetValues<ComponentCategory>();
     [ObservableProperty] private AttachmentRow? _selectedAttachment;
     [ObservableProperty] private RevisionRow? _selectedRevision;
 
@@ -116,9 +119,29 @@ public sealed partial class RequestEditorViewModel : DialogViewModel
     public bool IsSaved => _id != 0;
     public bool IsNew => _id == 0;
 
-    partial void OnMaterialChanged(MaterialLookup? value)
+    [RelayCommand]
+    private void AddItem()
     {
-        if (value != null && Thickness == 0) Thickness = value.Thickness;
+        var item = new RequestItemVm(this) { Quantity = 1 };
+        Items.Add(item);
+        SelectedItem = item;
+    }
+
+    [RelayCommand]
+    private void DuplicateItem(RequestItemVm? item)
+    {
+        item ??= SelectedItem;
+        if (item == null) return;
+        var copy = new RequestItemVm(this) { Material = item.Material, Category = item.Category, Description = item.Description, Quantity = item.Quantity, Unit = item.Unit, Notes = item.Notes };
+        Items.Insert(Items.IndexOf(item) + 1, copy);
+        SelectedItem = copy;
+    }
+
+    [RelayCommand]
+    private void RemoveItem(RequestItemVm? item)
+    {
+        item ??= SelectedItem;
+        if (item != null) Items.Remove(item);
     }
 
     public override async Task InitializeAsync()
@@ -141,8 +164,14 @@ public sealed partial class RequestEditorViewModel : DialogViewModel
         if (r == null) return;
         Number = r.Number;
         Customer = Customers.FirstOrDefault(c => c.Id == r.CustomerId) ?? new Lookup(r.CustomerId, r.Customer!.Code, r.Customer.Name);
-        RequestDate = r.RequestDate; Description = r.Description; Dimensions = r.Dimensions; Material = Materials.FirstOrDefault(m => m.Id == r.MaterialId);
-        Thickness = r.Thickness; Quantity = r.Quantity; RequiredDate = r.RequiredDate; Notes = r.Notes; Status = r.Status;
+        RequestDate = r.RequestDate; Description = r.Description; Dimensions = r.Dimensions;
+        Quantity = r.Quantity; RequiredDate = r.RequiredDate; Notes = r.Notes; Status = r.Status;
+        Items.Clear();
+        foreach (var i in r.Items.OrderBy(i => i.LineNo))
+            Items.Add(new RequestItemVm(this)
+            {
+                Material = Materials.FirstOrDefault(m => m.Id == i.MaterialId), Category = i.Category, Description = i.Description, Quantity = i.Quantity, Unit = i.Unit, Notes = i.Notes
+            });
         await ReloadChildrenAsync();
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(IsSaved));
@@ -162,7 +191,9 @@ public sealed partial class RequestEditorViewModel : DialogViewModel
         _id = await Get<RequestService>().SaveAsync(new CustomerRequest
         {
             Id = _id, CustomerId = Customer?.Id ?? 0, RequestDate = RequestDate?.Date ?? Today, Description = Description ?? "", Dimensions = Dimensions,
-            MaterialId = Material?.Id, Thickness = Thickness, Quantity = Quantity, RequiredDate = RequiredDate?.Date, Notes = Notes
+            Quantity = Quantity, RequiredDate = RequiredDate?.Date, Notes = Notes,
+            Items = Items.Where(i => i.Material != null || !string.IsNullOrWhiteSpace(i.Description))
+                .Select(i => new RequestItem { MaterialId = i.Material?.Id, Category = i.Category, Description = i.Description, Quantity = i.Quantity, Unit = i.Unit, Notes = i.Notes }).ToList()
         });
     }
 
@@ -289,9 +320,11 @@ public sealed partial class RevisionEditorViewModel : DialogViewModel
         OnPropertyChanged(nameof(Materials));
         if (_id == 0)
         {
+            // the design's main sheet material defaults to the first raw material the customer asked for
             var req = await Get<RequestService>().GetAsync(_requestId);
-            Material = Materials.FirstOrDefault(m => m.Id == req?.MaterialId);
-            Thickness = req?.Thickness ?? 0;
+            var main = req?.Items.OrderBy(i => i.LineNo).FirstOrDefault(i => i.Material is { Kind: MaterialKind.RawMaterial });
+            Material = Materials.FirstOrDefault(m => m.Id == main?.MaterialId);
+            Thickness = Material?.Thickness ?? 0;
             return;
         }
         var d = await Get<DesignService>().GetAsync(_id);
@@ -386,5 +419,30 @@ public sealed partial class DesignsViewModel : ListPageViewModel<RevisionRow>
         if (row == null) return;
         await Dialogs.ShowAsync(new RequestEditorViewModel(row.RequestId));
         await LoadAsync();
+    }
+}
+
+
+/// <summary>One requested item line in the request editor.</summary>
+public sealed partial class RequestItemVm : ObservableObject
+{
+    public RequestItemVm(RequestEditorViewModel owner) => Owner = owner;
+    public RequestEditorViewModel Owner { get; }
+    [ObservableProperty] private MaterialLookup? _material;
+    [ObservableProperty] private ComponentCategory _category = ComponentCategory.RawMaterial;
+    [ObservableProperty] private string? _description;
+    [ObservableProperty] private decimal _quantity = 1;
+    [ObservableProperty] private string? _unit;
+    [ObservableProperty] private string? _notes;
+    public bool IsFreeText => Material == null;
+
+    partial void OnMaterialChanged(MaterialLookup? value)
+    {
+        if (value != null)
+        {
+            Category = LaserWorks.Domain.Costing.ComponentRules.CategoryOf(value.Kind);
+            Unit = value.Unit;
+        }
+        OnPropertyChanged(nameof(IsFreeText));
     }
 }

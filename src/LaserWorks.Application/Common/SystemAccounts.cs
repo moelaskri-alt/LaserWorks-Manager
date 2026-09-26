@@ -10,6 +10,8 @@ public static class SystemAccounts
     public const string InventoryRemnants = "InventoryRemnants";
     public const string InventoryFG = "InventoryFG";
     public const string InventoryConsumables = "InventoryConsumables";
+    public const string InventoryComponents = "InventoryComponents";
+    public const string InventoryPackaging = "InventoryPackaging";
     public const string WIP = "WIP";
     public const string InputTax = "InputTax";
     public const string FixedAssets = "FixedAssets";

@@ -94,6 +94,9 @@ public class InventoryTransaction : Entity, IImmutableRecord
     public decimal AverageCostAfter { get; set; }
     public long? JobId { get; set; }
     public Job? Job { get; set; }
+    /// <summary>Job component line the movement belongs to (issues, returns, remnant use).</summary>
+    public long? JobComponentId { get; set; }
+    public JobComponent? JobComponent { get; set; }
     public string? SourceType { get; set; }
     public long? SourceId { get; set; }
     public string? Reference { get; set; }

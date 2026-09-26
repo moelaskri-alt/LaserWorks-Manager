@@ -18,7 +18,7 @@ public static class Numbering
         [SequenceKey.Job] = "JOB-", [SequenceKey.Invoice] = "INV-", [SequenceKey.SalesReturn] = "SRN-", [SequenceKey.CustomerPayment] = "RCV-",
         [SequenceKey.PurchaseOrder] = "PO-", [SequenceKey.PurchaseReceipt] = "GRN-", [SequenceKey.SupplierInvoice] = "PINV-",
         [SequenceKey.SupplierPayment] = "PAY-", [SequenceKey.PurchaseReturn] = "PRN-", [SequenceKey.Expense] = "EXP-",
-        [SequenceKey.Journal] = "JV-", [SequenceKey.InventoryTx] = "IT-", [SequenceKey.Remnant] = "RM-", [SequenceKey.Scrap] = "SCR-"
+        [SequenceKey.Journal] = "JV-", [SequenceKey.InventoryTx] = "IT-", [SequenceKey.Remnant] = "RM-", [SequenceKey.Scrap] = "SCR-", [SequenceKey.ProductTemplate] = "TPL-"
     };
 
     public static string DefaultPrefix(SequenceKey key) => DefaultPrefixes.TryGetValue(key, out var p) ? p : key + "-";
@@ -84,6 +84,9 @@ public static class AccountingEngine
     {
         MaterialKind.FinishedGood => SystemAccounts.InventoryFG,
         MaterialKind.Consumable => SystemAccounts.InventoryConsumables,
+        MaterialKind.PurchasedComponent => SystemAccounts.InventoryComponents,
+        MaterialKind.Packaging => SystemAccounts.InventoryPackaging,
+        MaterialKind.Service => throw new DomainException("Err.ServiceNotStocked"),
         _ => SystemAccounts.Inventory
     };
 
@@ -215,7 +218,8 @@ public static class InventoryEngine
 {
     public sealed record Movement(
         InventoryTxType Type, DateTime Date, long WarehouseId, decimal Quantity, decimal? UnitCost = null,
-        long? JobId = null, string? SourceType = null, long? SourceId = null, string? Reference = null, string? Notes = null, bool AllowNegative = false);
+        long? JobId = null, string? SourceType = null, long? SourceId = null, string? Reference = null, string? Notes = null, bool AllowNegative = false,
+        long? JobComponentId = null);
 
     public static async Task<StockBalance> BalanceAsync(IAppDb db, long materialId, long warehouseId, CancellationToken ct = default)
     {
@@ -292,6 +296,7 @@ public static class InventoryEngine
 
     private static async Task<InventoryTransaction> AddTxAsync(IAppDb db, Material material, Movement mv, decimal signedQty, decimal unitCost, decimal signedValue, CancellationToken ct)
     {
+        if (!LaserWorks.Domain.Costing.ComponentRules.IsStockable(material.Kind)) throw new DomainException("Err.ServiceNotStocked");
         var tx = new InventoryTransaction
         {
             Number = await Numbering.NextAsync(db, SequenceKey.InventoryTx, ct),
@@ -305,6 +310,7 @@ public static class InventoryEngine
             QuantityAfter = material.QuantityOnHand,
             AverageCostAfter = material.AverageCost,
             JobId = mv.JobId,
+            JobComponentId = mv.JobComponentId,
             SourceType = mv.SourceType,
             SourceId = mv.SourceId,
             Reference = mv.Reference,
@@ -315,7 +321,7 @@ public static class InventoryEngine
     }
 
     /// <summary>Records a remnant movement in the inventory ledger (value only; remnants are tracked individually).</summary>
-    public static async Task<InventoryTransaction> RemnantTxAsync(IAppDb db, Remnant remnant, InventoryTxType type, DateTime date, decimal signedQty, decimal signedValue, long? jobId, string? notes, CancellationToken ct = default)
+    public static async Task<InventoryTransaction> RemnantTxAsync(IAppDb db, Remnant remnant, InventoryTxType type, DateTime date, decimal signedQty, decimal signedValue, long? jobId, string? notes, CancellationToken ct = default, long? jobComponentId = null)
     {
         var tx = new InventoryTransaction
         {
@@ -330,6 +336,7 @@ public static class InventoryEngine
             UnitCost = Math.Abs(signedValue),
             TotalCost = signedValue,
             JobId = jobId,
+            JobComponentId = jobComponentId,
             SourceType = "Remnant",
             Reference = remnant.Code,
             Notes = notes
@@ -343,14 +350,15 @@ public static class InventoryEngine
 public static class JobCostEngine
 {
     public static JobCostEntry Add(IAppDb db, Job job, CostComponent component, decimal amount, DateTime date, string sourceType, long? sourceId,
-        string? description = null, decimal quantity = 0, long? materialId = null, long? machineId = null, long? employeeId = null, decimal hours = 0, JournalEntry? journal = null)
+        string? description = null, decimal quantity = 0, long? materialId = null, long? machineId = null, long? employeeId = null, decimal hours = 0, JournalEntry? journal = null,
+        long? jobComponentId = null)
     {
         if (job.Status is JobStatus.Closed or JobStatus.Cancelled) throw new DomainException("Err.JobClosed", job.Number);
         var e = new JobCostEntry
         {
             JobId = job.Id, Job = job, Component = component, Amount = Money.Round(amount), Date = date, SourceType = sourceType, SourceId = sourceId,
             Description = description, Quantity = quantity, MaterialId = materialId, MachineId = machineId, EmployeeId = employeeId, Hours = hours,
-            JournalEntry = journal
+            JournalEntry = journal, JobComponentId = jobComponentId
         };
         db.JobCostEntries.Add(e);
         job.ActualCost += e.Amount;

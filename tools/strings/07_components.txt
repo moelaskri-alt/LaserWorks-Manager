@@ -1,0 +1,81 @@
+# multi-component jobs, product templates, request items
+Col.AmountExclTax|Amount (excl. tax)|المبلغ (بدون ضريبة)
+Col.DesignRevision|Revision|المراجعة
+Col.DimensionsCm|Dimensions (cm)|الأبعاد (سم)
+Col.EstimatedUnitCost|Estimated unit cost|تكلفة الوحدة التقديرية
+Col.FileName|File name|اسم الملف
+Col.FileType|File type|نوع الملف
+Col.Item|Item|الصنف
+Col.MachineTimeMin|Machine time (min)|وقت الماكينة (دقيقة)
+Col.MainMaterial|Main sheet material|مادة اللوح الرئيسية
+Col.PaymentMethod|Payment method|طريقة الدفع
+Col.PlannedQty|Planned qty|الكمية المخططة
+Col.QtyPerUnit|Qty per unit|الكمية لكل وحدة
+Col.RequestedItems|Requested items|الأصناف المطلوبة
+Col.UsedQty|Used qty|الكمية المستخدمة
+Component.Add|Add item|إضافة صنف
+Component.AddManual|Other cost|تكلفة أخرى
+Component.AddPurchased|Purchased for job|شراء مباشر للأمر
+Component.AddPurchasedTip|An item bought directly for this job; its supplier bill is charged to the job and never passes through stock.|صنف يُشترى مباشرة لهذا الأمر؛ تُحمَّل فاتورة المورد على الأمر ولا تمر عبر المخزون.
+Component.AddRemnant|Use remnant|استخدام بقايا
+Component.AddService|External service|خدمة خارجية
+Component.AddStock|From inventory|من المخزون
+Component.AddStockTip|Raw material, purchased component, consumable or packaging issued from stock at average cost.|مادة خام أو مكوّن مشترى أو مستهلكات أو تغليف يُصرف من المخزون بمتوسط التكلفة.
+Component.DirectCostHint|Posted as Dr Work in progress / Cr Supplier (on credit) or Cash / Bank. The cost is charged to this line only, so it can never be counted twice with a stock issue.|يُرحَّل: مدين الإنتاج تحت التشغيل / دائن المورد (آجل) أو النقدية / البنك. تُحمَّل التكلفة على هذا البند فقط فلا يمكن احتسابها مرتين مع صرف المخزون.
+Component.Duplicate|Duplicate|تكرار
+Component.Edit|Edit component line|تعديل بند المكوّن
+Component.Empty|No component lines yet. Add materials, purchased components, consumables, packaging or services.|لا توجد بنود مكوّنات بعد. أضف مواد أو مكوّنات مشتراة أو مستهلكات أو تغليف أو خدمات.
+Component.FreeText|Free-text item|صنف نصّي حر
+Component.FromEstimateHint|This line comes from the estimate: its estimated cost is a fixed snapshot for estimated-vs-actual comparison.|هذا البند من التقدير: تكلفته التقديرية لقطة ثابتة للمقارنة بين التقديري والفعلي.
+Component.Hint|Unlimited lines: raw materials, purchased components, consumables, packaging, remnants, external services and other direct costs.|بنود غير محدودة: مواد خام ومكوّنات مشتراة ومستهلكات وتغليف وبقايا وخدمات خارجية وتكاليف مباشرة أخرى.
+Component.LockedHint|This line already carries cost or stock movements: its item, source and type can no longer change. Reverse the movements first to change them.|هذا البند عليه تكاليف أو حركات مخزون: لا يمكن تغيير الصنف أو المصدر أو النوع. اعكس الحركات أولاً لتغييرها.
+Component.New|New component line|بند مكوّن جديد
+Component.NoItem|(no item – description only)|(بدون صنف – وصف فقط)
+Component.PickRemnant|Select a remnant|اختر قطعة بقايا
+Component.RecordCost|Record direct cost|تسجيل تكلفة مباشرة
+Component.ReverseCost|Reverse direct cost|عكس التكلفة المباشرة
+Component.Title|Components & materials|المكوّنات والمواد
+Doc.ComponentsVariance|Components: estimated vs actual|المكوّنات: التقديري مقابل الفعلي
+Doc.NotOnLine|Other cost elements (not on a component line)|عناصر تكلفة أخرى (خارج بنود المكوّنات)
+Estimate.ReworkAllowance|Rework allowance %|مخصص إعادة التشغيل %
+Job.TabComponents|Components|المكوّنات
+Msg.TemplateSaved|Template saved.|تم حفظ القالب.
+Request.Items|Requested items|الأصناف المطلوبة
+Request.ItemsHint|List every material, component, accessory, packaging or service the customer asked for (quantity per finished unit). The estimate starts with one line per item.|أدرج كل مادة أو مكوّن أو ملحق أو تغليف أو خدمة طلبها العميل (الكمية لكل وحدة منتهية). يبدأ التقدير ببند لكل صنف.
+Rpt.JobComponents|Job components|مكوّنات أوامر العمل
+Template.Empty|No templates yet. Open an estimate or a job and choose "Save as template".|لا توجد قوالب بعد. افتح تقديراً أو أمر عمل واختر "حفظ كقالب".
+Template.Name|Template name|اسم القالب
+Template.NewEstimate|New from template|جديد من قالب
+Template.SaveAs|Save as template|حفظ كقالب
+Template.SaveJobAs|Save job as template|حفظ الأمر كقالب
+Template.SaveTitle|Save as product template|حفظ كقالب منتج
+Template.Title|Product templates|قوالب المنتجات
+Template.Use|Create estimate|إنشاء تقدير
+Enum.ComponentCategory.RawMaterial|Raw material|مادة خام
+Enum.ComponentCategory.PurchasedComponent|Purchased component|مكوّن مشترى
+Enum.ComponentCategory.Consumable|Consumable|مستهلكات
+Enum.ComponentCategory.Packaging|Packaging|تغليف
+Enum.ComponentCategory.ExternalService|External service|خدمة خارجية
+Enum.ComponentCategory.OtherDirect|Other direct cost|تكلفة مباشرة أخرى
+Enum.ComponentSource.Inventory|Inventory|المخزون
+Enum.ComponentSource.Remnant|Remnant|بقايا
+Enum.ComponentSource.DirectPurchase|Direct purchase|شراء مباشر
+Enum.ComponentSource.ExternalService|External service|خدمة خارجية
+Enum.ComponentSource.ManualCost|Manual cost|تكلفة يدوية
+Enum.CostComponent.PurchasedComponents|Purchased components|مكوّنات مشتراة
+Enum.CostComponent.ExternalServices|External services|خدمات خارجية
+Enum.MaterialKind.PurchasedComponent|Purchased component|مكوّن مشترى
+Enum.MaterialKind.Packaging|Packaging|تغليف
+Enum.MaterialKind.Service|Service|خدمة
+Enum.SequenceKey.ProductTemplate|Product template|قالب منتج
+Err.ComponentCategoryMismatch|The component type does not match the item kind.|نوع المكوّن لا يطابق نوع الصنف.
+Err.ComponentHasCost|This component line already has cost or stock movements. Reverse them first.|بند المكوّن هذا عليه تكاليف أو حركات مخزون. اعكسها أولاً.
+Err.ComponentIsStocked|This line is supplied from stock: use Issue material or Use remnant, not a direct cost.|هذا البند يُورَّد من المخزون: استخدم صرف المواد أو استخدام البقايا وليس تكلفة مباشرة.
+Err.ComponentItemMismatch|The remnant does not belong to the line's material.|قطعة البقايا لا تخص مادة هذا البند.
+Err.ComponentNotStocked|This line is not supplied from stock: record a direct cost instead.|هذا البند لا يُورَّد من المخزون: سجّل تكلفة مباشرة بدلاً من ذلك.
+Err.RemnantNeedsRawMaterial|Remnants can only be made of raw (sheet) material.|لا يمكن إنشاء بقايا إلا من المواد الخام (الألواح).
+Err.ServiceNotStocked|A service item is never held in stock.|صنف الخدمة لا يُحتفظ به في المخزون.
+Col.Lines|Lines|البنود
+Col.Remaining|Remaining|المتبقي
+Grid.Empty|No records to show.|لا توجد سجلات لعرضها.
+Grid.Loading|Loading…|جارٍ التحميل…

@@ -29,14 +29,15 @@ public sealed partial class ReportCatalog
     private readonly AccountingService _accounting;
     private readonly PermissionService _permissions;
     private readonly IClock _clock;
+    private readonly JobComponentService _components;
     private const int All = 100_000;
 
     public ReportCatalog(IAppDbFactory f, CustomerService customers, RequestService requests, QuotationService quotes, JobService jobs, JobCostingService costing,
         ProductionService production, InventoryService inventory, MaterialService materials, MachineService machines, PurchaseService purchases, SalesService sales,
-        ExpenseService expenses, AccountingService accounting, PermissionService permissions, IClock clock)
+        ExpenseService expenses, AccountingService accounting, PermissionService permissions, IClock clock, JobComponentService components)
     {
         _f = f; _customers = customers; _requests = requests; _quotes = quotes; _jobs = jobs; _costing = costing; _production = production; _inventory = inventory;
-        _materials = materials; _machines = machines; _purchases = purchases; _sales = sales; _expenses = expenses; _accounting = accounting; _permissions = permissions; _clock = clock;
+        _materials = materials; _machines = machines; _purchases = purchases; _sales = sales; _expenses = expenses; _accounting = accounting; _permissions = permissions; _clock = clock; _components = components;
         Reports = Build();
     }
 
@@ -79,6 +80,7 @@ public sealed partial class ReportCatalog
         new("JobStatus", "Rpt.JobStatus", "RptCat.Jobs", F.Customer | F.Machine, JobStatusReport),
         new("JobCostSheet", "Rpt.JobCostSheet", "RptCat.Jobs", F.Job, JobCostSheet, Required: F.Job),
         new("EstimatedVsActual", "Rpt.EstimatedVsActual", "RptCat.Jobs", F.DateRange | F.Job | F.Customer, EstimatedVsActual),
+        new("JobComponents", "Rpt.JobComponents", "RptCat.Jobs", F.DateRange | F.Job | F.Customer | F.Status, JobComponentsReport, StatusOf<ComponentCategory>()),
         new("JobCostVariance", "Rpt.JobCostVariance", "RptCat.Jobs", F.DateRange | F.Customer, JobCostVariance),
         new("JobProfitability", "Rpt.JobProfitability", "RptCat.Profit", F.DateRange | F.Customer | F.Status, JobProfitability, new List<(string, string)> { ("Completed", "Filter.CompletedOnly"), ("Flagged", "Filter.FlaggedOnly") }),
         new("CustomerProfitability", "Rpt.CustomerProfitability", "RptCat.Profit", F.DateRange, CustomerProfitability),
@@ -183,8 +185,8 @@ public sealed partial class ReportCatalog
     {
         var rows = (await _requests.ListAsync(AllRows, ParseStatus<RequestStatus>(f.Status), f.CustomerId, f.Range)).Items;
         var t = new ReportTable().Col("no", "Col.Number", width: 0.9f).Col("date", "Col.Date", K.Date, 0.8f).Col("customer", "Col.Customer", width: 1.6f).Col("desc", "Col.Description", width: 2.5f)
-            .Col("material", "Col.Material", width: 1.4f).Col("qty", "Col.Quantity", K.Number, 0.6f).Col("required", "Col.RequiredDate", K.Date, 0.8f).Col("status", "Col.Status").Col("revs", "Col.Revisions", K.Integer, 0.5f);
-        foreach (var r in rows) t.AddRow(RowStyle.Normal, "Request", r.Id, r.Number, r.RequestDate, r.Customer, r.Description, r.Material, r.Quantity, r.RequiredDate, r.Status, r.Revisions);
+            .Col("items", "Col.RequestedItems", width: 1.6f).Col("qty", "Col.Quantity", K.Number, 0.6f).Col("required", "Col.RequiredDate", K.Date, 0.8f).Col("status", "Col.Status").Col("revs", "Col.Revisions", K.Integer, 0.5f);
+        foreach (var r in rows) t.AddRow(RowStyle.Normal, "Request", r.Id, r.Number, r.RequestDate, r.Customer, r.Description, r.Items, r.Quantity, r.RequiredDate, r.Status, r.Revisions);
         return t;
     }
 
@@ -257,12 +259,20 @@ public sealed partial class ReportCatalog
         var t = new ReportTable();
         if (f.JobId is { } jid)
         {
+            // one job: estimated vs actual per component line, then the costs that are not on a line
             var sheet = await _costing.CostSheetAsync(jid);
-            t.Col("component", "Col.Component", width: 1.4f).Col("est", "Col.Estimated", K.Money, total: true).Col("act", "Col.Actual", K.Money, total: true).Col("var", "Col.Variance", K.Money, total: true).Col("pct", "Col.VariancePercent", K.Percent).Col("flag", "Col.Assessment", width: 1.2f);
+            t.Col("item", "Col.Item", width: 2f).Col("type", "Col.Type", width: 1.3f).Col("planned", "Col.PlannedQty", K.Number, 0.7f).Col("used", "Col.UsedQty", K.Number, 0.7f)
+                .Col("unit", "Col.Unit", width: 0.5f).Col("est", "Col.Estimated", K.Money, total: true).Col("act", "Col.Actual", K.Money, total: true).Col("var", "Col.Variance", K.Money, total: true)
+                .Col("pct", "Col.VariancePercent", K.Percent, 0.7f).Col("flag", "Col.Assessment", width: 1f);
             t.Parameters.Add($"{L["Col.Job"]}: {sheet.Job.Number} — {sheet.Job.Title}");
-            foreach (var l in sheet.Variance.Lines)
-                t.AddRow(l.Variance > 0 ? RowStyle.Warning : RowStyle.Normal, null, null, l.Component, l.Estimated, l.Actual, l.Variance, l.VariancePercent, l.Variance > 0 ? L["Var.OverBudget"] : l.Variance < 0 ? L["Var.UnderBudget"] : L["Var.OnBudget"]);
+            foreach (var c in sheet.Components)
+                t.AddRow(c.Variance > 0 ? RowStyle.Warning : c.IsLine ? RowStyle.Normal : RowStyle.Subtotal, null, null,
+                    c.IsLine ? $"{c.LineNo}. {c.Item}" : L.Enum(c.Component),
+                    c.IsLine ? $"{L.Enum(c.Category!.Value)} · {L.Enum(c.Source!.Value)}" : L["Doc.NotOnLine"],
+                    c.IsLine ? c.PlannedQuantity : null, c.IsLine ? c.UsedQuantity : null, c.Unit, c.Estimated, c.Actual, c.Variance, c.VariancePercent,
+                    c.Variance > 0 ? L["Var.OverBudget"] : c.Variance < 0 ? L["Var.UnderBudget"] : L["Var.OnBudget"]);
             if (sheet.Variance.MainDriver is { } drv) t.Notes.Add($"{L["Var.MainReason"]}: {L.Enum(drv)}");
+            t.Notes.Add(L["Var.Legend"]);
             return t;
         }
         var rows = await _costing.JobProfitabilityAsync(f.Range, completedOnly: true, customerId: f.CustomerId);
@@ -277,13 +287,34 @@ public sealed partial class ReportCatalog
         return t;
     }
 
+    /// <summary>Every job component line in the period: planned vs used quantity and estimated vs actual cost.</summary>
+    private async Task<ReportTable> JobComponentsReport(ReportFilter f)
+    {
+        await using var db = _f.Create();
+        var category = ParseStatus<ComponentCategory>(f.Status);
+        var jobs = await db.Jobs.AsNoTracking().Where(j => j.Status != JobStatus.Cancelled && (f.JobId != null ? j.Id == f.JobId : j.OrderDate >= f.Range.From.Date && j.OrderDate < f.Range.ToExclusive)
+                && (f.CustomerId == null || j.CustomerId == f.CustomerId))
+            .OrderBy(j => j.Number).Select(j => new { j.Id, j.Number, Customer = j.Customer!.Name }).ToListAsync();
+        var t = new ReportTable().Col("job", "Col.Job", width: 0.8f).Col("customer", "Col.Customer", width: 1.3f).Col("item", "Col.Item", width: 2f).Col("type", "Col.Type", width: 1f)
+            .Col("source", "Col.Source", width: 0.9f).Col("planned", "Col.PlannedQty", K.Number, 0.7f).Col("used", "Col.UsedQty", K.Number, 0.7f).Col("unit", "Col.Unit", width: 0.5f)
+            .Col("est", "Col.Estimated", K.Money, total: true).Col("act", "Col.Actual", K.Money, total: true).Col("var", "Col.Variance", K.Money, total: true);
+        foreach (var j in jobs)
+            foreach (var l in await _components.ListAsync(j.Id))
+            {
+                if (category != null && l.Category != category) continue;
+                t.AddRow(l.Variance > 0 ? RowStyle.Warning : RowStyle.Normal, "Job", j.Id, j.Number, j.Customer, l.Display, L.Enum(l.Category), L.Enum(l.Source),
+                    l.PlannedQuantity, l.UsedQuantity, l.Unit, l.EstimatedCost, l.ActualCost, l.Variance);
+            }
+        return t;
+    }
+
     private async Task<ReportTable> JobCostVariance(ReportFilter f)
     {
         await using var db = _f.Create();
         var jobs = await db.Jobs.AsNoTracking().Where(j => j.Status >= JobStatus.QualityCheck && j.Status != JobStatus.Cancelled && j.OrderDate >= f.Range.From.Date && j.OrderDate < f.Range.ToExclusive && (f.CustomerId == null || j.CustomerId == f.CustomerId))
             .OrderBy(j => j.Number).Select(j => new { j.Id, j.Number, j.EstimateId, j.EstimatedCost }).ToListAsync();
         var t = new ReportTable().Col("job", "Col.Job", width: 0.8f);
-        var comps = new[] { CostComponent.Material, CostComponent.Machine, CostComponent.Labor, CostComponent.Scrap, CostComponent.Rework, CostComponent.Overhead };
+        var comps = new[] { CostComponent.Material, CostComponent.PurchasedComponents, CostComponent.Machine, CostComponent.Labor, CostComponent.Scrap, CostComponent.Rework, CostComponent.Overhead };
         foreach (var c in comps) t.Col(c.ToString(), $"Enum.CostComponent.{c}", K.Money, total: true);
         t.Col("other", "Col.Other", K.Money, total: true).Col("total", "Col.TotalVariance", K.Money, total: true);
         foreach (var j in jobs)
@@ -480,10 +511,10 @@ public sealed partial class ReportCatalog
         var tx = await db.InventoryTransactions.AsNoTracking()
             .Where(t => t.Date >= f.Range.From.Date && t.Date < f.Range.ToExclusive && (f.MaterialId == null || t.MaterialId == f.MaterialId)
                         && (t.Type == InventoryTxType.MaterialIssue || t.Type == InventoryTxType.MaterialReturn || t.Type == InventoryTxType.RemnantConsumption || t.Type == InventoryTxType.RemnantCreation || t.Type == InventoryTxType.SalesIssue || t.Type == InventoryTxType.Scrap))
-            .GroupBy(t => new { t.MaterialId, t.Material!.Code, t.Material.Name, Unit = t.Material.Unit!.Code })
+            .GroupBy(t => new { t.MaterialId, t.Material!.Code, t.Material.Name, t.Material.Kind, Unit = t.Material.Unit!.Code })
             .Select(g => new
             {
-                g.Key.MaterialId, g.Key.Code, g.Key.Name, g.Key.Unit,
+                g.Key.MaterialId, g.Key.Code, g.Key.Name, g.Key.Kind, g.Key.Unit,
                 Issued = -g.Where(x => x.Type == InventoryTxType.MaterialIssue).Sum(x => x.Quantity),
                 Returned = g.Where(x => x.Type == InventoryTxType.MaterialReturn).Sum(x => x.Quantity),
                 IssuedValue = -g.Where(x => x.Type == InventoryTxType.MaterialIssue || x.Type == InventoryTxType.MaterialReturn).Sum(x => x.TotalCost),
@@ -493,11 +524,11 @@ public sealed partial class ReportCatalog
                 Scrapped = -g.Where(x => x.Type == InventoryTxType.Scrap).Sum(x => x.Quantity),
                 Jobs = g.Where(x => x.JobId != null).Select(x => x.JobId).Distinct().Count()
             }).ToListAsync();
-        var t = new ReportTable().Col("code", "Col.Code", width: 0.8f).Col("name", "Col.Material", width: 2f).Col("unit", "Col.Unit", width: 0.5f).Col("issued", "Col.Issued", K.Number).Col("returned", "Col.Returned", K.Number)
+        var t = new ReportTable().Col("code", "Col.Code", width: 0.8f).Col("name", "Col.Material", width: 2f).Col("kind", "Col.Kind", width: 1f).Col("unit", "Col.Unit", width: 0.5f).Col("issued", "Col.Issued", K.Number).Col("returned", "Col.Returned", K.Number)
             .Col("net", "Col.NetConsumed", K.Number).Col("sold", "Col.Sold", K.Number).Col("scrapped", "Col.WrittenOff", K.Number).Col("jobs", "Col.Jobs", K.Integer, 0.5f)
             .Col("value", "Col.MaterialCost", K.Money, total: true).Col("remused", "Col.RemnantsUsed", K.Money, total: true).Col("remmade", "Col.RemnantsCreated", K.Money, total: true);
         foreach (var r in tx.OrderByDescending(x => x.IssuedValue))
-            t.AddRow(RowStyle.Normal, "Material", r.MaterialId, r.Code, r.Name, r.Unit, r.Issued, r.Returned, r.Issued - r.Returned, r.Sold, r.Scrapped, r.Jobs, r.IssuedValue, r.RemnantUsed, r.RemnantCreated);
+            t.AddRow(RowStyle.Normal, "Material", r.MaterialId, r.Code, r.Name, L.Enum(r.Kind), r.Unit, r.Issued, r.Returned, r.Issued - r.Returned, r.Sold, r.Scrapped, r.Jobs, r.IssuedValue, r.RemnantUsed, r.RemnantCreated);
         return t;
     }
 

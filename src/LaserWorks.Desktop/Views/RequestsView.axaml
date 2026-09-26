@@ -31,7 +31,7 @@
         <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding RequestDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="RequestDate" Width="100" MinWidth="100" />
         <DataGridTextColumn Header="{l:T Col.Customer}" Binding="{Binding Customer}" SortMemberPath="Customer.Name" Width="1.4*" MinWidth="98" />
         <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" SortMemberPath="Description" Width="2.2*" MinWidth="154" />
-        <DataGridTextColumn Header="{l:T Col.Material}" Binding="{Binding Material}" Width="1.2*" MinWidth="84" />
+        <DataGridTextColumn Header="{l:T Col.RequestedItems}" Binding="{Binding Items}" Width="1.6*" MinWidth="140" />
         <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" SortMemberPath="Quantity" Width="80" MinWidth="80" />
         <DataGridTextColumn Header="{l:T Col.RequiredDate}" Binding="{Binding RequiredDate, Converter={x:Static l:Conv.Date}}" SortMemberPath="RequiredDate" Width="110" MinWidth="110" />
         <DataGridTextColumn Header="{l:T Col.Revisions}" Binding="{Binding Revisions}" Width="80" MinWidth="80" />

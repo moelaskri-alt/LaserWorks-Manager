@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:svc="using:LaserWorks.Application.Services"
              xmlns:l="using:LaserWorks.Desktop"
              x:Class="LaserWorks.Desktop.Views.EstimateEditorView"
              x:DataType="vm:EstimateEditorViewModel">
@@ -17,6 +18,7 @@
     <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
         <Button Content="{l:T Estimate.Duplicate}" Command="{Binding DuplicateCommand}" IsVisible="{Binding IsSaved}" />
+        <Button Content="{l:T Template.SaveAs}" Command="{Binding SaveAsTemplateCommand}" Name="btnSaveTemplate" />
         <Button Content="{l:T Estimate.Finalize}" Command="{Binding FinalizeCommand}" IsVisible="{Binding IsDraft}" Name="btnFinalize" />
         <Button Content="{l:T Common.Save}" Command="{Binding SaveCommand}" IsVisible="{Binding IsDraft}" Name="btnSaveEstimate" />
         <Button Classes="primary" Command="{Binding CreateQuotationCommand}" Name="btnCreateQuotation">
@@ -50,55 +52,111 @@
             </Grid>
           </Border>
 
-          <!-- materials -->
+          <!-- component lines (materials, purchased components, consumables, packaging, services, other direct costs) -->
           <Border Classes="card">
             <StackPanel Spacing="10">
               <DockPanel>
-                <Button DockPanel.Dock="Right" Command="{Binding AddMaterialCommand}" Name="btnAddMaterial">
-                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Estimate.AddMaterial}" /></StackPanel>
-                </Button>
-                <TextBlock Classes="h3" Text="{l:T Estimate.Materials}" VerticalAlignment="Center" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                  <TextBlock Classes="muted" Text="{l:T Col.Total}" VerticalAlignment="Center" />
+                  <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Text="{Binding ComponentsTotal, Converter={x:Static l:Conv.Money}}" VerticalAlignment="Center" Name="txtComponentsTotal" />
+                </StackPanel>
+                <StackPanel>
+                  <TextBlock Classes="h3" Text="{l:T Component.Title}" />
+                  <TextBlock Classes="muted small wrap" Text="{l:T Component.Hint}" />
+                </StackPanel>
               </DockPanel>
+              <WrapPanel Orientation="Horizontal">
+                <Button Command="{Binding AddMaterialCommand}" Name="btnAddMaterial" Margin="0,0,6,6" ToolTip.Tip="{l:T Component.AddStockTip}">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.AddStock}" /></StackPanel>
+                </Button>
+                <Button Command="{Binding AddPurchasedCommand}" Name="btnAddPurchased" Margin="0,0,6,6" ToolTip.Tip="{l:T Component.AddPurchasedTip}">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.AddPurchased}" /></StackPanel>
+                </Button>
+                <Button Command="{Binding AddServiceCommand}" Name="btnAddService" Margin="0,0,6,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.AddService}" /></StackPanel>
+                </Button>
+                <Button Command="{Binding AddRemnantCommand}" Name="btnAddRemnant" Margin="0,0,6,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.AddRemnant}" /></StackPanel>
+                </Button>
+                <Button Command="{Binding AddManualCommand}" Name="btnAddManual" Margin="0,0,6,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.AddManual}" /></StackPanel>
+                </Button>
+                <Button Content="{l:T Component.Duplicate}" Command="{Binding DuplicateLineCommand}" IsEnabled="{Binding HasSelectedLine}" Name="btnDuplicateLine" Margin="0,0,6,6" />
+                <Button Classes="danger" Content="{l:T Common.Remove}" Command="{Binding RemoveLineCommand}" IsEnabled="{Binding HasSelectedLine}" Name="btnRemoveLine" Margin="0,0,6,6" />
+              </WrapPanel>
+              <Grid>
+                <DataGrid ItemsSource="{Binding MaterialLines}" SelectedItem="{Binding SelectedLine}" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="True"
+                          Height="230" FrozenColumnCount="1" Name="gridComponents" l:GridStandard.EmptyText="Component.Empty" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="#" Binding="{Binding LineNo}" Width="44" MinWidth="44" />
+                    <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding CategoryText}" Width="150" MinWidth="120" />
+                    <DataGridTextColumn Header="{l:T Col.Source}" Binding="{Binding SourceText}" Width="130" MinWidth="110" />
+                    <DataGridTextColumn Header="{l:T Col.Item}" Binding="{Binding ItemText}" Width="2*" MinWidth="200" />
+                    <DataGridTextColumn Header="{l:T Col.Unit}" Binding="{Binding Unit}" Width="70" MinWidth="60" />
+                    <DataGridTextColumn Header="{l:T Col.QtyPerUnit}" Binding="{Binding PerUnitQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                    <DataGridTextColumn Header="{l:T Estimate.TotalQty}" Binding="{Binding TotalQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                    <DataGridTextColumn Header="{l:T Col.UnitCost}" Binding="{Binding UnitCost, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="100" />
+                    <DataGridTextColumn Header="{l:T Col.Cost}" Binding="{Binding Cost, Converter={x:Static l:Conv.Money}}" Width="120" MinWidth="100" />
+                  </DataGrid.Columns>
+                </DataGrid>
+              </Grid>
               <TextBlock Classes="muted small wrap" Text="{Binding RemnantHint}" IsVisible="{Binding RemnantHint, Converter={x:Static l:Conv.NotEmpty}}" />
-              <ItemsControl ItemsSource="{Binding MaterialLines}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="vm:MaterialLineVm">
-                    <Border Classes="soft" Margin="0,0,0,10">
+
+              <!-- selected line -->
+              <Border Classes="soft" IsVisible="{Binding HasSelectedLine}" Name="panelLine">
+                <ContentControl Content="{Binding SelectedLine}">
+                  <ContentControl.ContentTemplate>
+                    <DataTemplate x:DataType="vm:MaterialLineVm">
                       <StackPanel Spacing="8">
-                        <Grid ColumnDefinitions="2*,10,Auto,10,Auto,10,Auto">
-                          <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:EstimateEditorViewModel)DataContext).Materials}" SelectedItem="{Binding Material}" />
-                          <CheckBox Grid.Column="2" IsChecked="{Binding SheetBased}" Content="{l:T Estimate.SheetBased}" />
-                          <Button Grid.Column="4" Content="{l:T Estimate.FindRemnants}" Command="{Binding FindRemnantsCommand}" />
-                          <Button Grid.Column="6" Classes="ghost" Command="{Binding RemoveCommand}" ToolTip.Tip="{l:T Common.Remove}">
-                            <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" /></Button>
+                        <Grid ColumnDefinitions="*,10,*,10,2*" RowDefinitions="Auto,Auto">
+                          <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Source}" />
+                            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:EstimateEditorViewModel)DataContext).Sources}" SelectedItem="{Binding Source}" Name="cmbLineSource" HorizontalAlignment="Stretch">
+                              <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox></StackPanel>
+                          <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Type}" />
+                            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:EstimateEditorViewModel)DataContext).Categories}" SelectedItem="{Binding Category}" Name="cmbLineCategory" HorizontalAlignment="Stretch">
+                              <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox></StackPanel>
+                          <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Item}" />
+                            <ComboBox ItemsSource="{Binding ItemChoices}" SelectedItem="{Binding Material}" Name="cmbLineItem" HorizontalAlignment="Stretch" PlaceholderText="{l:T Component.NoItem}" /></StackPanel>
+                          <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Description}" /><TextBox Text="{Binding Description}" Name="txtLineDescription" /></StackPanel>
+                          <StackPanel Classes="field" Grid.Row="1" Grid.Column="4" IsVisible="{Binding IsRemnant}"><TextBlock Classes="label" Text="{l:T Col.Remnant}" />
+                            <ComboBox ItemsSource="{Binding Remnants}" SelectedItem="{Binding Remnant}" Name="cmbLineRemnant" HorizontalAlignment="Stretch" PlaceholderText="{l:T Component.PickRemnant}">
+                              <ComboBox.ItemTemplate><DataTemplate x:DataType="svc:RemnantRow"><TextBlock><Run Text="{Binding Code}" /><Run Text=" · " /><Run Text="{Binding Length, StringFormat=0.#}" /><Run Text="×" /><Run Text="{Binding Width, StringFormat=0.#}" /><Run Text=" · " /><Run Text="{Binding Cost, Converter={x:Static l:Conv.Money}}" /></TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox></StackPanel>
                         </Grid>
-                        <Grid ColumnDefinitions="*,8,*,8,*,8,*,8,*,8,*" IsVisible="{Binding SheetBased}">
+                        <CheckBox IsChecked="{Binding SheetBased}" Content="{l:T Estimate.SheetBased}" IsVisible="{Binding CanBeSheet}" />
+                        <Grid ColumnDefinitions="*,8,*,8,*" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowSheet}">
                           <StackPanel><TextBlock Classes="label" Text="{l:T Estimate.SheetLength}" /><NumericUpDown Value="{Binding SheetLength}" Minimum="0" /></StackPanel>
                           <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.SheetWidth}" /><NumericUpDown Value="{Binding SheetWidth}" Minimum="0" /></StackPanel>
                           <StackPanel Grid.Column="4"><TextBlock Classes="label" Text="{l:T Estimate.Spacing}" /><NumericUpDown Value="{Binding Spacing}" Minimum="0" /></StackPanel>
-                          <StackPanel Grid.Column="6"><TextBlock Classes="label" Text="{l:T Estimate.Efficiency}" /><NumericUpDown Value="{Binding NestingEfficiency}" Minimum="1" Maximum="100" /></StackPanel>
-                          <StackPanel Grid.Column="8"><TextBlock Classes="label" Text="{l:T Estimate.SheetsOverride}" /><NumericUpDown Value="{Binding SheetsOverride}" Minimum="0" /></StackPanel>
-                          <StackPanel Grid.Column="10"><TextBlock Classes="label" Text="{l:T Estimate.CostPerSheet}" /><NumericUpDown Value="{Binding UnitCost}" Minimum="0" /></StackPanel>
+                          <StackPanel Grid.Row="1"><TextBlock Classes="label" Text="{l:T Estimate.Efficiency}" /><NumericUpDown Value="{Binding NestingEfficiency}" Minimum="1" Maximum="100" /></StackPanel>
+                          <StackPanel Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.SheetsOverride}" /><NumericUpDown Value="{Binding SheetsOverride}" Minimum="0" /></StackPanel>
+                          <StackPanel Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Estimate.CostPerSheet}" /><NumericUpDown Value="{Binding UnitCost}" Minimum="0" /></StackPanel>
                         </Grid>
-                        <Grid ColumnDefinitions="*,8,*,8,2*" IsVisible="{Binding !SheetBased}">
-                          <StackPanel><TextBlock Classes="label" Text="{l:T Estimate.QtyPerUnit}" /><NumericUpDown Value="{Binding QuantityPerUnit}" Minimum="0" /></StackPanel>
-                          <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.UnitCost}" /><NumericUpDown Value="{Binding UnitCost}" Minimum="0" /></StackPanel>
+                        <Grid ColumnDefinitions="*,8,*,8,*" IsVisible="{Binding ShowQuantity}">
+                          <StackPanel><TextBlock Classes="label" Text="{l:T Estimate.QtyPerUnit}" /><NumericUpDown Value="{Binding QuantityPerUnit}" Minimum="0" Name="numLineQty" /></StackPanel>
+                          <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.UnitCost}" /><NumericUpDown Value="{Binding UnitCost}" Minimum="0" Name="numLineUnitCost" /></StackPanel>
+                          <StackPanel Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Unit}" /><TextBox Text="{Binding Unit}" /></StackPanel>
                         </Grid>
-                        <CheckBox IsChecked="{Binding ChargeFullSheets}" Content="{l:T Estimate.ChargeFullSheets}" IsVisible="{Binding SheetBased}" />
-                        <StackPanel IsVisible="{Binding SheetBased}" Spacing="6">
+                        <CheckBox IsChecked="{Binding ChargeFullSheets}" Content="{l:T Estimate.ChargeFullSheets}" IsVisible="{Binding ShowSheet}" />
+                        <StackPanel IsVisible="{Binding ShowSheet}" Spacing="6">
                           <DockPanel>
-                            <Button DockPanel.Dock="Right" Content="{l:T Estimate.AddPiece}" Command="{Binding AddPieceCommand}" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                              <Button Content="{l:T Estimate.FindRemnants}" Command="{Binding FindRemnantsCommand}" />
+                              <Button Content="{l:T Estimate.AddPiece}" Command="{Binding AddPieceCommand}" />
+                            </StackPanel>
                             <TextBlock Classes="label" Text="{l:T Estimate.PiecesPerUnit}" VerticalAlignment="Center" />
                           </DockPanel>
-                          <DataGrid ItemsSource="{Binding Pieces}" SelectedItem="{Binding SelectedPiece}" IsReadOnly="False" CanUserSortColumns="False" MaxHeight="190" RowHeight="30">
+                          <DataGrid ItemsSource="{Binding Pieces}" SelectedItem="{Binding SelectedPiece}" IsReadOnly="False" CanUserSortColumns="False" Height="170" RowHeight="30">
                             <DataGrid.Columns>
                               <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="2*" MinWidth="140" />
                               <DataGridTextColumn Header="{l:T Col.Length}" Binding="{Binding Length}" Width="*" MinWidth="80" />
                               <DataGridTextColumn Header="{l:T Col.Width}" Binding="{Binding Width}" Width="*" MinWidth="80" />
-                              <DataGridTextColumn Header="{l:T Estimate.QtyPerUnit}" Binding="{Binding QuantityPerUnit}" Width="*" MinWidth="80" />
+                              <DataGridTextColumn Header="{l:T Estimate.QtyPerUnit}" Binding="{Binding QuantityPerUnit}" Width="*" MinWidth="110" />
                               <DataGridTemplateColumn Width="44" MinWidth="44">
                                 <DataTemplate x:DataType="vm:PieceVm">
-                                  <Button Classes="ghost" Padding="4" Command="{Binding $parent[ItemsControl].((vm:MaterialLineVm)DataContext).RemovePieceCommand}" CommandParameter="{Binding}">
+                                  <Button Classes="ghost" Padding="4" Command="{Binding $parent[ContentControl].((vm:MaterialLineVm)Content).RemovePieceCommand}" CommandParameter="{Binding}" ToolTip.Tip="{l:T Common.Remove}">
                                     <l:Ico Data="{StaticResource IcoClose}" Foreground="{DynamicResource DangerBrush}" Width="14" Height="14" /></Button>
                                 </DataTemplate>
                               </DataGridTemplateColumn>
@@ -106,17 +164,17 @@
                           </DataGrid>
                         </StackPanel>
                         <WrapPanel>
-                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding SheetBased}"><TextBlock Classes="muted" Text="{l:T Estimate.SheetsRequired}" /><TextBlock FontWeight="SemiBold" Text="{Binding SheetsRequired, Converter={x:Static l:Conv.Number}}" /></StackPanel>
-                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding SheetBased}"><TextBlock Classes="muted" Text="{l:T Estimate.Utilization}" /><TextBlock FontWeight="SemiBold" Text="{Binding UtilizationPercent, Converter={x:Static l:Conv.Percent}}" /></StackPanel>
-                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding SheetBased}"><TextBlock Classes="muted" Text="{l:T Estimate.Waste}" /><TextBlock FontWeight="SemiBold" Text="{Binding WasteArea, Converter={x:Static l:Conv.Number}}" /><TextBlock Classes="muted" Text="cm²" /></StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding ShowSheet}"><TextBlock Classes="muted" Text="{l:T Estimate.SheetsRequired}" /><TextBlock FontWeight="SemiBold" Text="{Binding SheetsRequired, Converter={x:Static l:Conv.Number}}" /></StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding ShowSheet}"><TextBlock Classes="muted" Text="{l:T Estimate.Utilization}" /><TextBlock FontWeight="SemiBold" Text="{Binding UtilizationPercent, Converter={x:Static l:Conv.Percent}}" /></StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0" IsVisible="{Binding ShowSheet}"><TextBlock Classes="muted" Text="{l:T Estimate.Waste}" /><TextBlock FontWeight="SemiBold" Text="{Binding WasteArea, Converter={x:Static l:Conv.Number}}" /><TextBlock Classes="muted" Text="cm²" /></StackPanel>
                           <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,18,0"><TextBlock Classes="muted" Text="{l:T Estimate.TotalQty}" /><TextBlock FontWeight="SemiBold" Text="{Binding TotalQuantity, Converter={x:Static l:Conv.Number}}" /></StackPanel>
-                          <StackPanel Orientation="Horizontal" Spacing="4"><TextBlock Classes="muted" Text="{l:T Col.MaterialCost}" /><TextBlock FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Text="{Binding Cost, Converter={x:Static l:Conv.Money}}" /></StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4"><TextBlock Classes="muted" Text="{l:T Col.Cost}" /><TextBlock FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Text="{Binding Cost, Converter={x:Static l:Conv.Money}}" /></StackPanel>
                         </WrapPanel>
                       </StackPanel>
-                    </Border>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
+                    </DataTemplate>
+                  </ContentControl.ContentTemplate>
+                </ContentControl>
+              </Border>
             </StackPanel>
           </Border>
 
@@ -207,7 +265,8 @@
                 <StackPanel Classes="field" Grid.Row="1" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.PackagingPerUnit}" /><NumericUpDown Value="{Binding PackagingPerUnit}" Minimum="0" /></StackPanel>
                 <StackPanel Classes="field" Grid.Row="1" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Estimate.ConsumablesPerUnit}" /><NumericUpDown Value="{Binding ConsumablesPerUnit}" Minimum="0" /></StackPanel>
                 <StackPanel Classes="field" Grid.Row="1" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Estimate.ScrapAllowance}" /><NumericUpDown Value="{Binding ScrapAllowancePercent}" Minimum="0" Maximum="100" /></StackPanel>
-                <StackPanel Classes="field" Grid.Row="2" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Estimate.OverheadMethod}" />
+                <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Estimate.ReworkAllowance}" /><NumericUpDown Value="{Binding ReworkAllowancePercent}" Minimum="0" Maximum="100" Name="numRework" /></StackPanel>
+                <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Estimate.OverheadMethod}" />
                   <ComboBox ItemsSource="{Binding OverheadMethods}" SelectedItem="{Binding OverheadMethod}">
                     <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
                   </ComboBox></StackPanel>

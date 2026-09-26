@@ -218,20 +218,31 @@ public static class DocumentRenderer
                     t.Cell().Background("#E8EEF6").Padding(4).AlignRight().Text(L.Percent(s.Variance.VariancePercent)).Bold();
                 });
                 if (s.Variance.MainDriver is { } drv) col.Item().Text($"{L["Var.MainReason"]}: {L.Enum(drv)}").Italic();
-                if (s.Materials.Count > 0)
+                if (s.Components.Count > 0)
                 {
-                    col.Item().Text(L["Col.MaterialsIssued"]).Bold().FontSize(11).FontColor(Accent);
+                    col.Item().Text(L["Doc.ComponentsVariance"]).Bold().FontSize(11).FontColor(Accent);
                     col.Item().Table(t =>
                     {
-                        t.ColumnsDefinition(c => { c.RelativeColumn(3); c.RelativeColumn(); c.RelativeColumn(); c.RelativeColumn(); });
-                        foreach (var k in new[] { "Col.Material", "Col.Quantity", "Col.UnitCost", "Col.Value" }) t.Cell().BorderBottom(1).Padding(3).Text(L[k]).SemiBold();
-                        foreach (var m in s.Materials)
+                        t.ColumnsDefinition(c => { c.RelativeColumn(2.6f); c.RelativeColumn(1.3f); c.RelativeColumn(0.8f); c.RelativeColumn(0.8f); c.RelativeColumn(); c.RelativeColumn(); c.RelativeColumn(); });
+                        foreach (var k in new[] { "Col.Item", "Col.Type", "Col.PlannedQty", "Col.UsedQty", "Col.Estimated", "Col.Actual", "Col.Variance" })
+                            t.Cell().Background(Accent).Padding(3).Text(L[k]).FontColor(Colors.White).SemiBold().FontSize(8);
+                        foreach (var c in s.Components)
                         {
-                            t.Cell().Padding(3).Text($"{m.MaterialCode} {m.MaterialName}");
-                            t.Cell().Padding(3).AlignRight().Text(L.Number(m.NetQuantity));
-                            t.Cell().Padding(3).AlignRight().Text(L.Money(m.AverageIssueCost, d));
-                            t.Cell().Padding(3).AlignRight().Text(L.Money(m.NetValue, d));
+                            var bg = c.IsLine ? (c.Variance > 0 ? "#FFF6E0" : "#FFFFFF") : "#F4F6F9";
+                            var item = c.IsLine ? $"{c.LineNo}. {c.Item}" : L.Enum(c.Component);
+                            var type = c.IsLine ? $"{L.Enum(c.Category!.Value)} · {L.Enum(c.Source!.Value)}" : L["Doc.NotOnLine"];
+                            t.Cell().Background(bg).Padding(2).Text(item).FontSize(8);
+                            t.Cell().Background(bg).Padding(2).Text(type).FontSize(7.5f);
+                            t.Cell().Background(bg).Padding(2).AlignRight().Text(c.IsLine ? $"{L.Number(c.PlannedQuantity)} {c.Unit}" : "").FontSize(8);
+                            t.Cell().Background(bg).Padding(2).AlignRight().Text(c.IsLine ? $"{L.Number(c.UsedQuantity)} {c.Unit}" : "").FontSize(8);
+                            t.Cell().Background(bg).Padding(2).AlignRight().Text(L.Money(c.Estimated, d)).FontSize(8);
+                            t.Cell().Background(bg).Padding(2).AlignRight().Text(L.Money(c.Actual, d)).FontSize(8);
+                            t.Cell().Background(bg).Padding(2).AlignRight().Text(L.Money(c.Variance, d)).FontSize(8).FontColor(c.Variance > 0 ? "#B42318" : "#067647");
                         }
+                        t.Cell().ColumnSpan(4).Background("#E8EEF6").Padding(3).Text(L["Common.Total"]).Bold().FontSize(8);
+                        t.Cell().Background("#E8EEF6").Padding(3).AlignRight().Text(L.Money(s.Components.Sum(c => c.Estimated), d)).Bold().FontSize(8);
+                        t.Cell().Background("#E8EEF6").Padding(3).AlignRight().Text(L.Money(s.Components.Sum(c => c.Actual), d)).Bold().FontSize(8);
+                        t.Cell().Background("#E8EEF6").Padding(3).AlignRight().Text(L.Money(s.Components.Sum(c => c.Variance), d)).Bold().FontSize(8);
                     });
                 }
                 col.Item().Text(L["Col.CostEntries"]).Bold().FontSize(11).FontColor(Accent);

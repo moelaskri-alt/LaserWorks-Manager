@@ -43,6 +43,13 @@ public sealed partial class EstimatesViewModel : ListPageViewModel<EstimateRow>
         Nav.Navigate(new EstimateEditorViewModel(0, customers[0].Id, null));
     }
 
+    [RelayCommand]
+    private async Task NewFromTemplate()
+    {
+        var picker = new TemplatePickerViewModel();
+        if (await Dialogs.ShowAsync(picker) && picker.CreatedEstimateId != 0) Nav.Navigate(new EstimateEditorViewModel(picker.CreatedEstimateId));
+    }
+
     [RelayCommand] private void Open(EstimateRow? row) { if (row != null) Nav.Navigate(new EstimateEditorViewModel(row.Id)); }
 
     [RelayCommand]
@@ -62,12 +69,22 @@ public sealed partial class PieceVm : ObservableObject
     [ObservableProperty] private decimal _quantityPerUnit = 1;
 }
 
+/// <summary>
+/// One component line of an estimate: raw material (sheet nesting), purchased component, consumable, packaging,
+/// external service or other direct cost, sourced from inventory, a remnant, a direct purchase or a manual cost.
+/// </summary>
 public sealed partial class MaterialLineVm : ObservableObject
 {
     public MaterialLineVm(EstimateEditorViewModel owner) => Owner = owner;
     public EstimateEditorViewModel Owner { get; }
 
+    [ObservableProperty] private int _lineNo;
+    [ObservableProperty] private ComponentCategory _category = ComponentCategory.RawMaterial;
+    [ObservableProperty] private ComponentSource _source = ComponentSource.Inventory;
     [ObservableProperty] private MaterialLookup? _material;
+    [ObservableProperty] private RemnantRow? _remnant;
+    [ObservableProperty] private string? _description;
+    [ObservableProperty] private string? _unit;
     [ObservableProperty] private bool _sheetBased = true;
     [ObservableProperty] private decimal _sheetLength;
     [ObservableProperty] private decimal _sheetWidth;
@@ -84,14 +101,95 @@ public sealed partial class MaterialLineVm : ObservableObject
     [ObservableProperty] private decimal _cost;
     [ObservableProperty] private PieceVm? _selectedPiece;
     public ObservableCollection<PieceVm> Pieces { get; } = new();
+    public ObservableCollection<RemnantRow> Remnants { get; } = new();
+
+    /// <summary>Items that fit the line's source: remnants only for raw material, services never from stock.</summary>
+    public IEnumerable<MaterialLookup> ItemChoices => Source switch
+    {
+        ComponentSource.Remnant => Owner.Materials.Where(m => m.Kind == MaterialKind.RawMaterial),
+        ComponentSource.Inventory => Owner.Materials.Where(m => m.Kind != MaterialKind.Service),
+        _ => Owner.Materials
+    };
+
+    public bool IsRemnant => Source == ComponentSource.Remnant;
+    public bool CanBeSheet => Source is ComponentSource.Inventory or ComponentSource.DirectPurchase;
+    public bool ShowSheet => SheetBased && CanBeSheet;
+    public bool ShowQuantity => !ShowSheet && !IsRemnant;
+    public bool ItemRequired => ComponentRules.IsStocked(Source);
+    public string CategoryText => L.Enum(Category);
+    public string SourceText => L.Enum(Source);
+    public string ItemText => Remnant != null
+        ? $"{Material?.Name} — {Remnant.Code} {Remnant.Length:0.#}×{Remnant.Width:0.#}"
+        : Material != null ? (string.IsNullOrWhiteSpace(Description) ? $"{Material.Code} · {Material.Name}" : $"{Material.Name} — {Description}") : Description ?? "";
+    public decimal PerUnitQuantity => ShowSheet ? SheetsRequired : IsRemnant ? 1 : QuantityPerUnit;
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        switch (e.PropertyName)
+        {
+            case nameof(Source):
+                OnPropertyChanged(nameof(IsRemnant)); OnPropertyChanged(nameof(CanBeSheet)); OnPropertyChanged(nameof(ItemRequired));
+                OnPropertyChanged(nameof(ItemChoices)); OnPropertyChanged(nameof(SourceText)); goto case nameof(SheetBased);
+            case nameof(SheetBased):
+                OnPropertyChanged(nameof(ShowSheet)); OnPropertyChanged(nameof(ShowQuantity)); OnPropertyChanged(nameof(PerUnitQuantity)); break;
+            case nameof(Category): OnPropertyChanged(nameof(CategoryText)); break;
+            case nameof(Material): case nameof(Remnant): case nameof(Description): OnPropertyChanged(nameof(ItemText)); break;
+            case nameof(SheetsRequired): case nameof(QuantityPerUnit): OnPropertyChanged(nameof(PerUnitQuantity)); break;
+        }
+    }
 
     partial void OnMaterialChanged(MaterialLookup? value)
     {
         if (value == null || Owner.Suspended) return;
-        SheetBased = value.IsSheet || (value.Length > 0 && value.Width > 0);
+        Category = ComponentRules.CategoryOf(value.Kind);
+        if (value.Kind == MaterialKind.Service && ComponentRules.IsStocked(Source)) Source = ComponentSource.ExternalService;
+        Unit = value.Unit;
+        SheetBased = CanBeSheet && (value.IsSheet || (value.Length > 0 && value.Width > 0));
         SheetLength = value.Length;
         SheetWidth = value.Width;
-        UnitCost = value.AverageCost;
+        if (!IsRemnant) UnitCost = value.AverageCost;
+        if (!SheetBased && QuantityPerUnit == 0) QuantityPerUnit = 1;
+        Remnant = null;
+        if (IsRemnant) _ = LoadRemnantsAsync();
+    }
+
+    partial void OnSourceChanged(ComponentSource value)
+    {
+        if (Owner.Suspended) return;
+        if (value == ComponentSource.ExternalService) Category = ComponentCategory.ExternalService;
+        if (value == ComponentSource.Remnant)
+        {
+            if (Material is { Kind: not MaterialKind.RawMaterial }) Material = null;
+            SheetBased = false;
+            _ = LoadRemnantsAsync();
+        }
+        else
+        {
+            Remnant = null;
+            if (!CanBeSheet) SheetBased = false;
+            if (value == ComponentSource.Inventory && Material is { Kind: MaterialKind.Service }) Material = null;
+        }
+    }
+
+    partial void OnRemnantChanged(RemnantRow? value)
+    {
+        if (value != null && !Owner.Suspended) UnitCost = value.Cost;
+    }
+
+    /// <summary>Loads the available offcuts of the line's material (keeps the selected one even when it is no longer available).</summary>
+    public async Task LoadRemnantsAsync()
+    {
+        var keep = Remnant;
+        Remnants.Clear();
+        if (Material == null) return;
+        var rows = (await ViewModelBase.Get<InventoryService>().ListRemnantsAsync(new PageRequest(PageSize: 500), RemnantStatus.Available, Material.Id)).Items;
+        foreach (var r in rows) Remnants.Add(r);
+        if (keep != null && rows.All(r => r.Id != keep.Id)) Remnants.Insert(0, keep);
+        var was = Owner.Suspended;
+        Owner.Suspended = true;
+        try { Remnant = keep == null ? null : Remnants.First(r => r.Id == keep.Id); }
+        finally { Owner.Suspended = was; }
     }
 
     [RelayCommand] private void AddPiece() => Owner.Track(AddPieceCore(new PieceVm { Name = L.Get("Estimate.Piece") + " " + (Pieces.Count + 1), Length = 10, Width = 10 }));
@@ -180,7 +278,7 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     }
 
     public override string TitleKey => "Estimate.Title";
-    public bool Suspended { get; private set; }
+    public bool Suspended { get; internal set; }
     public Dictionary<long, decimal> EmployeeRates { get; private set; } = new();
 
     [ObservableProperty] private string? _number;
@@ -201,6 +299,8 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     [ObservableProperty] private OverheadMethod _overheadMethod;
     [ObservableProperty] private decimal _overheadRate;
     [ObservableProperty] private decimal _scrapAllowancePercent;
+    [ObservableProperty] private decimal _reworkAllowancePercent;
+    [ObservableProperty] private MaterialLineVm? _selectedLine;
     [ObservableProperty] private decimal _targetMarginPercent;
     [ObservableProperty] private decimal _minimumMarginPercent;
     [ObservableProperty] private decimal _sellingPrice;
@@ -238,11 +338,17 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     public List<Lookup> Machines { get; private set; } = new();
     public List<Lookup> Employees { get; private set; } = new();
     public IReadOnlyList<OperationType> Operations { get; } = Enum.GetValues<OperationType>();
+    public IReadOnlyList<ComponentCategory> Categories { get; } = Enum.GetValues<ComponentCategory>();
+    public IReadOnlyList<ComponentSource> Sources { get; } = Enum.GetValues<ComponentSource>();
+    public bool HasSelectedLine => SelectedLine != null;
+    public decimal ComponentsTotal => MaterialLines.Sum(l => l.Cost);
     public IReadOnlyList<OverheadMethod> OverheadMethods { get; } = Enum.GetValues<OverheadMethod>();
     public bool IsDraft => Status == EstimateStatus.Draft;
     public bool IsFinal => Status == EstimateStatus.Final;
     public bool IsSaved => _id != 0;
     public string Header => _id == 0 ? L["Estimate.New"] : $"{L["Estimate.Title"]} {Number}";
+
+    partial void OnSelectedLineChanged(MaterialLineVm? value) => OnPropertyChanged(nameof(HasSelectedLine));
 
     partial void OnStatusChanged(EstimateStatus value) { OnPropertyChanged(nameof(IsDraft)); OnPropertyChanged(nameof(IsFinal)); }
 
@@ -286,7 +392,7 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
         switch (e.PropertyName)
         {
             case nameof(Quantity): case nameof(DesignHours): case nameof(DesignRate): case nameof(SetupHours): case nameof(SetupRate): case nameof(FinishingPerUnit):
-            case nameof(PackagingPerUnit): case nameof(ConsumablesPerUnit): case nameof(OverheadMethod): case nameof(OverheadRate): case nameof(ScrapAllowancePercent):
+            case nameof(PackagingPerUnit): case nameof(ConsumablesPerUnit): case nameof(OverheadMethod): case nameof(OverheadRate): case nameof(ScrapAllowancePercent): case nameof(ReworkAllowancePercent):
             case nameof(TargetMarginPercent): case nameof(MinimumMarginPercent): case nameof(SellingPrice):
                 ScheduleRecalc();
                 break;
@@ -318,6 +424,7 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             Requests = await Get<RequestService>().LookupAsync(e.CustomerId);
             OnPropertyChanged(nameof(Requests));
             FromEntity(e);
+            foreach (var l in MaterialLines.Where(x => x.IsRemnant)) await l.LoadRemnantsAsync();
         });
         Recalculate();
     }
@@ -330,7 +437,7 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             Number = e.Number; Status = e.Status; Customer = Customers.FirstOrDefault(c => c.Id == e.CustomerId); Request = Requests.FirstOrDefault(r => r.Id == e.RequestId);
             DesignRevisionId = e.DesignRevisionId; Date = e.Date; Description = e.Description; Quantity = e.Quantity; DesignHours = e.DesignHours; DesignRate = e.DesignRate;
             SetupHours = e.SetupHours; SetupRate = e.SetupRate; FinishingPerUnit = e.FinishingPerUnit; PackagingPerUnit = e.PackagingPerUnit; ConsumablesPerUnit = e.ConsumablesPerUnit;
-            OverheadMethod = e.OverheadMethod; OverheadRate = e.OverheadRate; ScrapAllowancePercent = e.ScrapAllowancePercent; TargetMarginPercent = e.TargetMarginPercent;
+            OverheadMethod = e.OverheadMethod; OverheadRate = e.OverheadRate; ScrapAllowancePercent = e.ScrapAllowancePercent; ReworkAllowancePercent = e.ReworkAllowancePercent; TargetMarginPercent = e.TargetMarginPercent;
             MinimumMarginPercent = e.MinimumMarginPercent; Notes = e.Notes;
             _settingPrice = true;
             SellingPrice = e.SellingPrice;
@@ -342,12 +449,15 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             {
                 var vm = Track(new MaterialLineVm(this)
                 {
+                    LineNo = l.LineNo, Category = l.Category, Source = l.Source, Description = l.Description, Unit = l.Unit ?? l.Material?.Unit?.Code,
+                    Remnant = l.Remnant is { } rr ? new RemnantRow(rr.Id, rr.Code, l.Material?.Code ?? "", l.Material?.Name ?? "", rr.Thickness, rr.Length, rr.Width, "", null, rr.Cost, rr.Date, rr.Status, null, null) : null,
                     Material = Materials.FirstOrDefault(m => m.Id == l.MaterialId) ?? (l.Material is { } mm ? new MaterialLookup(mm.Id, mm.Code, mm.Name, mm.Thickness, mm.Length, mm.Width, mm.AverageCost, "", true, mm.Kind, mm.QuantityOnHand, mm.SalesPrice) : null),
                     SheetBased = l.SheetBased, SheetLength = l.SheetLength, SheetWidth = l.SheetWidth, Spacing = l.Spacing, NestingEfficiency = l.NestingEfficiency,
                     ChargeFullSheets = l.ChargeFullSheets, SheetsOverride = l.SheetsOverride, QuantityPerUnit = l.QuantityPerUnit, UnitCost = l.UnitCost
                 }, MaterialLines);
                 foreach (var p in l.Pieces) Track(vm.AddPieceCore(new PieceVm { Name = p.Name, Length = p.Length, Width = p.Width, QuantityPerUnit = p.QuantityPerUnit }));
             }
+            SelectedLine = MaterialLines.FirstOrDefault();
             MachineLines.Clear();
             foreach (var m in e.MachineLines)
                 Track(new MachineLineVm(this) { Machine = Machines.FirstOrDefault(x => x.Id == m.MachineId), Operation = m.Operation, MinutesPerUnit = m.MinutesPerUnit, HourlyRate = m.HourlyRate, MaintenanceRate = m.MaintenanceRate }, MachineLines);
@@ -373,13 +483,14 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
             Id = _id, Number = Number ?? "", Status = Status, CustomerId = Customer?.Id ?? 0, RequestId = Request?.Id, DesignRevisionId = DesignRevisionId, Date = Date?.Date ?? Today,
             Description = Description ?? "", Quantity = Quantity, DesignHours = DesignHours, DesignRate = DesignRate, SetupHours = SetupHours, SetupRate = SetupRate,
             FinishingPerUnit = FinishingPerUnit, PackagingPerUnit = PackagingPerUnit, ConsumablesPerUnit = ConsumablesPerUnit, OverheadMethod = OverheadMethod, OverheadRate = OverheadRate,
-            ScrapAllowancePercent = ScrapAllowancePercent, TargetMarginPercent = TargetMarginPercent, MinimumMarginPercent = MinimumMarginPercent, SellingPrice = SellingPrice, Notes = Notes
+            ScrapAllowancePercent = ScrapAllowancePercent, ReworkAllowancePercent = ReworkAllowancePercent, TargetMarginPercent = TargetMarginPercent, MinimumMarginPercent = MinimumMarginPercent, SellingPrice = SellingPrice, Notes = Notes
         };
         foreach (var l in MaterialLines)
         {
             var ml = new EstimateMaterialLine
             {
-                MaterialId = l.Material?.Id ?? 0, SheetBased = l.SheetBased, SheetLength = l.SheetLength, SheetWidth = l.SheetWidth, Spacing = l.Spacing, NestingEfficiency = l.NestingEfficiency,
+                LineNo = l.LineNo, Category = l.Category, Source = l.Source, MaterialId = l.Material?.Id, RemnantId = l.IsRemnant ? l.Remnant?.Id : null,
+                Description = l.Description, Unit = l.Unit, SheetBased = l.SheetBased && l.CanBeSheet, SheetLength = l.SheetLength, SheetWidth = l.SheetWidth, Spacing = l.Spacing, NestingEfficiency = l.NestingEfficiency,
                 ChargeFullSheets = l.ChargeFullSheets, SheetsOverride = l.SheetsOverride, QuantityPerUnit = l.QuantityPerUnit, UnitCost = l.UnitCost
             };
             foreach (var p in l.Pieces) ml.Pieces.Add(new EstimatePiece { Name = p.Name, Length = p.Length, Width = p.Width, QuantityPerUnit = p.QuantityPerUnit });
@@ -407,6 +518,7 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
                 var vm = MaterialLines[i];
                 vm.SheetsRequired = src.SheetsRequired; vm.UtilizationPercent = src.UtilizationPercent; vm.WasteArea = src.WasteArea; vm.TotalQuantity = src.TotalQuantity; vm.Cost = src.Cost;
             }
+            OnPropertyChanged(nameof(ComponentsTotal));
             for (var i = 0; i < MachineLines.Count; i++)
             {
                 var src = e.MachineLines[i];
@@ -474,13 +586,68 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     }
     [RelayCommand] private void ApplyWhatIfPrice() { if (WhatIf != null && WiQuantity == null) SellingPrice = WhatIf.SellingPrice; }
 
-    [RelayCommand]
-    private void AddMaterial()
+    /// <summary>Adds a stock item line (raw material, purchased component, consumable or packaging issued from inventory).</summary>
+    [RelayCommand] private void AddMaterial() => AddLine(ComponentSource.Inventory, Materials.FirstOrDefault(m => m.Kind == MaterialKind.RawMaterial) ?? Materials.FirstOrDefault(m => m.Kind != MaterialKind.Service));
+
+    /// <summary>Adds an item bought directly for this job (charged to the job on the supplier bill, never through stock).</summary>
+    [RelayCommand] private void AddPurchased() => AddLine(ComponentSource.DirectPurchase, Materials.FirstOrDefault(m => m.Kind == MaterialKind.PurchasedComponent), ComponentCategory.PurchasedComponent);
+
+    /// <summary>Adds an outsourced service (UV printing, painting, installation…).</summary>
+    [RelayCommand] private void AddService() => AddLine(ComponentSource.ExternalService, Materials.FirstOrDefault(m => m.Kind == MaterialKind.Service), ComponentCategory.ExternalService);
+
+    /// <summary>Adds a free-text direct cost.</summary>
+    [RelayCommand] private void AddManual() => AddLine(ComponentSource.ManualCost, null, ComponentCategory.OtherDirect);
+
+    /// <summary>Adds a line that uses a stored offcut of a raw material.</summary>
+    [RelayCommand] private void AddRemnant() => AddLine(ComponentSource.Remnant, SelectedLine?.Material is { Kind: MaterialKind.RawMaterial } m ? m : Materials.FirstOrDefault(x => x.Kind == MaterialKind.RawMaterial));
+
+    public MaterialLineVm AddLine(ComponentSource source, MaterialLookup? item, ComponentCategory category = ComponentCategory.RawMaterial)
     {
-        var m = Track(new MaterialLineVm(this), MaterialLines);
-        m.Material = Materials.FirstOrDefault();
-        Track(m.AddPieceCore(new PieceVm { Name = L["Estimate.Piece"] + " 1", Length = 10, Width = 10 }));
+        var m = Track(new MaterialLineVm(this) { LineNo = NextLineNo(), Source = source, Category = category, SheetBased = false, QuantityPerUnit = 1 }, MaterialLines);
+        m.Material = item;
+        if (item == null && source is ComponentSource.ManualCost or ComponentSource.ExternalService or ComponentSource.DirectPurchase) m.Description = L.Enum(category);
+        if (m.ShowSheet) Track(m.AddPieceCore(new PieceVm { Name = L["Estimate.Piece"] + " 1", Length = 10, Width = 10 }));
+        SelectedLine = m;
         ScheduleRecalc();
+        return m;
+    }
+
+    [RelayCommand]
+    private void DuplicateLine(MaterialLineVm? line)
+    {
+        line ??= SelectedLine;
+        if (line == null) return;
+        Suspended = true;
+        MaterialLineVm copy;
+        try
+        {
+            copy = Track(new MaterialLineVm(this)
+            {
+                LineNo = NextLineNo(), Category = line.Category, Source = line.Source == ComponentSource.Remnant ? ComponentSource.Inventory : line.Source,
+                Material = line.Material, Description = line.Description, Unit = line.Unit, SheetBased = line.SheetBased, SheetLength = line.SheetLength, SheetWidth = line.SheetWidth,
+                Spacing = line.Spacing, NestingEfficiency = line.NestingEfficiency, ChargeFullSheets = line.ChargeFullSheets, SheetsOverride = line.SheetsOverride,
+                QuantityPerUnit = line.Source == ComponentSource.Remnant ? 1 : line.QuantityPerUnit, UnitCost = line.Source == ComponentSource.Remnant ? line.Material?.AverageCost ?? 0 : line.UnitCost
+            });
+            foreach (var p in line.Pieces) Track(copy.AddPieceCore(new PieceVm { Name = p.Name, Length = p.Length, Width = p.Width, QuantityPerUnit = p.QuantityPerUnit }));
+            MaterialLines.Insert(MaterialLines.IndexOf(line) + 1, copy);
+        }
+        finally { Suspended = false; }
+        SelectedLine = copy;
+        ScheduleRecalc();
+    }
+
+    [RelayCommand] private void RemoveLine(MaterialLineVm? line) { line ??= SelectedLine; if (line != null) RemoveMaterial(line); }
+
+    private int NextLineNo() => MaterialLines.Count == 0 ? 1 : MaterialLines.Max(l => l.LineNo) + 1;
+
+    [RelayCommand]
+    private async Task SaveAsTemplate()
+    {
+        if (IsDraft) await Save();
+        if (ErrorMessage != null || _id == 0) return;
+        var name = await Dialogs.PromptAsync("Template.SaveTitle", "Template.Name", Description);
+        if (string.IsNullOrWhiteSpace(name)) return;
+        await RunAsync(() => Get<ProductTemplateService>().SaveFromEstimateAsync(_id, name), "Msg.TemplateSaved");
     }
 
     [RelayCommand]
@@ -501,7 +668,13 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
         ScheduleRecalc();
     }
 
-    public void RemoveMaterial(MaterialLineVm vm) { MaterialLines.Remove(vm); ScheduleRecalc(); }
+    public void RemoveMaterial(MaterialLineVm vm)
+    {
+        var i = MaterialLines.IndexOf(vm);
+        MaterialLines.Remove(vm);
+        if (SelectedLine == vm || SelectedLine == null) SelectedLine = MaterialLines.Count == 0 ? null : MaterialLines[Math.Min(i, MaterialLines.Count - 1)];
+        ScheduleRecalc();
+    }
     public void RemoveMachine(MachineLineVm vm) { MachineLines.Remove(vm); ScheduleRecalc(); }
     public void RemoveLabor(LaborLineVm vm) { LaborLines.Remove(vm); ScheduleRecalc(); }
 

@@ -199,6 +199,7 @@
     <Setter Property="RowHeight" Value="32" />
     <Setter Property="FontSize" Value="12.5" />
     <Setter Property="AutoGenerateColumns" Value="False" />
+    <Setter Property="local:GridStandard.Enabled" Value="True" />
   </Style>
   <Style Selector="DataGridColumnHeader">
     <Setter Property="Background" Value="{DynamicResource GridHeaderBrush}" />
@@ -206,6 +207,12 @@
     <Setter Property="FontSize" Value="12" />
     <Setter Property="MinHeight" Value="34" />
     <Setter Property="Padding" Value="8,0" />
+    <Setter Property="ToolTip.Tip" Value="{Binding $self.Content}" />
+  </Style>
+  <!-- headers never trim: long headers wrap onto a second line; GridStandard keeps each column at least as wide as its longest header word -->
+  <Style Selector="DataGridColumnHeader TextBlock">
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="TextTrimming" Value="None" />
   </Style>
   <Style Selector="DataGridCell">
     <Setter Property="Padding" Value="4,0" />
@@ -213,6 +220,11 @@
   </Style>
   <Style Selector="DataGridCell TextBlock">
     <Setter Property="Margin" Value="4,0" />
+  </Style>
+  <!-- long cell values are trimmed in the grid; the full value shows as a tooltip -->
+  <Style Selector="DataGridCell > TextBlock">
+    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    <Setter Property="ToolTip.Tip" Value="{Binding $self.Text}" />
   </Style>
   <Style Selector="DataGridRow.warning">
     <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />

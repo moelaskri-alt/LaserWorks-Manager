@@ -195,7 +195,7 @@ public sealed class QuotationService : ServiceBase
             if (q.Status != QuotationStatus.Approved) throw new DomainException("Err.QuotationNotApproved");
             if (await db.Jobs.AnyAsync(j => j.QuotationId == q.Id)) throw new DomainException("Err.QuotationHasJob");
             CostEstimate? est = q.EstimateId is { } eid
-                ? await db.CostEstimates.Include(e => e.MachineLines).Include(e => e.LaborLines).FirstOrDefaultAsync(e => e.Id == eid)
+                ? await db.CostEstimates.Include(e => e.MachineLines).Include(e => e.LaborLines).Include(e => e.MaterialLines).FirstOrDefaultAsync(e => e.Id == eid)
                 : null;
             long? revisionId = est?.DesignRevisionId;
             if (revisionId == null && q.RequestId is { } rid)
@@ -209,6 +209,7 @@ public sealed class QuotationService : ServiceBase
                 MachineId = options.MachineId ?? est?.MachineLines.Select(m => (long?)m.MachineId).FirstOrDefault(), OperatorId = options.OperatorId
             };
             db.Jobs.Add(job);
+            if (est != null) JobComponentService.CreateFromEstimate(job, est);
             if (options.CreateOperationsFromEstimate && est != null)
             {
                 int seq = 1;

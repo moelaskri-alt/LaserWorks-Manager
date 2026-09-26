@@ -7,7 +7,7 @@
              x:DataType="vm:StockMovementDialogViewModel">
   <StackPanel Spacing="4">
     <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-      <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" Name="cmbStockMaterial" /></StackPanel>
+      <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Material}" /><ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" Name="cmbStockMaterial" IsEnabled="{Binding !MaterialFixed}" /></StackPanel>
       <StackPanel Classes="field" Grid.Row="1"><TextBlock Classes="label" Text="{l:T Col.Warehouse}" />
         <ComboBox ItemsSource="{Binding Warehouses}" SelectedItem="{Binding Warehouse}"><ComboBox.ItemTemplate><DataTemplate x:DataType="e:Warehouse"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
       <StackPanel Classes="field" Grid.Row="1" Grid.Column="2" IsVisible="{Binding IsTransfer}"><TextBlock Classes="label" Text="{l:T Stock.ToWarehouse}" />

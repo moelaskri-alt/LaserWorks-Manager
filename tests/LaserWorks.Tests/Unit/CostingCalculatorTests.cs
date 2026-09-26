@@ -165,7 +165,7 @@ public class PricingAndEstimateTests
     private static EstimateInput Input(OverheadMethod method = OverheadMethod.PercentOfDirectCost, decimal overhead = 10, Dictionary<CostComponent, decimal>? manual = null) => new()
     {
         Quantity = 10,
-        MaterialCosts = new[] { 100m },
+        ItemCosts = new[] { new ItemCost(CostComponent.Material, 100m) },
         Machines = new[] { new MachineTimeInput(6, 8, 1.5m) },
         Labor = new[] { new LaborTimeInput(3, 30) },
         DesignHours = 2, DesignRate = 45, SetupHours = 0.5m, SetupRate = 30,

@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LaserWorks.Desktop.ViewModels"
+             xmlns:l="using:LaserWorks.Desktop"
+             x:Class="LaserWorks.Desktop.Views.TemplatePickerView"
+             x:DataType="vm:TemplatePickerViewModel">
+  <StackPanel Spacing="8">
+    <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Customer}" /><ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding Customer}" HorizontalAlignment="Stretch" Name="cmbTplCustomer" /></StackPanel>
+    <DockPanel>
+      <Button DockPanel.Dock="Right" Classes="danger" Content="{l:T Common.Delete}" Command="{Binding DeleteTemplateCommand}" IsEnabled="{Binding Selected, Converter={x:Static l:Conv.NotNull}}" />
+      <TextBlock Classes="label" Text="{l:T Template.Title}" VerticalAlignment="Center" />
+    </DockPanel>
+    <Grid>
+      <DataGrid ItemsSource="{Binding Templates}" SelectedItem="{Binding Selected}" Height="300" IsReadOnly="True" Name="gridTemplates" l:GridStandard.EmptyText="Template.Empty">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="{l:T Col.Code}" Binding="{Binding Code}" Width="100" MinWidth="90" />
+          <DataGridTextColumn Header="{l:T Col.Name}" Binding="{Binding Name}" Width="1.5*" MinWidth="160" />
+          <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="180" />
+          <DataGridTextColumn Header="{l:T Col.Quantity}" Binding="{Binding Quantity, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
+          <DataGridTextColumn Header="{l:T Col.Lines}" Binding="{Binding Lines}" Width="80" MinWidth="80" />
+          <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding CreatedAt, Converter={x:Static l:Conv.Date}}" Width="100" MinWidth="100" />
+        </DataGrid.Columns>
+      </DataGrid>
+    </Grid>
+  </StackPanel>
+</UserControl>

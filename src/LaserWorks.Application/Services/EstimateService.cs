@@ -29,6 +29,15 @@ public static class EstimateBuilder
     /// <summary>Calculates each material line (sheet utilisation or quantity based).</summary>
     public static void ComputeMaterialLine(EstimateMaterialLine l, decimal quantity, int decimals = 2)
     {
+        if (l.Source == ComponentSource.Remnant)
+        {
+            // a remnant is used whole, at its recorded value
+            l.SheetBased = false;
+            l.TotalQuantity = 1; l.SheetsRequired = 0; l.UtilizationPercent = 0; l.WasteArea = 0;
+            l.Cost = Money.Round(l.UnitCost, decimals);
+            return;
+        }
+        if (l.SheetBased && l.Source != ComponentSource.Inventory && l.Source != ComponentSource.DirectPurchase) l.SheetBased = false;
         if (l.SheetBased)
         {
             var pieces = l.Pieces.Select(p => new PieceSpec(p.Name, p.Length, p.Width, p.QuantityPerUnit * quantity)).ToList();
@@ -59,31 +68,32 @@ public static class EstimateBuilder
         var manual = e.Components.Where(c => c.Mode == ComponentMode.Manual).ToDictionary(c => c.Component, c => c.ManualAmount);
         if (materialCost.HasValue) manual[CostComponent.Material] = materialCost.Value;
         var qty = quantity ?? e.Quantity;
-        IReadOnlyList<decimal> materialCosts;
+        IReadOnlyList<ItemCost> itemCosts;
         if (quantity.HasValue && quantity != e.Quantity)
         {
-            materialCosts = e.MaterialLines.Select(l =>
+            itemCosts = e.MaterialLines.Select(l =>
             {
                 var clone = new EstimateMaterialLine
                 {
+                    Category = l.Category, Source = l.Source,
                     SheetBased = l.SheetBased, SheetLength = l.SheetLength, SheetWidth = l.SheetWidth, Spacing = l.Spacing, NestingEfficiency = l.NestingEfficiency,
                     ChargeFullSheets = l.ChargeFullSheets, SheetsOverride = 0, QuantityPerUnit = l.QuantityPerUnit, UnitCost = l.UnitCost, Pieces = l.Pieces
                 };
                 ComputeMaterialLine(clone, qty, decimals);
-                return clone.Cost;
+                return new ItemCost(ComponentRules.CostComponentOf(l.Category), clone.Cost);
             }).ToList();
         }
-        else materialCosts = e.MaterialLines.Select(l => l.Cost).ToList();
+        else itemCosts = e.MaterialLines.Select(l => new ItemCost(ComponentRules.CostComponentOf(l.Category), l.Cost)).ToList();
 
         return new EstimateInput
         {
             Quantity = qty,
-            MaterialCosts = materialCosts,
+            ItemCosts = itemCosts,
             Machines = e.MachineLines.Select(m => new MachineTimeInput(m.MinutesPerUnit, m.HourlyRate, m.MaintenanceRate)).ToList(),
             Labor = e.LaborLines.Select(l => new LaborTimeInput(l.MinutesPerUnit, l.HourlyRate)).ToList(),
             DesignHours = e.DesignHours, DesignRate = e.DesignRate, SetupHours = e.SetupHours, SetupRate = e.SetupRate,
             FinishingPerUnit = e.FinishingPerUnit, PackagingPerUnit = e.PackagingPerUnit, ConsumablesPerUnit = e.ConsumablesPerUnit,
-            OverheadMethod = e.OverheadMethod, OverheadRate = e.OverheadRate, ScrapAllowancePercent = e.ScrapAllowancePercent,
+            OverheadMethod = e.OverheadMethod, OverheadRate = e.OverheadRate, ScrapAllowancePercent = e.ScrapAllowancePercent, ReworkAllowancePercent = e.ReworkAllowancePercent,
             Manual = manual, MachineHoursOverride = machineHours, Decimals = decimals
         };
     }
@@ -170,9 +180,11 @@ public sealed class EstimateService : ServiceBase
     private static async Task<CostEstimate?> LoadAsync(IAppDb db, long id, bool tracking)
     {
         var q = db.CostEstimates.Include(e => e.Customer).Include(e => e.Request)
-            .Include(e => e.Components).Include(e => e.MaterialLines).ThenInclude(l => l.Pieces).Include(e => e.MaterialLines).ThenInclude(l => l.Material)
+            .Include(e => e.Components).Include(e => e.MaterialLines).ThenInclude(l => l.Pieces).Include(e => e.MaterialLines).ThenInclude(l => l.Material).ThenInclude(m => m!.Unit).Include(e => e.MaterialLines).ThenInclude(l => l.Remnant)
             .Include(e => e.MachineLines).ThenInclude(l => l.Machine).Include(e => e.LaborLines).ThenInclude(l => l.Employee).AsSplitQuery();
-        return tracking ? await q.FirstOrDefaultAsync(e => e.Id == id) : await q.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+        var e = tracking ? await q.FirstOrDefaultAsync(x => x.Id == id) : await q.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (e != null && !tracking) e.MaterialLines = e.MaterialLines.OrderBy(l => l.LineNo).ThenBy(l => l.Id).ToList();
+        return e;
     }
 
     /// <summary>New draft pre-filled from settings, the request and its approved design revision.</summary>
@@ -188,24 +200,46 @@ public sealed class EstimateService : ServiceBase
         };
         if (requestId is { } rid)
         {
-            var req = await db.CustomerRequests.AsNoTracking().Include(r => r.Material).FirstOrDefaultAsync(r => r.Id == rid) ?? throw new DomainException("Err.NotFound");
+            var req = await db.CustomerRequests.AsNoTracking().Include(r => r.Items).ThenInclude(i => i.Material).FirstOrDefaultAsync(r => r.Id == rid) ?? throw new DomainException("Err.NotFound");
             e.CustomerId = req.CustomerId;
             e.Quantity = req.Quantity;
             e.Description = req.Description;
             var rev = await db.DesignRevisions.AsNoTracking().Include(d => d.Material).Where(d => d.RequestId == rid && d.Status == RevisionStatus.Approved).FirstOrDefaultAsync();
-            var material = rev?.Material ?? req.Material;
             if (rev != null) e.DesignRevisionId = rev.Id;
-            if (material != null)
+            var designPieceUsed = false;
+            EstimateMaterialLine FromItem(Material material, decimal qtyPerUnit)
             {
+                var sheet = material.Length > 0 && material.Width > 0 && material.Kind == MaterialKind.RawMaterial;
                 var line = new EstimateMaterialLine
                 {
-                    MaterialId = material.Id, Material = material, SheetBased = material.Length > 0 && material.Width > 0,
-                    SheetLength = material.Length, SheetWidth = material.Width, UnitCost = material.AverageCost > 0 ? material.AverageCost : material.PurchaseCost
+                    MaterialId = material.Id, Material = material, Category = ComponentRules.CategoryOf(material.Kind), Source = ComponentRules.DefaultSource(material.Kind),
+                    SheetBased = sheet, SheetLength = material.Length, SheetWidth = material.Width, Unit = material.Unit?.Code,
+                    UnitCost = material.AverageCost > 0 ? material.AverageCost : material.PurchaseCost
                 };
-                if (rev != null && rev.Width > 0 && rev.Height > 0) line.Pieces.Add(new EstimatePiece { Name = rev.RevisionLabel, Length = rev.Width, Width = rev.Height, QuantityPerUnit = 1 });
-                else line.QuantityPerUnit = line.SheetBased ? 0 : 1;
-                e.MaterialLines.Add(line);
+                // the approved design's outline is laid out on its main sheet material
+                if (sheet && !designPieceUsed && rev != null && rev.Width > 0 && rev.Height > 0 && (rev.MaterialId == null || rev.MaterialId == material.Id))
+                {
+                    line.Pieces.Add(new EstimatePiece { Name = rev.RevisionLabel, Length = rev.Width, Width = rev.Height, QuantityPerUnit = 1 });
+                    designPieceUsed = true;
+                }
+                else if (sheet) line.SheetsOverride = Math.Max(1, Math.Ceiling(qtyPerUnit * req.Quantity));
+                else line.QuantityPerUnit = qtyPerUnit;
+                return line;
             }
+            foreach (var item in req.Items.OrderBy(i => i.LineNo))
+            {
+                if (item.Material != null) e.MaterialLines.Add(FromItem(item.Material, item.Quantity));
+                else
+                    e.MaterialLines.Add(new EstimateMaterialLine
+                    {
+                        Category = item.Category, Source = ComponentRules.DefaultSource(item.Category),
+                        Description = item.Description, Unit = item.Unit, SheetBased = false, QuantityPerUnit = item.Quantity
+                    });
+            }
+            if (!e.MaterialLines.Any(l => l.MaterialId != null && l.MaterialId == rev?.MaterialId) && rev?.Material != null)
+                e.MaterialLines.Insert(0, FromItem(rev.Material, 1));
+            var lineNo = 1;
+            foreach (var l in e.MaterialLines) l.LineNo = lineNo++;
             if (rev is { EstimatedMachineMinutes: > 0 })
             {
                 var machine = await db.Machines.AsNoTracking().Where(m => m.IsActive).OrderBy(m => m.Id).FirstOrDefaultAsync();
@@ -240,7 +274,7 @@ public sealed class EstimateService : ServiceBase
         if (input.CustomerId == 0) throw new DomainException("Err.Required", "Customer");
         Validation.Required(input.Description, "Description");
         if (input.Quantity <= 0) throw new DomainException("Err.QuantityPositive");
-        if (input.MaterialLines.Any(l => l.MaterialId == 0)) throw new DomainException("Err.Required", "Material");
+        await ValidateLinesAsync(input);
         if (input.MachineLines.Any(l => l.MachineId == 0)) throw new DomainException("Err.Required", "Machine");
         if (input.TargetMarginPercent >= 100 || input.MinimumMarginPercent >= 100) throw new DomainException("Err.MarginBelow100");
         Demand(AppModule.Estimates, input.Id == 0 ? Permission.Create : Permission.Edit);
@@ -268,16 +302,19 @@ public sealed class EstimateService : ServiceBase
             e.CustomerId = input.CustomerId; e.RequestId = input.RequestId; e.DesignRevisionId = input.DesignRevisionId; e.Date = input.Date.Date; e.Description = input.Description.Trim();
             e.Quantity = input.Quantity; e.DesignHours = input.DesignHours; e.DesignRate = input.DesignRate; e.SetupHours = input.SetupHours; e.SetupRate = input.SetupRate;
             e.FinishingPerUnit = input.FinishingPerUnit; e.PackagingPerUnit = input.PackagingPerUnit; e.ConsumablesPerUnit = input.ConsumablesPerUnit;
-            e.OverheadMethod = input.OverheadMethod; e.OverheadRate = input.OverheadRate; e.ScrapAllowancePercent = input.ScrapAllowancePercent;
+            e.OverheadMethod = input.OverheadMethod; e.OverheadRate = input.OverheadRate; e.ScrapAllowancePercent = input.ScrapAllowancePercent; e.ReworkAllowancePercent = input.ReworkAllowancePercent;
             e.TargetMarginPercent = input.TargetMarginPercent; e.MinimumMarginPercent = input.MinimumMarginPercent; e.SellingPrice = input.SellingPrice;
             e.DirectCost = input.DirectCost; e.TotalCost = input.TotalCost; e.UnitCost = input.UnitCost; e.SuggestedPrice = input.SuggestedPrice; e.MinimumPrice = input.MinimumPrice;
             e.TotalMachineHours = input.TotalMachineHours; e.Notes = input.Notes.Norm();
             foreach (var c in input.Components)
                 e.Components.Add(new EstimateComponentLine { Component = c.Component, Mode = c.Mode, ManualAmount = c.ManualAmount, CalculatedAmount = c.CalculatedAmount, Amount = c.Amount, Notes = c.Notes });
+            var no = 1;
             foreach (var l in input.MaterialLines)
             {
                 var nl = new EstimateMaterialLine
                 {
+                    LineNo = no++, Category = l.Category, Source = l.Source, RemnantId = l.Source == ComponentSource.Remnant ? l.RemnantId : null,
+                    Description = l.Description.Norm(), Unit = l.Unit.Norm(),
                     MaterialId = l.MaterialId, SheetBased = l.SheetBased, SheetLength = l.SheetLength, SheetWidth = l.SheetWidth, Spacing = l.Spacing, NestingEfficiency = l.NestingEfficiency,
                     ChargeFullSheets = l.ChargeFullSheets, SheetsOverride = l.SheetsOverride, QuantityPerUnit = l.QuantityPerUnit, UnitCost = l.UnitCost, SheetsRequired = l.SheetsRequired,
                     UtilizationPercent = l.UtilizationPercent, WasteArea = l.WasteArea, TotalQuantity = l.TotalQuantity, Cost = l.Cost
@@ -292,6 +329,21 @@ public sealed class EstimateService : ServiceBase
             await db.SaveChangesAsync();
             return e.Id;
         });
+    }
+
+    /// <summary>Checks every component line: item, source and category must fit together, quantities and costs non-negative.</summary>
+    private async Task ValidateLinesAsync(CostEstimate input)
+    {
+        var ids = input.MaterialLines.Where(l => l.MaterialId != null).Select(l => l.MaterialId!.Value).Distinct().ToList();
+        var kinds = await ReadAsync(db => db.Materials.AsNoTracking().Where(m => ids.Contains(m.Id)).ToDictionaryAsync(m => m.Id, m => m.Kind));
+        foreach (var l in input.MaterialLines)
+        {
+            MaterialKind? kind = l.MaterialId is { } mid ? kinds.TryGetValue(mid, out var k) ? k : throw new DomainException("Err.NotFound") : null;
+            if (kind != null && l.Source != ComponentSource.ManualCost) l.Category = ComponentRules.CategoryOf(kind.Value);
+            ComponentRules.Validate(l.Source, kind, l.Category, l.Description);
+            if (l.Source == ComponentSource.Remnant && l.RemnantId == null) throw new DomainException("Err.Required", "Remnant");
+            if (l.UnitCost < 0 || l.QuantityPerUnit < 0 || l.SheetsOverride < 0) throw new DomainException("Err.NegativeValue");
+        }
     }
 
     /// <summary>Locks the estimate so its figures can be quoted and later compared with actual cost.</summary>

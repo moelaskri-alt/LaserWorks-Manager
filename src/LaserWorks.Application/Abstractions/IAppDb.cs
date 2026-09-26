@@ -45,6 +45,9 @@ public interface IAppDb : IDisposable, IAsyncDisposable
     DbSet<Job> Jobs { get; }
     DbSet<JobCostEntry> JobCostEntries { get; }
     DbSet<JobOperation> JobOperations { get; }
+    DbSet<JobComponent> JobComponents { get; }
+    DbSet<RequestItem> RequestItems { get; }
+    DbSet<ProductTemplate> ProductTemplates { get; }
     DbSet<ScrapRecord> ScrapRecords { get; }
     DbSet<QualityCheck> QualityChecks { get; }
     DbSet<SalesInvoice> SalesInvoices { get; }

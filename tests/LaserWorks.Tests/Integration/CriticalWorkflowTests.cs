@@ -41,7 +41,8 @@ public class CriticalWorkflowTests
         var reqSvc = t.Get<RequestService>();
         var requestId = await reqSvc.SaveAsync(new CustomerRequest
         {
-            CustomerId = customerId, RequestDate = day, Description = "Acrylic name plates 30×20 cm", MaterialId = acrylic.Id, Thickness = 3, Quantity = 20, RequiredDate = day.AddDays(14)
+            CustomerId = customerId, RequestDate = day, Description = "Acrylic name plates 30×20 cm", Quantity = 20, RequiredDate = day.AddDays(14),
+            Items = { new RequestItem { LineNo = 1, Category = ComponentCategory.RawMaterial, MaterialId = acrylic.Id, Quantity = 1 } }
         });
         // 3. reference file
         var file = Path.Combine(t.Folder, "reference.svg");

@@ -14,7 +14,19 @@ public sealed record JobCostSheet(
     Job Job, string Customer, string? EstimateNumber, string? QuotationNumber, IReadOnlyList<CostSheetEntry> Entries, VarianceReport Variance,
     IReadOnlyList<JobMaterialLine> Materials, IReadOnlyList<OperationRow> Operations, IReadOnlyList<ScrapRow> Scrap, IReadOnlyList<QualityRow> Quality,
     decimal Revenue, bool RevenueIsInvoiced, decimal ActualCost, decimal GrossProfit, decimal MarginPercent, decimal EstimatedProfit, decimal EstimatedMarginPercent,
-    decimal PlannedHours, decimal ActualHours, decimal MachineHours);
+    decimal PlannedHours, decimal ActualHours, decimal MachineHours, IReadOnlyList<ComponentVarianceRow> Components);
+
+/// <summary>
+/// Estimated vs actual by component line. Lines are the job's materials / purchased components / consumables / packaging / services;
+/// the remaining rows are the costs that are not on a line (machine, labor, design, setup, overhead, scrap, rework, per-unit allowances).
+/// The rows always add up to the job's estimated and actual totals.
+/// </summary>
+public sealed record ComponentVarianceRow(bool IsLine, long? JobComponentId, int? LineNo, string Item, ComponentCategory? Category, ComponentSource? Source,
+    CostComponent Component, string? Unit, decimal PlannedQuantity, decimal UsedQuantity, decimal Estimated, decimal Actual)
+{
+    public decimal Variance => Actual - Estimated;
+    public decimal VariancePercent => Estimated == 0 ? 0 : Money.Round(Variance / Estimated * 100m);
+}
 
 public sealed record JobProfitRow(long JobId, string JobNumber, string Customer, DateTime OrderDate, JobStatus Status, decimal Revenue, decimal EstimatedCost, decimal ActualCost,
     decimal MaterialEstimated, decimal MaterialActual, decimal MachineEstimated, decimal MachineActual, decimal ScrapCost, decimal ReworkCost, string? Machine)
@@ -68,6 +80,40 @@ public sealed class JobCostingService : ServiceBase
         return VarianceCalculator.Compare(await EstimatedAsync(db, job), await ActualAsync(db, jobId));
     }
 
+    public async Task<List<ComponentVarianceRow>> ComponentVarianceAsync(long jobId)
+    {
+        Demand(AppModule.Jobs, Permission.View);
+        await using var db = Factory.Create();
+        var job = await db.Jobs.AsNoTracking().FirstOrDefaultAsync(j => j.Id == jobId) ?? throw new DomainException("Err.NotFound");
+        return await ComponentVarianceAsync(db, job);
+    }
+
+    internal static async Task<List<ComponentVarianceRow>> ComponentVarianceAsync(IAppDb db, Job job)
+    {
+        var lines = await JobComponentService.ListAsync(db, job.Id);
+        var rows = lines.Select(l => new ComponentVarianceRow(true, l.Id, l.LineNo, l.Display, l.Category, l.Source, ComponentRules.CostComponentOf(l.Category), l.Unit,
+            l.PlannedQuantity, l.UsedQuantity, l.EstimatedCost, l.ActualCost)).ToList();
+        var unlinked = (await db.JobCostEntries.AsNoTracking().Where(e => e.JobId == job.Id && e.JobComponentId == null)
+                .GroupBy(e => e.Component).Select(g => new { g.Key, Sum = g.Sum(x => x.Amount) }).ToListAsync())
+            .ToDictionary(x => x.Key, x => x.Sum);
+        var estimated = await EstimatedAsync(db, job);
+        var lineEstimate = rows.GroupBy(r => r.Component).ToDictionary(g => g.Key, g => g.Sum(r => r.Estimated));
+        if (job.EstimateId == null)
+        {
+            // direct job: the job-level estimate covers everything that is not estimated on a line
+            estimated = new Dictionary<CostComponent, decimal> { [CostComponent.OtherDirect] = job.EstimatedCost - rows.Sum(r => r.Estimated) };
+            lineEstimate = new();
+        }
+        foreach (var c in estimated.Keys.Union(unlinked.Keys).OrderBy(c => Array.IndexOf(EstimateCalculator.EstimateComponents, c) is var i && i < 0 ? 99 : i))
+        {
+            var est = estimated.GetValueOrDefault(c) - lineEstimate.GetValueOrDefault(c);
+            var act = unlinked.GetValueOrDefault(c);
+            if (est == 0 && act == 0) continue;
+            rows.Add(new ComponentVarianceRow(false, null, null, "", null, null, c, null, 0, 0, est, act));
+        }
+        return rows;
+    }
+
     public async Task<JobCostSheet> CostSheetAsync(long jobId)
     {
         Demand(AppModule.Jobs, Permission.View);
@@ -94,8 +140,9 @@ public sealed class JobCostingService : ServiceBase
         var actual = entries.Sum(e => e.Amount);
         var gp = revenue - actual;
         var estProfit = job.SellingPrice - job.EstimatedCost;
+        var components = await ComponentVarianceAsync(db, job);
         return new JobCostSheet(job, job.Customer!.Name, estNumber, quoteNumber, entries, variance, materials, ops, scrap, quality, revenue, job.Status >= JobStatus.Invoiced, actual, gp,
-            Money.Percent(gp, revenue), estProfit, Money.Percent(estProfit, job.SellingPrice), ops.Sum(o => o.PlannedHours), ops.Sum(o => o.ActualHours), ops.Sum(o => o.MachineHours));
+            Money.Percent(gp, revenue), estProfit, Money.Percent(estProfit, job.SellingPrice), ops.Sum(o => o.PlannedHours), ops.Sum(o => o.ActualHours), ops.Sum(o => o.MachineHours), components);
     }
 
     // ------------------------------------------------------------------ profitability
@@ -129,11 +176,15 @@ public sealed class JobCostingService : ServiceBase
             var e = j.EstimateId is { } eid ? estLookup[eid].GroupBy(x => x.C).ToDictionary(g => g.Key, g => g.Sum(x => x.Amount)) : new Dictionary<CostComponent, decimal>();
             var revenue = j.Status >= JobStatus.Invoiced || j.InvoicedRevenue != 0 ? j.InvoicedRevenue : j.SellingPrice;
             return new JobProfitRow(j.Id, j.Number, j.Customer, j.OrderDate, j.Status, revenue, j.EstimatedCost, j.ActualCost,
-                e.GetValueOrDefault(CostComponent.Material), a.GetValueOrDefault(CostComponent.Material),
+                ItemCost(e), ItemCost(a),
                 e.GetValueOrDefault(CostComponent.Machine) + e.GetValueOrDefault(CostComponent.Maintenance), a.GetValueOrDefault(CostComponent.Machine) + a.GetValueOrDefault(CostComponent.Maintenance),
                 a.GetValueOrDefault(CostComponent.Scrap), a.GetValueOrDefault(CostComponent.Rework), j.Machine);
         }).ToList();
     }
+
+    /// <summary>Materials and components together: raw material, purchased components, consumables and packaging.</summary>
+    private static decimal ItemCost(IReadOnlyDictionary<CostComponent, decimal> d) =>
+        d.GetValueOrDefault(CostComponent.Material) + d.GetValueOrDefault(CostComponent.PurchasedComponents) + d.GetValueOrDefault(CostComponent.Consumables) + d.GetValueOrDefault(CostComponent.Packaging);
 
     public ProfitFlags Flags(JobProfitRow r)
     {

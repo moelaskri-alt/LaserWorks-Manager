@@ -107,3 +107,20 @@ public class ExpenseCategory : Entity
     public CostComponent JobComponent { get; set; } = CostComponent.OtherDirect;
     public bool IsActive { get; set; } = true;
 }
+
+/// <summary>
+/// Reusable product template: a saved estimate structure (component lines, machine and labor lines, parameters)
+/// used to start new estimates for repeat products. Custom jobs do not need one.
+/// </summary>
+public class ProductTemplate : AuditableEntity, IAudited
+{
+    public string Code { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string? Description { get; set; }
+    /// <summary>Quantity the template was defined for.</summary>
+    public decimal Quantity { get; set; } = 1;
+    /// <summary>JSON snapshot of the estimate structure.</summary>
+    public string Definition { get; set; } = "";
+    public long? SourceEstimateId { get; set; }
+    public bool IsActive { get; set; } = true;
+}

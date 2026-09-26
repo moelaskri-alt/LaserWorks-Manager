@@ -144,27 +144,34 @@ public sealed class InventoryService : ServiceBase
         });
     }
 
-    /// <summary>Issue material to a job at moving average cost: Dr WIP / Cr Inventory, and an actual Material cost entry on the job.</summary>
-    public async Task<long> IssueToJobAsync(long jobId, long materialId, long warehouseId, decimal qty, DateTime date, string? notes = null)
+    /// <summary>
+    /// Issue an item to a job at moving average cost: Dr WIP / Cr Inventory (by item kind), and an actual cost entry on the job
+    /// under the component line's category (material, purchased component, consumable, packaging).
+    /// The movement and the cost are linked to the job component line (given, the first line for that item, or a new unplanned line).
+    /// </summary>
+    public async Task<long> IssueToJobAsync(long jobId, long materialId, long warehouseId, decimal qty, DateTime date, string? notes = null, long? jobComponentId = null)
     {
         Demand(AppModule.Inventory, Permission.Post);
         return await TxAsync(async db =>
         {
             var job = await OpenJobAsync(db, jobId);
             var m = await MaterialAsync(db, materialId);
-            var tx = await InventoryEngine.IssueAsync(db, m, new InventoryEngine.Movement(InventoryTxType.MaterialIssue, date, warehouseId, qty, JobId: job.Id, SourceType: "Job", SourceId: job.Id, Reference: job.Number, Notes: notes));
+            var line = await ResolveComponentAsync(db, job, m, jobComponentId, ComponentSource.Inventory);
+            var tx = await InventoryEngine.IssueAsync(db, m, new InventoryEngine.Movement(InventoryTxType.MaterialIssue, date, warehouseId, qty, JobId: job.Id, SourceType: "Job", SourceId: job.Id,
+                Reference: job.Number, Notes: notes, JobComponentId: line.Id));
             var value = -tx.TotalCost;
-            await PostAsync(db, tx, new JournalDraft { Date = date, Description = $"Material issue {m.Code} to {job.Number}", SourceType = "InventoryTx", SourceNumber = tx.Number }
+            await PostAsync(db, tx, new JournalDraft { Date = date, Description = $"Issue {m.Code} to {job.Number}", SourceType = "InventoryTx", SourceNumber = tx.Number }
                 .Dr(SystemAccounts.WIP, value, tags: new LineTags(JobId: job.Id)).Cr(AccountingEngine.InventoryAccountKey(m.Kind), value));
-            JobCostEngine.Add(db, job, CostComponent.Material, value, date, "InventoryTx", null, $"{m.Code} {m.Name} × {qty:0.###}", qty, m.Id, journal: tx.JournalEntry);
+            JobCostEngine.Add(db, job, ComponentRules.CostComponentOf(line.Category), value, date, "InventoryTx", null, $"{m.Code} {m.Name} × {qty:0.###}", qty, m.Id,
+                journal: tx.JournalEntry, jobComponentId: line.Id);
             if (job.Status is JobStatus.New or JobStatus.Planned) { job.Status = JobStatus.InProduction; job.StartedAt ??= Now; }
             await db.SaveChangesAsync();
             return tx.Id;
         });
     }
 
-    /// <summary>Return unused material from a job, valued at the job's average issue cost for that material.</summary>
-    public async Task<long> ReturnFromJobAsync(long jobId, long materialId, long warehouseId, decimal qty, DateTime date, string? notes = null)
+    /// <summary>Return unused items from a job, valued at the job's average issue cost for that item (the cost it was issued at).</summary>
+    public async Task<long> ReturnFromJobAsync(long jobId, long materialId, long warehouseId, decimal qty, DateTime date, string? notes = null, long? jobComponentId = null)
     {
         Demand(AppModule.Inventory, Permission.Post);
         return await TxAsync(async db =>
@@ -173,15 +180,47 @@ public sealed class InventoryService : ServiceBase
             var m = await MaterialAsync(db, materialId);
             var issued = (await JobMaterialsAsync(db, jobId)).FirstOrDefault(x => x.MaterialId == materialId);
             if (issued == null || issued.NetQuantity < qty) throw new DomainException("Err.ReturnExceedsIssued", issued?.NetQuantity ?? 0, qty);
+            var line = await ResolveComponentAsync(db, job, m, jobComponentId, ComponentSource.Inventory);
             var unitCost = issued.AverageIssueCost;
             if (qty == issued.NetQuantity) unitCost = issued.NetValue / qty;
-            var tx = await InventoryEngine.ReceiveAsync(db, m, new InventoryEngine.Movement(InventoryTxType.MaterialReturn, date, warehouseId, qty, unitCost, job.Id, "Job", job.Id, job.Number, notes));
-            await PostAsync(db, tx, new JournalDraft { Date = date, Description = $"Material return {m.Code} from {job.Number}", SourceType = "InventoryTx", SourceNumber = tx.Number }
+            var tx = await InventoryEngine.ReceiveAsync(db, m, new InventoryEngine.Movement(InventoryTxType.MaterialReturn, date, warehouseId, qty, unitCost, job.Id, "Job", job.Id, job.Number, notes,
+                JobComponentId: line.Id));
+            await PostAsync(db, tx, new JournalDraft { Date = date, Description = $"Return {m.Code} from {job.Number}", SourceType = "InventoryTx", SourceNumber = tx.Number }
                 .Dr(AccountingEngine.InventoryAccountKey(m.Kind), tx.TotalCost).Cr(SystemAccounts.WIP, tx.TotalCost, tags: new LineTags(JobId: job.Id)));
-            JobCostEngine.Add(db, job, CostComponent.Material, -tx.TotalCost, date, "InventoryTx", null, $"Return {m.Code} × {qty:0.###}", -qty, m.Id, journal: tx.JournalEntry);
+            JobCostEngine.Add(db, job, ComponentRules.CostComponentOf(line.Category), -tx.TotalCost, date, "InventoryTx", null, $"Return {m.Code} × {qty:0.###}", -qty, m.Id,
+                journal: tx.JournalEntry, jobComponentId: line.Id);
             await db.SaveChangesAsync();
             return tx.Id;
         });
+    }
+
+    /// <summary>
+    /// The job component line a stock movement belongs to: the given line (it must be for this item and stock-sourced),
+    /// the first stock-sourced line of the job for the item, or a new unplanned line.
+    /// </summary>
+    internal async Task<JobComponent> ResolveComponentAsync(IAppDb db, Job job, Material m, long? componentId, ComponentSource source)
+    {
+        if (componentId is { } cid)
+        {
+            var c = await db.JobComponents.FirstOrDefaultAsync(x => x.Id == cid && x.JobId == job.Id) ?? throw new DomainException("Err.NotFound");
+            if (c.MaterialId != m.Id) throw new DomainException("Err.ComponentItemMismatch");
+            if (!ComponentRules.IsStocked(c.Source)) throw new DomainException("Err.ComponentNotStocked");
+            return c;
+        }
+        var existing = db.JobComponents.Local.Where(c => c.JobId == job.Id && c.MaterialId == m.Id && ComponentRules.IsStocked(c.Source)).OrderBy(c => c.LineNo).FirstOrDefault()
+                       ?? await db.JobComponents.Where(c => c.JobId == job.Id && c.MaterialId == m.Id && (c.Source == ComponentSource.Inventory || c.Source == ComponentSource.Remnant))
+                           .OrderBy(c => c.LineNo).FirstOrDefaultAsync();
+        if (existing != null) return existing;
+        var next = (await db.JobComponents.Where(c => c.JobId == job.Id).MaxAsync(c => (int?)c.LineNo) ?? 0) + 1;
+        var unit = await db.Units.Where(u => u.Id == m.UnitId).Select(u => u.Code).FirstOrDefaultAsync();
+        var line = new JobComponent
+        {
+            JobId = job.Id, LineNo = next, Category = ComponentRules.CategoryOf(m.Kind), Source = source, MaterialId = m.Id, Unit = unit, PlannedQuantity = 0,
+            Notes = "Unplanned"
+        };
+        db.JobComponents.Add(line);
+        await db.SaveChangesAsync();
+        return line;
     }
 
     public async Task TransferAsync(long materialId, long fromWarehouse, long toWarehouse, decimal qty, DateTime date, string? notes)
@@ -222,6 +261,7 @@ public sealed class InventoryService : ServiceBase
         return await TxAsync(async db =>
         {
             var m = await MaterialAsync(db, input.MaterialId);
+            if (m.Kind != MaterialKind.RawMaterial) throw new DomainException("Err.RemnantNeedsRawMaterial");
             decimal cost;
             if (input.Cost is { } c)
             {
@@ -255,14 +295,18 @@ public sealed class InventoryService : ServiceBase
             else draft.Cr(SystemAccounts.InventoryGain, cost);
             await PostAsync(db, tx, draft);
             if (job != null)
-                JobCostEngine.Add(db, job, CostComponent.Material, -cost, input.Date, "Remnant", r.Id, $"Remnant {r.Code} {r.Length:0.#}×{r.Width:0.#}", 0, m.Id, journal: tx.JournalEntry);
+            {
+                var line = await db.JobComponents.Where(c => c.JobId == job.Id && c.MaterialId == m.Id).OrderBy(c => c.LineNo).FirstOrDefaultAsync();
+                JobCostEngine.Add(db, job, CostComponent.Material, -cost, input.Date, "Remnant", r.Id, $"Remnant {r.Code} {r.Length:0.#}×{r.Width:0.#}", 0, m.Id,
+                    journal: tx.JournalEntry, jobComponentId: line?.Id);
+            }
             await db.SaveChangesAsync();
             return r.Id;
         });
     }
 
     /// <summary>Use a remnant in a job at its recorded cost: Dr WIP / Cr Remnant inventory.</summary>
-    public async Task ConsumeRemnantAsync(long remnantId, long jobId, DateTime date)
+    public async Task ConsumeRemnantAsync(long remnantId, long jobId, DateTime date, long? jobComponentId = null)
     {
         Demand(AppModule.Inventory, Permission.Post);
         await TxAsync(async db =>
@@ -270,13 +314,16 @@ public sealed class InventoryService : ServiceBase
             var r = await db.Remnants.Include(x => x.Material).FirstOrDefaultAsync(x => x.Id == remnantId) ?? throw new DomainException("Err.NotFound");
             if (r.Status != RemnantStatus.Available) throw new DomainException("Err.RemnantNotAvailable", r.Code);
             var job = await OpenJobAsync(db, jobId);
+            var line = await ResolveComponentAsync(db, job, r.Material!, jobComponentId, ComponentSource.Remnant);
+            if (line.Source == ComponentSource.Remnant && line.RemnantId == null) line.RemnantId = r.Id;
             r.Status = RemnantStatus.Consumed;
             r.ConsumedJobId = job.Id;
             r.ConsumedDate = date;
-            var tx = await InventoryEngine.RemnantTxAsync(db, r, InventoryTxType.RemnantConsumption, date, -1, -r.Cost, job.Id, null);
+            var tx = await InventoryEngine.RemnantTxAsync(db, r, InventoryTxType.RemnantConsumption, date, -1, -r.Cost, job.Id, null, jobComponentId: line.Id);
             await PostAsync(db, tx, new JournalDraft { Date = date, Description = $"Remnant {r.Code} used in {job.Number}", SourceType = "Remnant", SourceId = r.Id, SourceNumber = r.Code }
                 .Dr(SystemAccounts.WIP, r.Cost, tags: new LineTags(JobId: job.Id)).Cr(SystemAccounts.InventoryRemnants, r.Cost));
-            JobCostEngine.Add(db, job, CostComponent.Material, r.Cost, date, "Remnant", r.Id, $"Remnant {r.Code} {r.Material!.Name} {r.Length:0.#}×{r.Width:0.#}", 0, r.MaterialId, journal: tx.JournalEntry);
+            JobCostEngine.Add(db, job, CostComponent.Material, r.Cost, date, "Remnant", r.Id, $"Remnant {r.Code} {r.Material!.Name} {r.Length:0.#}×{r.Width:0.#}", 1, r.MaterialId,
+                journal: tx.JournalEntry, jobComponentId: line.Id);
             if (job.Status is JobStatus.New or JobStatus.Planned) { job.Status = JobStatus.InProduction; job.StartedAt ??= Now; }
         });
     }

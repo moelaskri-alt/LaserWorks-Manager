@@ -54,7 +54,7 @@ Nav.Expenses|Expenses|المصروفات
 Nav.Inventory|Inventory|المخزون
 Nav.Jobs|Jobs|أوامر العمل
 Nav.Machines|Machines|الماكينات
-Nav.Materials|Materials|المواد
+Nav.Materials|Items & Materials|الأصناف والمواد
 Nav.Production|Production|الإنتاج
 Nav.Profitability|Job Profitability|ربحية الأعمال
 Nav.Purchases|Purchases|المشتريات

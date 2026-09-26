@@ -30,6 +30,8 @@ public class CostEstimate : AuditableEntity, IAudited
     public OverheadMethod OverheadMethod { get; set; }
     public decimal OverheadRate { get; set; }
     public decimal ScrapAllowancePercent { get; set; }
+    /// <summary>Rework allowance as % of machine, maintenance and labor cost.</summary>
+    public decimal ReworkAllowancePercent { get; set; }
 
     // Pricing
     public decimal TargetMarginPercent { get; set; }
@@ -65,11 +67,25 @@ public class EstimateComponentLine : Entity
     public string? Notes { get; set; }
 }
 
+/// <summary>
+/// One component line of an estimate: a sheet material laid out on sheets, a quantity-based item (purchased component,
+/// consumable, packaging), a remnant, an external service or a manual cost. An estimate has 0..N lines.
+/// </summary>
 public class EstimateMaterialLine : Entity
 {
     public long EstimateId { get; set; }
-    public long MaterialId { get; set; }
+    public int LineNo { get; set; }
+    public ComponentCategory Category { get; set; } = ComponentCategory.RawMaterial;
+    public ComponentSource Source { get; set; } = ComponentSource.Inventory;
+    /// <summary>Stock item (null for services or manual costs without an item).</summary>
+    public long? MaterialId { get; set; }
     public Material? Material { get; set; }
+    /// <summary>Remnant planned for this line (Source = Remnant).</summary>
+    public long? RemnantId { get; set; }
+    public Remnant? Remnant { get; set; }
+    /// <summary>Line text (required when there is no item).</summary>
+    public string? Description { get; set; }
+    public string? Unit { get; set; }
     /// <summary>True: sheet based (pieces laid out on sheets). False: simple quantity × unit cost.</summary>
     public bool SheetBased { get; set; } = true;
     public decimal SheetLength { get; set; }

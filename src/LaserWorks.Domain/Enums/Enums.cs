@@ -29,7 +29,17 @@ public enum AccountType { Asset = 1, Liability = 2, Equity = 3, Revenue = 4, Exp
 
 public enum JournalStatus { Draft = 0, Posted = 1, Reversed = 2 }
 
-public enum MaterialKind { RawMaterial = 1, Consumable = 2, FinishedGood = 3 }
+public enum MaterialKind
+{
+    RawMaterial = 1,
+    Consumable = 2,
+    FinishedGood = 3,
+    /// <summary>Bought-in part used in products (LED, wire, switch, hinge, bracket…).</summary>
+    PurchasedComponent = 4,
+    Packaging = 5,
+    /// <summary>Non-stock service item (outsourced printing, external finishing…). Never held in inventory.</summary>
+    Service = 6
+}
 
 public enum RequestStatus { New = 0, UnderReview, Designing, Estimating, Quoted, Approved, Rejected, ConvertedToJob }
 
@@ -54,7 +64,34 @@ public enum QualityStatus { Pending = 0, Passed, Failed, ReworkRequired }
 /// <summary>Cost components used for both estimates and actual job cost so they can be compared line by line.</summary>
 public enum CostComponent
 {
-    Material = 1, Machine, Labor, Design, Setup, Finishing, Packaging, Consumables, Maintenance, Overhead, Scrap, Rework, OtherDirect
+    Material = 1, Machine, Labor, Design, Setup, Finishing, Packaging, Consumables, Maintenance, Overhead, Scrap, Rework, OtherDirect,
+    PurchasedComponents, ExternalServices
+}
+
+/// <summary>What a job/estimate/request component line is (drives the cost component it contributes to).</summary>
+public enum ComponentCategory
+{
+    RawMaterial = 1,
+    PurchasedComponent,
+    Consumable,
+    Packaging,
+    ExternalService,
+    OtherDirect
+}
+
+/// <summary>Where a component line's cost comes from.</summary>
+public enum ComponentSource
+{
+    /// <summary>Issued from stock at moving average cost.</summary>
+    Inventory = 1,
+    /// <summary>A reusable remnant consumed at its recorded value.</summary>
+    Remnant,
+    /// <summary>Bought specifically for the job and charged straight to it (never enters stock).</summary>
+    DirectPurchase,
+    /// <summary>Outsourced service invoiced by a supplier.</summary>
+    ExternalService,
+    /// <summary>A cost entered manually (no stock item).</summary>
+    ManualCost
 }
 
 public enum ComponentMode { Auto = 0, Manual = 1 }
@@ -83,5 +120,5 @@ public enum SequenceKey
 {
     Customer = 1, Supplier, Employee, Machine, Material, Request, Estimate, Quotation, Job, Invoice, SalesReturn,
     CustomerPayment, PurchaseOrder, PurchaseReceipt, SupplierInvoice, SupplierPayment, PurchaseReturn, Expense,
-    Journal, InventoryTx, Remnant, Scrap
+    Journal, InventoryTx, Remnant, Scrap, ProductTemplate
 }

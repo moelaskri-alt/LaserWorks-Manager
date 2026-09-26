@@ -81,7 +81,11 @@
           </StackPanel>
         </DockPanel>
       </Border>
-      <ContentControl Content="{Binding CurrentPage}" Margin="20,14,20,16" />
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Name="pageScroller">
+        <l:ViewportFill MinFillHeight="{Binding CurrentPage.MinPageHeight, FallbackValue=520}" Margin="20,14,20,16">
+          <ContentControl Content="{Binding CurrentPage}" />
+        </l:ViewportFill>
+      </ScrollViewer>
     </DockPanel>
   </Grid>
 </UserControl>

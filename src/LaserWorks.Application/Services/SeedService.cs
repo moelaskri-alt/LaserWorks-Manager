@@ -25,6 +25,8 @@ public sealed class SeedService
         new("1210", "مخزون البواقي", "Inventory - Remnants", AccountType.Asset, "1000", true, SystemAccounts.InventoryRemnants),
         new("1220", "مخزون المنتجات التامة", "Inventory - Finished Goods", AccountType.Asset, "1000", true, SystemAccounts.InventoryFG),
         new("1230", "مخزون المستهلكات", "Inventory - Consumables", AccountType.Asset, "1000", true, SystemAccounts.InventoryConsumables),
+        new("1240", "مخزون المكونات المشتراة", "Inventory - Purchased Components", AccountType.Asset, "1000", true, SystemAccounts.InventoryComponents),
+        new("1250", "مخزون مواد التغليف", "Inventory - Packaging", AccountType.Asset, "1000", true, SystemAccounts.InventoryPackaging),
         new("1300", "إنتاج تحت التشغيل", "Work in Progress", AccountType.Asset, "1000", true, SystemAccounts.WIP),
         new("1400", "ضريبة المدخلات", "Input Tax (VAT)", AccountType.Asset, "1000", true, SystemAccounts.InputTax),
         new("1500", "الآلات والمعدات", "Machinery & Equipment", AccountType.Asset, "1000", true, SystemAccounts.FixedAssets),
@@ -124,9 +126,10 @@ public sealed class SeedService
             db.CostCenters.Add(new CostCenter { Code = "ADMIN", Name = "Administration" });
             db.CostCenters.Add(new CostCenter { Code = "SALES", Name = "Sales" });
         }
-        if (!await db.MaterialCategories.AnyAsync(ct))
-            foreach (var n in new[] { "Wood", "Acrylic & Plastic", "Leather & Fabric", "Paper & Cardboard", "Glass", "Consumables", "Finished Goods" })
-                db.MaterialCategories.Add(new MaterialCategory { Name = n });
+        var existingCats = await db.MaterialCategories.Select(c => c.Name).ToListAsync(ct);
+        foreach (var n in new[] { "Wood", "Acrylic & Plastic", "Leather & Fabric", "Paper & Cardboard", "Glass", "Electrical & Lighting", "Hardware & Fittings", "Consumables", "Packaging", "Finished Goods" }
+                     .Where(n => !existingCats.Contains(n)))
+            db.MaterialCategories.Add(new MaterialCategory { Name = n });
 
         await db.SaveChangesAsync(ct);
         var settings = await db.CompanySettings.OrderBy(s => s.Id).FirstAsync(ct);

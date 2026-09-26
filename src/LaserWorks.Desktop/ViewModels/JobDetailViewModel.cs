@@ -21,11 +21,16 @@ public sealed partial class JobDetailViewModel : PageViewModel
 
     public long JobId => _id;
     public override string TitleKey => "Job.Title";
+    public override double MinPageHeight => 820;
 
     [ObservableProperty] private Job? _job;
     [ObservableProperty] private JobCostSheet? _sheet;
     [ObservableProperty] private OperationRow? _selectedOperation;
     [ObservableProperty] private int _selectedTab;
+    [ObservableProperty] private JobComponentRow? _selectedComponent;
+    [ObservableProperty] private CostSheetEntry? _selectedEntry;
+    public ObservableCollection<JobComponentRow> Components { get; } = new();
+    public ObservableCollection<ComponentVarianceRow> ComponentVariance { get; } = new();
     public ObservableCollection<OperationRow> Operations { get; } = new();
     public ObservableCollection<JobMaterialLine> Materials { get; } = new();
     public ObservableCollection<ScrapRow> Scrap { get; } = new();
@@ -47,6 +52,15 @@ public sealed partial class JobDetailViewModel : PageViewModel
     public bool CanClose => Status == JobStatus.Invoiced;
     public bool CanCancel => Status is JobStatus.New or JobStatus.Planned;
     public bool CanRecordCost => IsOpen && Status != JobStatus.Invoiced || Status == JobStatus.Invoiced;
+    public bool HasComponent => SelectedComponent != null;
+    public bool CanIssueComponent => IsOpen && SelectedComponent is { Source: ComponentSource.Inventory, MaterialId: not null };
+    public bool CanReturnComponent => CanIssueComponent && SelectedComponent!.UsedQuantity > 0;
+    public bool CanUseRemnantOnComponent => IsOpen && SelectedComponent is { IsStocked: true, MaterialId: not null, Category: ComponentCategory.RawMaterial };
+    public bool CanRecordDirectCost => IsOpen && SelectedComponent is { IsStocked: false };
+    public bool CanEditComponent => IsOpen && SelectedComponent != null;
+    public bool CanDeleteComponent => IsOpen && SelectedComponent is { HasCost: false, UsedQuantity: 0 };
+    public bool CanReverseEntry => IsOpen && SelectedEntry is { SourceType: "DirectCost" };
+    public bool CanSaveTemplate => Job != null && Components.Count > 0;
     public string? MainDriver => Sheet?.Variance.MainDriver is { } d ? L.Enum(d) : null;
 
     partial void OnJobChanged(Job? value)
@@ -54,9 +68,20 @@ public sealed partial class JobDetailViewModel : PageViewModel
         foreach (var p in new[] { nameof(Header), nameof(Status), nameof(IsOpen), nameof(CanPlan), nameof(CanStart), nameof(CanCompleteProduction), nameof(CanQualityCheck),
                      nameof(CanDeliver), nameof(CanInvoice), nameof(CanClose), nameof(CanCancel), nameof(CanRecordCost) })
             OnPropertyChanged(p);
+        RaiseComponentState();
     }
 
     partial void OnSheetChanged(JobCostSheet? value) => OnPropertyChanged(nameof(MainDriver));
+
+    partial void OnSelectedComponentChanged(JobComponentRow? value) => RaiseComponentState();
+    partial void OnSelectedEntryChanged(CostSheetEntry? value) => OnPropertyChanged(nameof(CanReverseEntry));
+
+    private void RaiseComponentState()
+    {
+        foreach (var p in new[] { nameof(HasComponent), nameof(CanIssueComponent), nameof(CanReturnComponent), nameof(CanUseRemnantOnComponent), nameof(CanRecordDirectCost),
+                     nameof(CanEditComponent), nameof(CanDeleteComponent), nameof(CanReverseEntry), nameof(CanSaveTemplate) })
+            OnPropertyChanged(p);
+    }
 
     public override async Task LoadAsync()
     {
@@ -70,6 +95,11 @@ public sealed partial class JobDetailViewModel : PageViewModel
             Fill(Quality, Sheet.Quality);
             Fill(Entries, Sheet.Entries);
             Fill(Variance, Sheet.Variance.Lines);
+            Fill(ComponentVariance, Sheet.Components);
+            var keep = SelectedComponent?.Id;
+            Fill(Components, await Get<JobComponentService>().ListAsync(_id));
+            SelectedComponent = Components.FirstOrDefault(c => c.Id == keep) ?? Components.FirstOrDefault();
+            RaiseComponentState();
             Fill(Movements, (await Get<InventoryService>().ListTransactionsAsync(new PageRequest(PageSize: 1000), jobId: _id)).Items);
             Fill(Attachments, await Get<RequestService>().AttachmentsAsync(AttachmentOwner.Job, _id));
         });
@@ -121,6 +151,40 @@ public sealed partial class JobDetailViewModel : PageViewModel
     [RelayCommand] private Task ReturnMaterial() => Show(new StockMovementDialogViewModel(StockAction.ReturnFromJob, _id));
     [RelayCommand] private Task UseRemnant() => Show(new RemnantDialogViewModel(RemnantAction.Consume, _id));
     [RelayCommand] private Task CreateRemnant() => Show(new RemnantDialogViewModel(RemnantAction.CreateFromJob, _id));
+
+    // component lines
+    [RelayCommand] private Task AddComponent(string? source) =>
+        Show(new JobComponentEditorViewModel(_id, 0, Enum.TryParse<ComponentSource>(source, out var s) ? s : ComponentSource.Inventory));
+    [RelayCommand] private async Task EditComponent() { if (SelectedComponent is { } c) await Show(new JobComponentEditorViewModel(_id, c.Id)); }
+    [RelayCommand] private async Task DuplicateComponent() { if (SelectedComponent is { } c) await Do(() => Get<JobComponentService>().DuplicateAsync(c.Id)); }
+
+    [RelayCommand]
+    private async Task DeleteComponent()
+    {
+        if (SelectedComponent is not { } c || !await Dialogs.ConfirmAsync(L.Format("Msg.ConfirmDelete", $"#{c.LineNo} {c.Display}"), danger: true)) return;
+        await Do(() => Get<JobComponentService>().DeleteAsync(c.Id), "Msg.Deleted");
+    }
+
+    [RelayCommand] private async Task IssueComponent() { if (SelectedComponent is { } c) await Show(new StockMovementDialogViewModel(StockAction.IssueToJob, _id, c.MaterialId, c.Id, c.RemainingQuantity)); }
+    [RelayCommand] private async Task ReturnComponent() { if (SelectedComponent is { } c) await Show(new StockMovementDialogViewModel(StockAction.ReturnFromJob, _id, c.MaterialId, c.Id, 0)); }
+    [RelayCommand] private async Task UseRemnantOnComponent() { if (SelectedComponent is { } c) await Show(new RemnantDialogViewModel(RemnantAction.Consume, _id, c.RemnantId, c.MaterialId, c.Id)); }
+    [RelayCommand] private async Task RecordDirectCost() { if (SelectedComponent is { } c) await Show(new DirectCostDialogViewModel(c)); }
+
+    [RelayCommand]
+    private async Task ReverseEntry()
+    {
+        if (SelectedEntry is not { } e) return;
+        var reason = await Dialogs.PromptAsync("Component.ReverseCost", "Col.Reason");
+        if (reason != null) await Do(() => Get<JobComponentService>().ReverseDirectCostAsync(e.Id, Today, reason), "Msg.Reversed");
+    }
+
+    [RelayCommand]
+    private async Task SaveAsTemplate()
+    {
+        if (Job == null) return;
+        var name = await Dialogs.PromptAsync("Template.SaveTitle", "Template.Name", Job.Title);
+        if (!string.IsNullOrWhiteSpace(name)) await RunAsync(() => Get<ProductTemplateService>().SaveFromJobAsync(_id, name), "Msg.TemplateSaved");
+    }
 
     // operations
     [RelayCommand] private Task AddOperation() => Show(new OperationEditorViewModel(0, _id));

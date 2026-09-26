@@ -33,7 +33,7 @@ public sealed class ReconciliationService : ServiceBase
         var unbalanced = await db.JournalEntries.Where(e => e.Status != JournalStatus.Draft && e.Lines.Sum(l => l.Debit) != e.Lines.Sum(l => l.Credit)).CountAsync();
         checks.Add(new ReconciliationCheck("Every posted entry balances", unbalanced == 0, 0, unbalanced));
 
-        foreach (var kind in Enum.GetValues<MaterialKind>())
+        foreach (var kind in Enum.GetValues<MaterialKind>().Where(LaserWorks.Domain.Costing.ComponentRules.IsStockable))
         {
             var key = AccountingEngine.InventoryAccountKey(kind);
             var sub = await db.Materials.Where(m => m.Kind == kind).SumAsync(m => m.StockValue);

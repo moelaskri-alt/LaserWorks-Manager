@@ -72,6 +72,9 @@ public sealed class DemoDataService
                 await S<SupplierService>().SaveAsync(new Supplier { Name = "Gulf Wood Panels Co.", Phone = "0114567801", PaymentTermsDays = 30, IsActive = true }),
                 await S<SupplierService>().SaveAsync(new Supplier { Name = "مصنع الأكريليك الحديث", Phone = "0114567802", PaymentTermsDays = 30, IsActive = true }),
                 await S<SupplierService>().SaveAsync(new Supplier { Name = "Premium Leather Supply", Phone = "0114567803", PaymentTermsDays = 15, IsActive = true }),
+                await S<SupplierService>().SaveAsync(new Supplier { Name = "Bright LED Trading", Phone = "0114567804", PaymentTermsDays = 30, IsActive = true }),
+                await S<SupplierService>().SaveAsync(new Supplier { Name = "Pack & Go Packaging", Phone = "0114567805", PaymentTermsDays = 30, IsActive = true }),
+                await S<SupplierService>().SaveAsync(new Supplier { Name = "Riyadh UV Print House", Phone = "0114567806", PaymentTermsDays = 15, IsActive = true }),
             };
 
             var designer = await S<EmployeeService>().SaveAsync(new Employee { Name = "سارة المصممة", Role = "Designer", HourlyCost = 45, IsActive = true });
@@ -112,6 +115,16 @@ public sealed class DemoDataService
             var tape = await Mat("Masking Tape 50mm", "Tape", 0, 0, 0, "ROLL", 24, "Consumables", suppliers[0], 10, MaterialKind.Consumable);
             var glue = await Mat("Wood Glue", "Glue", 0, 0, 0, "L", 18, "Consumables", suppliers[0], 5, MaterialKind.Consumable);
             var coasterSet = await Mat("Wooden Coaster Set (4 pcs)", "Finished", 0, 0, 0, "PCS", 12, "Finished Goods", suppliers[0], 10, MaterialKind.FinishedGood, 35);
+            // purchased components, packaging and an outsourced service — jobs use many items, not one material
+            var led = await Mat("LED Strip 12V warm white", "LED", 0, 0, 0, "M", 9.5m, "Electrical & Lighting", suppliers[3], 20, MaterialKind.PurchasedComponent);
+            var adapter = await Mat("Power Adapter 12V 2A", "Adapter", 0, 0, 0, "PCS", 38, "Electrical & Lighting", suppliers[3], 5, MaterialKind.PurchasedComponent);
+            var toggle = await Mat("Rocker Switch", "Switch", 0, 0, 0, "PCS", 6, "Electrical & Lighting", suppliers[3], 10, MaterialKind.PurchasedComponent);
+            var wire = await Mat("Electrical Wire 2×0.75mm", "Wire", 0, 0, 0, "M", 2.2m, "Electrical & Lighting", suppliers[3], 50, MaterialKind.PurchasedComponent);
+            var screws = await Mat("Stainless Screws M4×20", "Screws", 0, 0, 0, "PCS", 0.35m, "Hardware & Fittings", suppliers[0], 200, MaterialKind.PurchasedComponent);
+            var hook = await Mat("Brass Wall Hook", "Hook", 0, 0, 0, "PCS", 4.5m, "Hardware & Fittings", suppliers[0], 20, MaterialKind.PurchasedComponent);
+            var giftBox = await Mat("Gift Box 30×20×8 cm", "Box", 0, 0, 0, "PCS", 7.5m, "Packaging", suppliers[4], 20, MaterialKind.Packaging);
+            var bubble = await Mat("Bubble Wrap 100 cm", "Wrap", 0, 0, 0, "M", 1.8m, "Packaging", suppliers[4], 30, MaterialKind.Packaging);
+            var uvPrint = await Mat("UV Colour Printing (outsourced)", "Service", 0, 0, 0, "PCS", 0, "Finished Goods", suppliers[5], 0, MaterialKind.Service);
 
             var lookup = S<LookupService>();
             await lookup.SaveLaserParameterAsync(new LaserParameter { MaterialId = mats[0], MachineId = m1, Thickness = 3, OperationType = OperationType.Cutting, PowerPercent = 55, SpeedMmPerSec = 25, PassCount = 1, Notes = "Air assist on" });
@@ -133,6 +146,9 @@ public sealed class DemoDataService
             await S<InventoryService>().OpeningBalanceAsync(coasterSet, wh, 40, 12, opening);
             await S<InventoryService>().OpeningBalanceAsync(tape, wh, 12, 24, opening);
             await S<InventoryService>().OpeningBalanceAsync(glue, wh, 6, 18, opening);
+            foreach (var (item, qty, cost) in new[] { (led, 120m, 9.5m), (adapter, 30m, 38m), (toggle, 60m, 6m), (wire, 250m, 2.2m), (screws, 1500m, 0.35m), (hook, 120m, 4.5m),
+                         (giftBox, 150m, 7.5m), (bubble, 200m, 1.8m) })
+                await S<InventoryService>().OpeningBalanceAsync(item, wh, qty, cost, opening);
 
             var pur = S<PurchaseService>();
             async Task Buy(long supplier, DateTime date, params (long Mat, decimal Qty, decimal Cost)[] lines)
@@ -211,6 +227,19 @@ public sealed class DemoDataService
                 new("Laser cut stencil set", 2, 6, 50, 35, 1, 10, 6, 2, OperationType.Packaging, 1, 0.5m, "Request", 107),
             };
 
+            // extra components per job template (index → item, quantity per finished unit)
+            var extras = new Dictionary<int, (long Item, decimal PerUnit)[]>
+            {
+                [0] = new[] { (mats[1], 1m), (led, 2.2m), (adapter, 1m), (toggle, 1m), (wire, 1.5m), (screws, 8m), (bubble, 2m) },   // illuminated acrylic sign
+                [4] = new[] { (glue, 0.02m), (giftBox, 1m) },                                                                          // wooden gift boxes
+                [5] = new[] { (screws, 2m), (bubble, 0.3m) },                                                                          // acrylic menu stands
+                [6] = new[] { (hook, 2m), (bubble, 1.5m), (tape, 0.1m) },                                                             // plywood wall art
+                [7] = new[] { (giftBox, 0.25m) },                                                                                      // glass coasters, boxed in fours
+                [8] = new[] { (led, 3m), (adapter, 1m), (wire, 6m), (screws, 12m), (uvPrint, 1m) },                                    // raised letters with UV print
+                [9] = new[] { (screws, 4m) },                                                                                          // room number signs
+                [10] = new[] { (screws, 2m), (giftBox, 1m) },                                                                          // school trophies
+            };
+
             var reqSvc = S<RequestService>(); var designSvc = S<DesignService>(); var estSvc = S<EstimateService>(); var quoteSvc = S<QuotationService>();
             var jobSvc = S<JobService>(); var prodSvc = S<ProductionService>(); var invSvc = S<InventoryService>(); var salesSvc = S<SalesService>();
             var ops = new[] { op1, op2 };
@@ -223,15 +252,19 @@ public sealed class DemoDataService
                 var customerId = customers[t.Customer];
                 At(D(0), 9);
                 var matInfo = await matSvc.GetAsync(mats[t.Material]);
-                var reqId = await reqSvc.SaveAsync(new CustomerRequest
+                var request = new CustomerRequest
                 {
-                    CustomerId = customerId, RequestDate = D(0), Description = t.Description, Dimensions = $"{t.PieceL:0.#} × {t.PieceW:0.#} cm", MaterialId = mats[t.Material],
-                    Thickness = matInfo!.Thickness, Quantity = t.Qty, RequiredDate = D(14)
-                });
+                    CustomerId = customerId, RequestDate = D(0), Description = t.Description, Dimensions = $"{t.PieceL:0.#} × {t.PieceW:0.#} cm",
+                    Quantity = t.Qty, RequiredDate = D(14), Items = { new RequestItem { MaterialId = mats[t.Material], Quantity = 1 } }
+                };
+                var idx = templates.IndexOf(t);
+                if (extras.TryGetValue(idx, out var more))
+                    foreach (var (item, perUnit) in more) request.Items.Add(new RequestItem { MaterialId = item, Quantity = perUnit });
+                var reqId = await reqSvc.SaveAsync(request);
                 if (t.Stage == "Request") continue;
 
                 At(D(1), 11);
-                var rev1 = await designSvc.SaveAsync(new DesignRevision { RequestId = reqId, Date = D(1), DesignerId = designer, Width = t.PieceL, Height = t.PieceW, MaterialId = mats[t.Material], Thickness = matInfo.Thickness,
+                var rev1 = await designSvc.SaveAsync(new DesignRevision { RequestId = reqId, Date = D(1), DesignerId = designer, Width = t.PieceL, Height = t.PieceW, MaterialId = mats[t.Material], Thickness = matInfo!.Thickness,
                     CuttingLengthM = Math.Round((t.PieceL + t.PieceW) * 2 / 100m * t.PiecesPerUnit, 2), EngravingAreaCm2 = t.Engrave ? Math.Round(t.PieceL * t.PieceW * 0.3m, 0) : 0, EstimatedMachineMinutes = t.MinutesPerUnit, Notes = "First concept" });
                 var approvedRev = rev1;
                 if (rnd.Next(3) == 0)
@@ -249,6 +282,7 @@ public sealed class DemoDataService
                 if (ml.SheetBased) { ml.Pieces.Clear(); ml.Pieces.Add(new EstimatePiece { Name = "Part", Length = t.PieceL, Width = t.PieceW, QuantityPerUnit = t.PiecesPerUnit }); }
                 else ml.QuantityPerUnit = t.PiecesPerUnit;
                 var machineId = t.Material is 5 or 7 ? m2 : m1;
+                foreach (var svc in est.MaterialLines.Where(l => l.Source == ComponentSource.ExternalService)) svc.UnitCost = 350; // supplier's quote
                 est.MachineLines.Clear();
                 est.MachineLines.Add(new EstimateMachineLine { MachineId = machineId, Operation = t.Engrave && t.Material is 5 or 7 ? OperationType.Engraving : OperationType.Cutting, MinutesPerUnit = t.MinutesPerUnit });
                 est.LaborLines.Add(new EstimateLaborLine { EmployeeId = finisher, Operation = t.LaborOp, MinutesPerUnit = t.LaborMinutes, HourlyRate = 22 });
@@ -277,13 +311,23 @@ public sealed class DemoDataService
                 var jobId = await quoteSvc.CreateJobAsync(qId, new JobCreationOptions(D(12), rnd.Next(4) == 0 ? JobPriority.High : JobPriority.Normal, machineId, ops[rnd.Next(2)]));
                 if (t.Stage == "Planned") { await jobSvc.SetStatusAsync(jobId, JobStatus.Planned); continue; }
 
-                // material issue (sometimes one extra sheet → material variance)
+                // issue every stocked component line (sometimes one extra sheet → material variance); charge direct and outsourced lines
                 At(D(4), 8);
                 var estSaved = await estSvc.GetAsync(estId);
                 var line = estSaved!.MaterialLines.First();
-                var qty = line.SheetBased ? Math.Max(1, line.SheetsRequired) : line.TotalQuantity;
-                if (line.SheetBased && rnd.Next(3) == 0) qty += 1;
-                await invSvc.IssueToJobAsync(jobId, line.MaterialId, wh, qty, D(4), "Demo issue");
+                foreach (var comp in await S<JobComponentService>().ListAsync(jobId))
+                {
+                    if (comp.Source == ComponentSource.Inventory)
+                    {
+                        var isSheet = comp.Unit == "SHEET";
+                        var issueQty = isSheet ? Math.Max(1, comp.PlannedQuantity) : comp.PlannedQuantity;
+                        if (isSheet && comp.LineNo == 1 && rnd.Next(3) == 0) issueQty += 1;
+                        if (issueQty > 0) await S<JobComponentService>().IssueAsync(comp.Id, wh, issueQty, D(4), "Demo issue");
+                    }
+                    else if (comp.Source is ComponentSource.ExternalService or ComponentSource.DirectPurchase)
+                        await S<JobComponentService>().RecordDirectCostAsync(new DirectCostInput(comp.Id, D(4), comp.PlannedQuantity, Math.Round(comp.EstimatedCost * 1.08m, 2),
+                            Math.Round(comp.EstimatedCost * 1.08m * settings.DefaultTaxRate / 100m, 2), PaymentMethod.OnCredit, suppliers[5], "UVP-" + rnd.Next(1000, 9999), null));
+                }
                 if (rnd.Next(3) == 0) await invSvc.IssueToJobAsync(jobId, tape, wh, 1, D(4), "Masking");
 
                 // operations
@@ -306,11 +350,11 @@ public sealed class DemoDataService
                     await prodSvc.RecordScrapAsync(new ScrapRecord { JobId = jobId, Date = D(5), Type = rnd.Next(3) == 0 ? ScrapType.AbnormalScrap : ScrapType.NormalScrap, MaterialId = line.MaterialId, Quantity = 0.25m, Reason = rnd.Next(2) == 0 ? "Burn marks on edges" : "Focus drift — parts out of tolerance" });
                 if (rnd.Next(3) == 0)
                     await prodSvc.RecordScrapAsync(new ScrapRecord { JobId = jobId, Date = D(5), Type = ScrapType.Rework, MachineId = machineId, EmployeeId = ops[0], Quantity = Math.Max(1, Math.Round(t.Qty * 0.05m)), Hours = 0.75m, Reason = "Re-engrave faint logos" });
-                if (line.SheetBased && line.UtilizationPercent < 60 && qty >= 1)
+                if (line.SheetBased && line.UtilizationPercent < 60)
                 {
                     try
                     {
-                        await invSvc.CreateRemnantAsync(new RemnantInput(line.MaterialId, wh, Math.Round(line.SheetLength * 0.4m, 0), Math.Round(line.SheetWidth * 0.5m, 0), null, jobId, null, D(5), "Offcut kept for reuse"));
+                        await invSvc.CreateRemnantAsync(new RemnantInput(line.MaterialId!.Value, wh, Math.Round(line.SheetLength * 0.4m, 0), Math.Round(line.SheetWidth * 0.5m, 0), null, jobId, null, D(5), "Offcut kept for reuse"));
                     }
                     catch (DomainException) { /* remnant larger than remaining job material cost — skip */ }
                 }
@@ -357,8 +401,8 @@ public sealed class DemoDataService
 
             // a few more requests to show the pipeline
             At(today, 9);
-            await reqSvc.SaveAsync(new CustomerRequest { CustomerId = customers[2], RequestDate = today, Description = "Engraved wooden serving boards with restaurant logo", Quantity = 20, MaterialId = mats[2], Thickness = 4, RequiredDate = today.AddDays(10), Dimensions = "35 × 20 cm" });
-            await reqSvc.SaveAsync(new CustomerRequest { CustomerId = customers[4], RequestDate = today, Description = "لوحة جدارية أكريليك مضيئة", Quantity = 1, MaterialId = mats[3], Thickness = 3, RequiredDate = today.AddDays(21), Dimensions = "120 × 60 cm" });
+            await reqSvc.SaveAsync(new CustomerRequest { CustomerId = customers[2], RequestDate = today, Description = "Engraved wooden serving boards with restaurant logo", Quantity = 20, Items = { new RequestItem { MaterialId = mats[2], Quantity = 1 } }, RequiredDate = today.AddDays(10), Dimensions = "35 × 20 cm" });
+            await reqSvc.SaveAsync(new CustomerRequest { CustomerId = customers[4], RequestDate = today, Description = "لوحة جدارية أكريليك مضيئة", Quantity = 1, Items = { new RequestItem { MaterialId = mats[3], Quantity = 1 } }, RequiredDate = today.AddDays(21), Dimensions = "120 × 60 cm" });
         }
         finally
         {

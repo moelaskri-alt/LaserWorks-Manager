@@ -78,40 +78,116 @@
     <TabControl SelectedIndex="{Binding SelectedTab}">
       <!-- estimated vs actual -->
       <TabItem Header="{l:T Job.TabCost}">
-        <Grid ColumnDefinitions="*,14,*" Margin="0,8,0,0">
+        <Grid RowDefinitions="*,12,*" Margin="0,8,0,0" MinHeight="360">
           <DockPanel>
-            <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Rpt.EstimatedVsActual}" Margin="0,0,0,6" />
-            <TextBlock DockPanel.Dock="Bottom" Classes="muted" Margin="0,6,0,0" IsVisible="{Binding MainDriver, Converter={x:Static l:Conv.NotEmpty}}">
-              <Run Text="{l:T Var.MainReason}" /><Run Text=": " /><Run Text="{Binding MainDriver}" FontWeight="SemiBold" />
-            </TextBlock>
-            <DataGrid ItemsSource="{Binding Variance}" Name="gridVariance">
+            <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Doc.ComponentsVariance}" Margin="0,0,0,6" />
+            <DataGrid ItemsSource="{Binding ComponentVariance}" Name="gridComponentVariance" FrozenColumnCount="1">
               <DataGrid.Columns>
-                <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="1.3*" MinWidth="91" />
-                <DataGridTextColumn Header="{l:T Col.Estimated}" Binding="{Binding Estimated, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
-                <DataGridTextColumn Header="{l:T Col.Actual}" Binding="{Binding Actual, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="80" />
-                <DataGridTemplateColumn Header="{l:T Col.Variance}" Width="*" MinWidth="80">
-                  <DataTemplate x:DataType="costing:VarianceLine">
+                <DataGridTextColumn Header="#" Binding="{Binding LineNo}" Width="44" MinWidth="44" />
+                <DataGridTextColumn Header="{l:T Col.Item}" Binding="{Binding Item}" Width="2*" MinWidth="180" />
+                <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="140" MinWidth="120" />
+                <DataGridTextColumn Header="{l:T Col.Source}" Binding="{Binding Source, Converter={x:Static l:Conv.Enum}}" Width="120" MinWidth="110" />
+                <DataGridTextColumn Header="{l:T Col.PlannedQty}" Binding="{Binding PlannedQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.UsedQty}" Binding="{Binding UsedQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Estimated}" Binding="{Binding Estimated, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Actual}" Binding="{Binding Actual, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="100" />
+                <DataGridTemplateColumn Header="{l:T Col.Variance}" Width="110" MinWidth="100">
+                  <DataTemplate x:DataType="svc:ComponentVarianceRow">
                     <TextBlock Text="{Binding Variance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Variance, Converter={x:Static l:Conv.VarianceBrush}}" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold" />
                   </DataTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{l:T Col.VariancePercent}" Binding="{Binding VariancePercent, Converter={x:Static l:Conv.Percent}}" Width="90" MinWidth="90" />
+                <DataGridTextColumn Header="{l:T Col.VariancePercent}" Binding="{Binding VariancePercent, Converter={x:Static l:Conv.Percent}}" Width="100" MinWidth="100" />
               </DataGrid.Columns>
             </DataGrid>
           </DockPanel>
-          <DockPanel Grid.Column="2">
-            <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Col.CostEntries}" Margin="0,0,0,6" />
-            <DataGrid ItemsSource="{Binding Entries}">
-              <DataGrid.Columns>
-                <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
-                <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="100" MinWidth="100" />
-                <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="140" />
-                <DataGridTextColumn Header="{l:T Col.Hours}" Binding="{Binding Hours, Converter={x:Static l:Conv.Number}}" Width="60" MinWidth="60" />
-                <DataGridTextColumn Header="{l:T Col.Amount}" Binding="{Binding Amount, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
-                <DataGridTextColumn Header="{l:T Col.Entry}" Binding="{Binding JournalNumber}" Width="90" MinWidth="90" />
-              </DataGrid.Columns>
-            </DataGrid>
-          </DockPanel>
+          <Grid Grid.Row="2" ColumnDefinitions="*,14,*">
+            <DockPanel>
+              <TextBlock DockPanel.Dock="Top" Classes="h3" Text="{l:T Rpt.EstimatedVsActual}" Margin="0,0,0,6" />
+              <TextBlock DockPanel.Dock="Bottom" Classes="muted" Margin="0,6,0,0" IsVisible="{Binding MainDriver, Converter={x:Static l:Conv.NotEmpty}}">
+                <Run Text="{l:T Var.MainReason}" /><Run Text=": " /><Run Text="{Binding MainDriver}" FontWeight="SemiBold" />
+              </TextBlock>
+              <DataGrid ItemsSource="{Binding Variance}" Name="gridVariance">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="1.3*" MinWidth="130" />
+                  <DataGridTextColumn Header="{l:T Col.Estimated}" Binding="{Binding Estimated, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="95" />
+                  <DataGridTextColumn Header="{l:T Col.Actual}" Binding="{Binding Actual, Converter={x:Static l:Conv.Money}}" Width="*" MinWidth="95" />
+                  <DataGridTemplateColumn Header="{l:T Col.Variance}" Width="*" MinWidth="95">
+                    <DataTemplate x:DataType="costing:VarianceLine">
+                      <TextBlock Text="{Binding Variance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Variance, Converter={x:Static l:Conv.VarianceBrush}}" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="{l:T Col.VariancePercent}" Binding="{Binding VariancePercent, Converter={x:Static l:Conv.Percent}}" Width="100" MinWidth="100" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </DockPanel>
+            <DockPanel Grid.Column="2">
+              <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                <Button DockPanel.Dock="Right" Content="{l:T Component.ReverseCost}" Command="{Binding ReverseEntryCommand}" IsEnabled="{Binding CanReverseEntry}" Name="btnReverseEntry" />
+                <TextBlock Classes="h3" Text="{l:T Col.CostEntries}" VerticalAlignment="Center" />
+              </DockPanel>
+              <DataGrid ItemsSource="{Binding Entries}" SelectedItem="{Binding SelectedEntry}" Name="gridEntries">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
+                  <DataGridTextColumn Header="{l:T Col.Component}" Binding="{Binding Component, Converter={x:Static l:Conv.Enum}}" Width="120" MinWidth="110" />
+                  <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="2*" MinWidth="160" />
+                  <DataGridTextColumn Header="{l:T Col.Hours}" Binding="{Binding Hours, Converter={x:Static l:Conv.Number}}" Width="70" MinWidth="70" />
+                  <DataGridTextColumn Header="{l:T Col.Amount}" Binding="{Binding Amount, Converter={x:Static l:Conv.Money}}" Width="100" MinWidth="100" />
+                  <DataGridTextColumn Header="{l:T Col.Entry}" Binding="{Binding JournalNumber}" Width="100" MinWidth="100" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </DockPanel>
+          </Grid>
         </Grid>
+      </TabItem>
+
+      <!-- component lines -->
+      <TabItem Header="{l:T Job.TabComponents}" Name="tabComponents">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Classes="actions">
+            <Button Classes="primary" Command="{Binding AddComponentCommand}" CommandParameter="Inventory" IsVisible="{Binding IsOpen}" Name="btnAddComponent" ToolTip.Tip="{l:T Component.AddStockTip}">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="White" /><TextBlock Text="{l:T Component.AddStock}" /></StackPanel>
+            </Button>
+            <Button Content="{l:T Component.AddPurchased}" Command="{Binding AddComponentCommand}" CommandParameter="DirectPurchase" IsVisible="{Binding IsOpen}" ToolTip.Tip="{l:T Component.AddPurchasedTip}" Name="btnAddPurchasedComponent" />
+            <Button Content="{l:T Component.AddService}" Command="{Binding AddComponentCommand}" CommandParameter="ExternalService" IsVisible="{Binding IsOpen}" />
+            <Button Content="{l:T Component.AddRemnant}" Command="{Binding AddComponentCommand}" CommandParameter="Remnant" IsVisible="{Binding IsOpen}" />
+            <Button Content="{l:T Component.AddManual}" Command="{Binding AddComponentCommand}" CommandParameter="ManualCost" IsVisible="{Binding IsOpen}" />
+            <Button Content="{l:T Common.Edit}" Command="{Binding EditComponentCommand}" IsEnabled="{Binding CanEditComponent}" Name="btnEditComponent" />
+            <Button Content="{l:T Component.Duplicate}" Command="{Binding DuplicateComponentCommand}" IsEnabled="{Binding CanEditComponent}" />
+            <Button Classes="danger" Content="{l:T Common.Delete}" Command="{Binding DeleteComponentCommand}" IsEnabled="{Binding CanDeleteComponent}" Name="btnDeleteComponent" />
+          </WrapPanel>
+          <WrapPanel DockPanel.Dock="Top" Classes="actions">
+            <Button Content="{l:T Job.IssueMaterial}" Command="{Binding IssueComponentCommand}" IsEnabled="{Binding CanIssueComponent}" Name="btnIssueComponent" />
+            <Button Content="{l:T Job.ReturnMaterial}" Command="{Binding ReturnComponentCommand}" IsEnabled="{Binding CanReturnComponent}" />
+            <Button Content="{l:T Job.UseRemnant}" Command="{Binding UseRemnantOnComponentCommand}" IsEnabled="{Binding CanUseRemnantOnComponent}" Name="btnUseRemnantComponent" />
+            <Button Content="{l:T Component.RecordCost}" Command="{Binding RecordDirectCostCommand}" IsEnabled="{Binding CanRecordDirectCost}" Name="btnRecordDirectCost" />
+            <Button Content="{l:T Template.SaveJobAs}" Command="{Binding SaveAsTemplateCommand}" IsEnabled="{Binding CanSaveTemplate}" Name="btnJobTemplate" />
+          </WrapPanel>
+          <Grid>
+            <DataGrid ItemsSource="{Binding Components}" SelectedItem="{Binding SelectedComponent}" Name="gridComponents" l:GridStandard.EmptyText="Component.Empty" FrozenColumnCount="2"
+                      l:GridBehaviors.OpenCommand="{Binding EditComponentCommand}">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding LineNo}" Width="44" MinWidth="44" />
+                <DataGridTextColumn Header="{l:T Col.Item}" Binding="{Binding Display}" Width="2*" MinWidth="200" />
+                <DataGridTextColumn Header="{l:T Col.Type}" Binding="{Binding Category, Converter={x:Static l:Conv.Enum}}" Width="140" MinWidth="120" />
+                <DataGridTextColumn Header="{l:T Col.Source}" Binding="{Binding Source, Converter={x:Static l:Conv.Enum}}" Width="120" MinWidth="110" />
+                <DataGridTextColumn Header="{l:T Col.Unit}" Binding="{Binding Unit}" Width="70" MinWidth="60" />
+                <DataGridTextColumn Header="{l:T Col.PlannedQty}" Binding="{Binding PlannedQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.UsedQty}" Binding="{Binding UsedQuantity, Converter={x:Static l:Conv.Number}}" Width="110" MinWidth="100" />
+                <DataGridTextColumn Header="{l:T Col.Remaining}" Binding="{Binding RemainingQuantity, Converter={x:Static l:Conv.Number}}" Width="100" MinWidth="90" />
+                <DataGridTextColumn Header="{l:T Col.EstimatedCost}" Binding="{Binding EstimatedCost, Converter={x:Static l:Conv.Money}}" Width="120" MinWidth="110" />
+                <DataGridTextColumn Header="{l:T Col.ActualCost}" Binding="{Binding ActualCost, Converter={x:Static l:Conv.Money}}" Width="120" MinWidth="110" />
+                <DataGridTemplateColumn Header="{l:T Col.Variance}" Width="110" MinWidth="100">
+                  <DataTemplate x:DataType="svc:JobComponentRow">
+                    <TextBlock Text="{Binding Variance, Converter={x:Static l:Conv.Money}}" Foreground="{Binding Variance, Converter={x:Static l:Conv.VarianceBrush}}" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold" />
+                  </DataTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{l:T Col.Remnant}" Binding="{Binding RemnantCode}" Width="100" MinWidth="90" />
+                <DataGridTextColumn Header="{l:T Col.Supplier}" Binding="{Binding Supplier}" Width="1.2*" MinWidth="130" />
+                <DataGridTextColumn Header="{l:T Col.Notes}" Binding="{Binding Notes}" Width="1.2*" MinWidth="130" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+        </DockPanel>
       </TabItem>
 
       <!-- operations -->

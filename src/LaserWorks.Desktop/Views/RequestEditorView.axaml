@@ -6,27 +6,22 @@
              x:Class="LaserWorks.Desktop.Views.RequestEditorView"
              x:DataType="vm:RequestEditorViewModel">
   <StackPanel Spacing="10">
-    <Grid ColumnDefinitions="2*,14,*,14,*" RowDefinitions="Auto,Auto,Auto,Auto">
-      <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Customer}" />
+    <Grid ColumnDefinitions="2*,14,*,14,*,14,*" RowDefinitions="Auto,Auto,Auto">
+      <StackPanel Classes="field" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Customer}" />
         <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding Customer}" Name="cmbCustomer" /></StackPanel>
-      <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Date}" />
+      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Date}" />
         <CalendarDatePicker SelectedDate="{Binding RequestDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
-      <StackPanel Classes="field" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.RequiredDate}" />
+      <StackPanel Classes="field" Grid.Column="6"><TextBlock Classes="label" Text="{l:T Col.RequiredDate}" />
         <CalendarDatePicker SelectedDate="{Binding RequiredDate}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" /></StackPanel>
-      <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="5"><TextBlock Classes="label" Text="{l:T Col.Description}" />
+      <StackPanel Classes="field" Grid.Row="1" Grid.ColumnSpan="7"><TextBlock Classes="label" Text="{l:T Col.Description}" />
         <TextBox Text="{Binding Description}" Classes="multiline" Name="txtDescription" /></StackPanel>
-      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Material}" />
-        <ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" Name="cmbMaterial" /></StackPanel>
-      <Grid Grid.Row="2" Grid.Column="2" ColumnDefinitions="*,8,*">
-        <StackPanel Classes="field"><TextBlock Classes="label" Text="{l:T Col.Thickness}" /><NumericUpDown Value="{Binding Thickness}" Minimum="0" /></StackPanel>
-        <StackPanel Classes="field" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" Name="numQty" /></StackPanel>
-      </Grid>
-      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Dimensions}" /><TextBox Text="{Binding Dimensions}" Watermark="60 × 40 cm" /></StackPanel>
-      <StackPanel Classes="field" Grid.Row="3" Grid.ColumnSpan="3"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
-      <StackPanel Classes="field" Grid.Row="3" Grid.Column="4" IsVisible="{Binding IsSaved}"><TextBlock Classes="label" Text="{l:T Col.Status}" />
-        <Border Classes="badge"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2"><TextBlock Classes="label" Text="{l:T Col.Dimensions}" /><TextBox Text="{Binding Dimensions}" Watermark="60 × 40 cm" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="2"><TextBlock Classes="label" Text="{l:T Col.Quantity}" /><NumericUpDown Value="{Binding Quantity}" Minimum="0" Name="numQty" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="4"><TextBlock Classes="label" Text="{l:T Col.Notes}" /><TextBox Text="{Binding Notes}" /></StackPanel>
+      <StackPanel Classes="field" Grid.Row="2" Grid.Column="6" IsVisible="{Binding IsSaved}"><TextBlock Classes="label" Text="{l:T Col.Status}" />
+        <Border Classes="badge" HorizontalAlignment="Left"><TextBlock Text="{Binding Status, Converter={x:Static l:Conv.Enum}}" FontWeight="SemiBold" /></Border></StackPanel>
     </Grid>
-    <StackPanel Orientation="Horizontal" Spacing="8">
+    <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="6">
       <Button Content="{l:T Common.SaveAndContinue}" Command="{Binding ApplyCommand}" Name="btnApply" />
       <Button Classes="primary" Command="{Binding CreateEstimateCommand}" Name="btnCreateEstimate">
         <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoEstimate}" Foreground="White" /><TextBlock Text="{l:T Request.CreateEstimate}" /></StackPanel>
@@ -35,63 +30,89 @@
         <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
       </ComboBox>
       <Button Content="{l:T Common.Apply}" Command="{Binding SetStatusCommand}" CommandParameter="{Binding #cmbStatus.SelectedItem}" IsVisible="{Binding IsSaved}" IsEnabled="{Binding #cmbStatus.SelectedItem, Converter={x:Static l:Conv.NotNull}}" />
-      <TextBlock Classes="muted" Text="{l:T Request.SaveFirst}" IsVisible="{Binding IsNew}" VerticalAlignment="Center" />
-    </StackPanel>
+    </WrapPanel>
     <Border Classes="banner-success" IsVisible="{Binding InfoMessage, Converter={x:Static l:Conv.NotEmpty}}"><TextBlock Text="{Binding InfoMessage}" Foreground="{DynamicResource SuccessBrush}" /></Border>
 
-    <Grid ColumnDefinitions="*,14,1.4*" IsVisible="{Binding IsSaved}">
-      <Border Classes="soft">
-        <DockPanel>
-          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-            <Button DockPanel.Dock="Right" Command="{Binding AddAttachmentCommand}" Name="btnAttach">
-              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoAttach}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Attachment.Add}" /></StackPanel>
+    <TabControl SelectedIndex="{Binding SelectedTab}" Name="tabs">
+      <!-- requested items: any number of materials, purchased components, consumables, packaging and services -->
+      <TabItem Header="{l:T Request.Items}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" ItemSpacing="6" LineSpacing="6" Margin="0,0,0,6">
+            <Button Command="{Binding AddItemCommand}" Name="btnAddItem">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Component.Add}" /></StackPanel>
             </Button>
-            <TextBlock Classes="h3" Text="{l:T Attachment.Title}" VerticalAlignment="Center" />
-          </DockPanel>
-          <ListBox ItemsSource="{Binding Attachments}" SelectedItem="{Binding SelectedAttachment}" Height="170">
-            <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="svc:AttachmentRow">
-                <DockPanel>
-                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2">
-                    <Button Classes="ghost" Padding="4" Command="{Binding $parent[UserControl].((vm:RequestEditorViewModel)DataContext).OpenAttachmentCommand}" CommandParameter="{Binding}" ToolTip.Tip="{l:T Common.Open}">
-                      <l:Ico Data="{StaticResource IcoOpen}" Foreground="{DynamicResource MutedBrush}" Width="15" Height="15" /></Button>
-                    <Button Classes="ghost" Padding="4" Command="{Binding $parent[UserControl].((vm:RequestEditorViewModel)DataContext).RemoveAttachmentCommand}" CommandParameter="{Binding}" ToolTip.Tip="{l:T Common.Delete}">
-                      <l:Ico Data="{StaticResource IcoDelete}" Foreground="{DynamicResource DangerBrush}" Width="15" Height="15" /></Button>
-                  </StackPanel>
-                  <StackPanel>
-                    <TextBlock Text="{Binding FileName}" />
-                    <TextBlock Classes="muted small" Text="{Binding SizeBytes, Converter={x:Static l:Conv.FileSize}}" />
-                  </StackPanel>
-                </DockPanel>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </DockPanel>
-      </Border>
-      <Border Classes="soft" Grid.Column="2">
-        <DockPanel>
-          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-            <Button DockPanel.Dock="Right" Command="{Binding NewRevisionCommand}" Name="btnNewRevision">
-              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Revision.New}" /></StackPanel>
-            </Button>
-            <TextBlock Classes="h3" Text="{l:T Revision.Title}" VerticalAlignment="Center" />
-          </DockPanel>
-          <DataGrid ItemsSource="{Binding Revisions}" SelectedItem="{Binding SelectedRevision}" Height="170" l:GridBehaviors.OpenCommand="{Binding OpenRevisionCommand}">
+            <Button Content="{l:T Component.Duplicate}" Command="{Binding DuplicateItemCommand}" CommandParameter="{Binding SelectedItem}" IsEnabled="{Binding SelectedItem, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Classes="danger" Content="{l:T Common.Remove}" Command="{Binding RemoveItemCommand}" CommandParameter="{Binding SelectedItem}" IsEnabled="{Binding SelectedItem, Converter={x:Static l:Conv.NotNull}}" />
+            <TextBlock Classes="muted small" Text="{l:T Request.ItemsHint}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" />
+          </WrapPanel>
+          <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" IsReadOnly="False" CanUserSortColumns="False" Height="240" Name="gridItems">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="{l:T Col.Revision}" Binding="{Binding RevisionLabel}" Width="100" MinWidth="100" />
-              <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
-              <DataGridTextColumn Header="{l:T Col.Designer}" Binding="{Binding Designer}" Width="*" MinWidth="80" />
-              <DataGridTextColumn Header="{l:T Col.MachineMinutes}" Binding="{Binding EstimatedMachineMinutes, Converter={x:Static l:Conv.Number}}" Width="90" MinWidth="90" />
-              <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="100" MinWidth="100" />
-              <DataGridTemplateColumn Width="90" MinWidth="90">
-                <DataTemplate x:DataType="svc:RevisionRow">
-                  <Button Classes="link" Content="{l:T Common.Approve}" Command="{Binding $parent[UserControl].((vm:RequestEditorViewModel)DataContext).ApproveRevisionCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" />
+              <DataGridTemplateColumn Header="{l:T Col.Item}" Width="2.4*" MinWidth="240">
+                <DataTemplate x:DataType="vm:RequestItemVm">
+                  <ComboBox ItemsSource="{Binding Owner.Materials}" SelectedItem="{Binding Material}" HorizontalAlignment="Stretch" PlaceholderText="{l:T Component.FreeText}" />
                 </DataTemplate>
               </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="{l:T Col.Type}" Width="1.2*" MinWidth="150">
+                <DataTemplate x:DataType="vm:RequestItemVm">
+                  <ComboBox ItemsSource="{Binding Owner.Categories}" SelectedItem="{Binding Category}" IsEnabled="{Binding IsFreeText}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static l:Conv.Enum}}" /></DataTemplate></ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DataTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="1.6*" MinWidth="170" />
+              <DataGridTextColumn Header="{l:T Col.QtyPerUnit}" Binding="{Binding Quantity}" Width="110" MinWidth="110" />
+              <DataGridTextColumn Header="{l:T Col.Unit}" Binding="{Binding Unit}" Width="80" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Col.Notes}" Binding="{Binding Notes}" Width="*" MinWidth="140" />
             </DataGrid.Columns>
           </DataGrid>
         </DockPanel>
-      </Border>
-    </Grid>
+      </TabItem>
+
+      <TabItem Header="{l:T Attachment.Title}" IsEnabled="{Binding IsSaved}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" ItemSpacing="6" Margin="0,0,0,6">
+            <Button Command="{Binding AddAttachmentCommand}" Name="btnAttach">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoAttach}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Attachment.Add}" /></StackPanel>
+            </Button>
+            <Button Content="{l:T Common.Open}" Command="{Binding OpenAttachmentCommand}" CommandParameter="{Binding SelectedAttachment}" IsEnabled="{Binding SelectedAttachment, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Classes="danger" Content="{l:T Common.Remove}" Command="{Binding RemoveAttachmentCommand}" CommandParameter="{Binding SelectedAttachment}" IsEnabled="{Binding SelectedAttachment, Converter={x:Static l:Conv.NotNull}}" />
+          </WrapPanel>
+          <DataGrid ItemsSource="{Binding Attachments}" SelectedItem="{Binding SelectedAttachment}" Height="240" l:GridBehaviors.OpenCommand="{Binding OpenAttachmentCommand}" Name="gridAttachments">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Col.FileName}" Binding="{Binding FileName}" Width="2.5*" MinWidth="220" />
+              <DataGridTextColumn Header="{l:T Col.FileType}" Binding="{Binding FileType}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="{l:T Backup.Size}" Binding="{Binding SizeBytes, Converter={x:Static l:Conv.FileSize}}" Width="100" MinWidth="100" />
+              <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding AddedAt, Converter={x:Static l:Conv.DateTimeShort}}" Width="150" MinWidth="150" />
+              <DataGridTextColumn Header="{l:T Col.User}" Binding="{Binding AddedBy}" Width="*" MinWidth="120" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="{l:T Revision.Title}" IsEnabled="{Binding IsSaved}">
+        <DockPanel Margin="0,8,0,0">
+          <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" ItemSpacing="6" Margin="0,0,0,6">
+            <Button Command="{Binding NewRevisionCommand}" Name="btnNewRevision">
+              <StackPanel Orientation="Horizontal" Spacing="6"><l:Ico Data="{StaticResource IcoPlus}" Foreground="{DynamicResource MutedBrush}" /><TextBlock Text="{l:T Revision.New}" /></StackPanel>
+            </Button>
+            <Button Content="{l:T Common.Open}" Command="{Binding OpenRevisionCommand}" CommandParameter="{Binding SelectedRevision}" IsEnabled="{Binding SelectedRevision, Converter={x:Static l:Conv.NotNull}}" />
+            <Button Classes="primary" Content="{l:T Revision.ApproveFinal}" Command="{Binding ApproveRevisionCommand}" CommandParameter="{Binding SelectedRevision}" IsEnabled="{Binding SelectedRevision, Converter={x:Static l:Conv.NotNull}}" Name="btnApproveRevision" />
+          </WrapPanel>
+          <DataGrid ItemsSource="{Binding Revisions}" SelectedItem="{Binding SelectedRevision}" Height="240" l:GridBehaviors.OpenCommand="{Binding OpenRevisionCommand}" Name="gridRevisions">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="{l:T Col.DesignRevision}" Binding="{Binding RevisionLabel}" Width="130" MinWidth="130" />
+              <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="110" MinWidth="110" />
+              <DataGridTextColumn Header="{l:T Col.Designer}" Binding="{Binding Designer}" Width="1.3*" MinWidth="150" />
+              <DataGridTextColumn Header="{l:T Col.DimensionsCm}" Binding="{Binding Dimensions}" Width="130" MinWidth="130" />
+              <DataGridTextColumn Header="{l:T Col.MainMaterial}" Binding="{Binding Material}" Width="1.5*" MinWidth="170" />
+              <DataGridTextColumn Header="{l:T Col.MachineTimeMin}" Binding="{Binding EstimatedMachineMinutes, Converter={x:Static l:Conv.Number}}" Width="140" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Col.Files}" Binding="{Binding Files}" Width="80" MinWidth="80" />
+              <DataGridTextColumn Header="{l:T Col.Status}" Binding="{Binding Status, Converter={x:Static l:Conv.Enum}}" Width="130" MinWidth="130" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+    </TabControl>
+    <TextBlock Classes="muted" Text="{l:T Request.SaveFirst}" IsVisible="{Binding IsNew}" />
   </StackPanel>
 </UserControl>

@@ -1,6 +1,7 @@
 using LaserWorks.Application.Abstractions;
 using LaserWorks.Application.Common;
 using LaserWorks.Domain.Common;
+using LaserWorks.Domain.Costing;
 using LaserWorks.Domain.Entities;
 using LaserWorks.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -302,6 +303,11 @@ public sealed class ProductionService : ServiceBase
             else
             {
                 decimal cost;
+                // the scrapped item's component line (and its cost category) — a damaged LED is scrapped out of purchased components
+                var line = input.MaterialId is { } lineMat
+                    ? await db.JobComponents.Where(c => c.JobId == job.Id && c.MaterialId == lineMat).OrderBy(c => c.LineNo).FirstOrDefaultAsync()
+                    : null;
+                var fromComponent = line != null ? ComponentRules.CostComponentOf(line.Category) : CostComponent.Material;
                 if (input.MaterialId is { } matId && input.Quantity > 0 && input.Cost == 0)
                 {
                     var issued = (await InventoryService.JobMaterialsAsync(db, job.Id)).FirstOrDefault(m => m.MaterialId == matId);
@@ -314,13 +320,15 @@ public sealed class ProductionService : ServiceBase
                     cost = Money.Round(unit * input.Quantity);
                 }
                 else cost = Money.Round(input.Cost);
-                var materialCost = await db.JobCostEntries.Where(e => e.JobId == job.Id && e.Component == CostComponent.Material).SumAsync(e => e.Amount);
-                if (cost > materialCost) throw new DomainException("Err.ScrapExceedsMaterial", materialCost, cost);
+                var available = line != null
+                    ? await db.JobCostEntries.Where(e => e.JobId == job.Id && e.JobComponentId == line.Id).SumAsync(e => e.Amount)
+                    : await db.JobCostEntries.Where(e => e.JobId == job.Id && e.Component == CostComponent.Material).SumAsync(e => e.Amount);
+                if (cost > available) throw new DomainException("Err.ScrapExceedsMaterial", available, cost);
                 r.Cost = cost;
                 await db.SaveChangesAsync();
                 if (cost > 0)
                 {
-                    JobCostEngine.Add(db, job, CostComponent.Material, -cost, r.Date, "Scrap", r.Id, $"Reclassified to scrap: {r.Reason}", -r.Quantity, r.MaterialId);
+                    JobCostEngine.Add(db, job, fromComponent, -cost, r.Date, "Scrap", r.Id, $"Reclassified to scrap: {r.Reason}", -r.Quantity, r.MaterialId, jobComponentId: line?.Id);
                     JobCostEngine.Add(db, job, CostComponent.Scrap, cost, r.Date, "Scrap", r.Id, $"{r.Type}: {r.Reason}", r.Quantity, r.MaterialId, r.MachineId);
                 }
             }

@@ -91,6 +91,8 @@ public abstract class PageViewModel : ViewModelBase
     public abstract string TitleKey { get; }
     public string Title => L[TitleKey];
     public virtual Task LoadAsync() => Task.CompletedTask;
+    /// <summary>Height below which the page scrolls as a whole instead of shrinking its grids (see ViewportFill).</summary>
+    public virtual double MinPageHeight => 520;
 }
 
 public interface ISortableList

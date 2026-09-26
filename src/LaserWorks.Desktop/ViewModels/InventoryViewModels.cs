@@ -125,13 +125,20 @@ public sealed partial class StockMovementDialogViewModel : DialogViewModel
 {
     private readonly long? _jobId;
     private readonly long? _materialId;
+    private readonly long? _componentId;
+    private readonly decimal? _suggestedQuantity;
 
-    public StockMovementDialogViewModel(StockAction action, long? jobId, long? materialId = null)
+    /// <param name="jobComponentId">When set, the movement belongs to that job component line (item fixed to the line's item).</param>
+    public StockMovementDialogViewModel(StockAction action, long? jobId, long? materialId = null, long? jobComponentId = null, decimal? quantity = null)
     {
         Action = action;
         _jobId = jobId;
         _materialId = materialId;
+        _componentId = jobComponentId;
+        _suggestedQuantity = quantity;
     }
+
+    public bool MaterialFixed => _componentId != null;
 
     public StockAction Action { get; }
     public override string TitleKey => "Stock." + Action;
@@ -188,7 +195,12 @@ public sealed partial class StockMovementDialogViewModel : DialogViewModel
         Warehouse = Warehouses.FirstOrDefault(w => w.Id == s.DefaultWarehouseId) ?? Warehouses.FirstOrDefault();
         ToWarehouse = Warehouses.FirstOrDefault(w => w.Id != Warehouse?.Id);
         Job = Jobs.FirstOrDefault(j => j.Id == _jobId);
-        if (_jobId is { } jid && Action == StockAction.ReturnFromJob)
+        if (_componentId != null)
+        {
+            Material = Materials.FirstOrDefault(m => m.Id == _materialId);
+            if (_suggestedQuantity > 0) Quantity = _suggestedQuantity.Value;
+        }
+        else if (_jobId is { } jid && Action == StockAction.ReturnFromJob)
         {
             var issued = await Get<InventoryService>().JobMaterialsAsync(jid);
             Material = Materials.FirstOrDefault(m => issued.Any(i => i.MaterialId == m.Id));
@@ -202,7 +214,7 @@ public sealed partial class StockMovementDialogViewModel : DialogViewModel
         var job = await Get<JobService>().GetAsync(jid);
         if (job?.EstimateId is not { } eid) return null;
         var est = await Get<EstimateService>().GetAsync(eid);
-        var line = est?.MaterialLines.FirstOrDefault();
+        var line = est?.MaterialLines.Where(l => l.Source == ComponentSource.Inventory && l.MaterialId != null).OrderBy(l => l.LineNo).FirstOrDefault();
         if (line == null) return null;
         Quantity = line.SheetBased ? line.SheetsRequired : line.TotalQuantity;
         return Materials.FirstOrDefault(m => m.Id == line.MaterialId);
@@ -221,9 +233,9 @@ public sealed partial class StockMovementDialogViewModel : DialogViewModel
             case StockAction.Adjust:
                 await inv.AdjustAsync(Material.Id, Warehouse.Id, Increase ? Quantity : -Quantity, Increase ? UnitCost : null, date, Notes ?? ""); break;
             case StockAction.IssueToJob:
-                await inv.IssueToJobAsync(Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), Material.Id, Warehouse.Id, Quantity, date, Notes); break;
+                await inv.IssueToJobAsync(Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), Material.Id, Warehouse.Id, Quantity, date, Notes, _componentId); break;
             case StockAction.ReturnFromJob:
-                await inv.ReturnFromJobAsync(Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), Material.Id, Warehouse.Id, Quantity, date, Notes); break;
+                await inv.ReturnFromJobAsync(Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), Material.Id, Warehouse.Id, Quantity, date, Notes, _componentId); break;
             case StockAction.Transfer:
                 await inv.TransferAsync(Material.Id, Warehouse.Id, ToWarehouse?.Id ?? 0, Quantity, date, Notes); break;
             case StockAction.Scrap:
@@ -239,13 +251,20 @@ public sealed partial class RemnantDialogViewModel : DialogViewModel
 {
     private readonly long? _jobId;
     private readonly long? _remnantId;
+    private readonly long? _materialId;
+    private readonly long? _componentId;
 
-    public RemnantDialogViewModel(RemnantAction action, long? jobId = null, long? remnantId = null)
+    /// <param name="jobComponentId">When set, the remnant is used on that job component line (material fixed to the line's material).</param>
+    public RemnantDialogViewModel(RemnantAction action, long? jobId = null, long? remnantId = null, long? materialId = null, long? jobComponentId = null)
     {
         Action = action;
         _jobId = jobId;
         _remnantId = remnantId;
+        _materialId = materialId;
+        _componentId = jobComponentId;
     }
+
+    public bool MaterialFixed => _componentId != null;
 
     public RemnantAction Action { get; }
     public override string TitleKey => "Remnant." + Action;
@@ -316,6 +335,7 @@ public sealed partial class RemnantDialogViewModel : DialogViewModel
             var issued = await Get<InventoryService>().JobMaterialsAsync(jid);
             Material = Materials.FirstOrDefault(m => issued.Any(i => i.MaterialId == m.Id));
         }
+        if (_materialId is { } mid) Material = Materials.FirstOrDefault(m => m.Id == mid);
         if (IsConsume || IsAdjust)
         {
             await LoadRemnantsAsync();
@@ -335,7 +355,7 @@ public sealed partial class RemnantDialogViewModel : DialogViewModel
                 await inv.CreateRemnantAsync(new RemnantInput(Material.Id, Warehouse?.Id ?? 0, Length, Width, null, Action == RemnantAction.CreateFromJob ? Job?.Id : null, Cost, date, Notes));
                 break;
             case RemnantAction.Consume:
-                await inv.ConsumeRemnantAsync(Remnant?.Id ?? throw new DomainException("Err.Required", L["Col.Remnant"]), Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), date);
+                await inv.ConsumeRemnantAsync(Remnant?.Id ?? throw new DomainException("Err.Required", L["Col.Remnant"]), Job?.Id ?? throw new DomainException("Err.Required", L["Col.Job"]), date, _componentId);
                 break;
             case RemnantAction.Adjust:
                 await inv.AdjustRemnantAsync(Remnant?.Id ?? throw new DomainException("Err.Required", L["Col.Remnant"]), Length, Width, Cost ?? 0, Scrap, date, Notes ?? "");

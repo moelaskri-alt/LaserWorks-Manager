@@ -7,10 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LaserWorks.Application.Services;
 
-public sealed record RequestRow(long Id, string Number, DateTime RequestDate, long CustomerId, string Customer, string Description, string? Material, decimal Quantity,
-    DateTime? RequiredDate, RequestStatus Status, int Revisions, int Attachments);
+public sealed record RequestRow(long Id, string Number, DateTime RequestDate, long CustomerId, string Customer, string Description, string? FirstItem, int ItemCount, decimal Quantity,
+    DateTime? RequiredDate, RequestStatus Status, int Revisions, int Attachments)
+{
+    /// <summary>"MDF 4mm" or "MDF 4mm +3".</summary>
+    public string Items => ItemCount <= 1 ? FirstItem ?? "" : $"{FirstItem} +{ItemCount - 1}";
+}
 
-public sealed record AttachmentRow(long Id, string FileName, long SizeBytes, string? Kind, DateTime AddedAt, string? AddedBy, string StoredPath);
+public sealed record AttachmentRow(long Id, string FileName, long SizeBytes, string? Kind, DateTime AddedAt, string? AddedBy, string StoredPath)
+{
+    public string FileType => Path.GetExtension(FileName).TrimStart('.').ToUpperInvariant();
+}
 
 public sealed class RequestService : ServiceBase
 {
@@ -27,7 +34,8 @@ public sealed class RequestService : ServiceBase
         if (customerId.HasValue) q = q.Where(r => r.CustomerId == customerId);
         if (range != null) q = q.Where(r => r.RequestDate >= range.From.Date && r.RequestDate < range.ToExclusive);
         if (req.Search.Norm() is { } s) q = q.Where(r => r.Number.Contains(s) || r.Description.Contains(s) || r.Customer!.Name.Contains(s));
-        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(r => new RequestRow(r.Id, r.Number, r.RequestDate, r.CustomerId, r.Customer!.Name, r.Description, r.Material != null ? r.Material.Name : null, r.Quantity,
+        return await q.SortBy(req.SortBy, req.Descending, e => e.Id, defaultDesc: true).Select(r => new RequestRow(r.Id, r.Number, r.RequestDate, r.CustomerId, r.Customer!.Name, r.Description,
+                r.Items.OrderBy(i => i.LineNo).Select(i => i.Material != null ? i.Material.Name : i.Description).FirstOrDefault(), r.Items.Count(), r.Quantity,
                 r.RequiredDate, r.Status, db.DesignRevisions.Count(d => d.RequestId == r.Id),
                 db.Attachments.Count(a => a.OwnerType == AttachmentOwner.Request && a.OwnerId == r.Id)))
             .ToPagedAsync(req);
@@ -37,14 +45,19 @@ public sealed class RequestService : ServiceBase
         .Where(r => (customerId == null || r.CustomerId == customerId) && r.Status != RequestStatus.Rejected)
         .OrderByDescending(r => r.Id).Take(500).Select(r => new Lookup(r.Id, r.Number, r.Description)).ToListAsync());
 
-    public async Task<CustomerRequest?> GetAsync(long id) => await ReadAsync(db => db.CustomerRequests.AsNoTracking().Include(r => r.Customer).Include(r => r.Material).FirstOrDefaultAsync(r => r.Id == id));
+    public async Task<CustomerRequest?> GetAsync(long id) => await ReadAsync(db => db.CustomerRequests.AsNoTracking().Include(r => r.Customer)
+        .Include(r => r.Items.OrderBy(i => i.LineNo)).ThenInclude(i => i.Material).FirstOrDefaultAsync(r => r.Id == id));
 
     public async Task<long> SaveAsync(CustomerRequest input)
     {
         if (input.CustomerId == 0) throw new DomainException("Err.Required", "Customer");
         Validation.Required(input.Description, "Description");
         if (input.Quantity <= 0) throw new DomainException("Err.QuantityPositive");
-        Validation.NonNegative(input.Thickness, "Thickness");
+        foreach (var i in input.Items)
+        {
+            if (i.Quantity < 0) throw new DomainException("Err.NegativeValue");
+            if (i.MaterialId == null && string.IsNullOrWhiteSpace(i.Description)) throw new DomainException("Err.Required", "Description");
+        }
         if (input.RequiredDate.HasValue && input.RequiredDate.Value.Date < input.RequestDate.Date) throw new DomainException("Err.DueBeforeStart");
         Demand(AppModule.Requests, input.Id == 0 ? Permission.Create : Permission.Edit);
         return await TxAsync(async db =>
@@ -57,11 +70,25 @@ public sealed class RequestService : ServiceBase
             }
             else
             {
-                r = await db.CustomerRequests.FirstOrDefaultAsync(x => x.Id == input.Id) ?? throw new DomainException("Err.NotFound");
+                r = await db.CustomerRequests.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == input.Id) ?? throw new DomainException("Err.NotFound");
                 if (r.Status == RequestStatus.ConvertedToJob && r.CustomerId != input.CustomerId) throw new DomainException("Err.RequestLocked");
             }
             r.CustomerId = input.CustomerId; r.RequestDate = input.RequestDate.Date; r.Description = input.Description.Trim(); r.Dimensions = input.Dimensions.Norm();
-            r.MaterialId = input.MaterialId; r.Thickness = input.Thickness; r.Quantity = input.Quantity; r.RequiredDate = input.RequiredDate; r.Notes = input.Notes.Norm();
+            r.Quantity = input.Quantity; r.RequiredDate = input.RequiredDate; r.Notes = input.Notes.Norm();
+            // requested items: replace the list (lines have no history of their own)
+            db.RequestItems.RemoveRange(r.Items);
+            r.Items = new();
+            var materials = await db.Materials.AsNoTracking().Where(m => input.Items.Select(i => i.MaterialId).Contains(m.Id)).ToDictionaryAsync(m => m.Id);
+            var no = 1;
+            foreach (var i in input.Items)
+            {
+                var m = i.MaterialId is { } mid && materials.TryGetValue(mid, out var mm) ? mm : null;
+                r.Items.Add(new RequestItem
+                {
+                    LineNo = no++, MaterialId = m?.Id, Category = m != null ? LaserWorks.Domain.Costing.ComponentRules.CategoryOf(m.Kind) : i.Category,
+                    Description = i.Description.Norm(), Quantity = i.Quantity, Unit = i.Unit.Norm(), Notes = i.Notes.Norm()
+                });
+            }
             await db.SaveChangesAsync();
             return r.Id;
         });
@@ -137,7 +164,10 @@ public sealed class RequestService : ServiceBase
 }
 
 public sealed record RevisionRow(long Id, long RequestId, string RequestNumber, string Customer, int RevisionNo, string RevisionLabel, DateTime Date, string? Designer,
-    decimal Width, decimal Height, string? Material, decimal Thickness, decimal CuttingLengthM, decimal EngravingAreaCm2, decimal EstimatedMachineMinutes, RevisionStatus Status, int Files);
+    decimal Width, decimal Height, string? Material, decimal Thickness, decimal CuttingLengthM, decimal EngravingAreaCm2, decimal EstimatedMachineMinutes, RevisionStatus Status, int Files)
+{
+    public string Dimensions => Width == 0 && Height == 0 ? "" : $"{Width:0.##} × {Height:0.##}";
+}
 
 public sealed class DesignService : ServiceBase
 {

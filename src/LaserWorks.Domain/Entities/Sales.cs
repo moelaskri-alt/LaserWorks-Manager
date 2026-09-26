@@ -12,13 +12,28 @@ public class CustomerRequest : AuditableEntity, IAudited
     public string Description { get; set; } = "";
     /// <summary>Free-form dimensions text, e.g. "60 x 40 cm".</summary>
     public string? Dimensions { get; set; }
-    public long? MaterialId { get; set; }
-    public Material? Material { get; set; }
-    public decimal Thickness { get; set; }
     public decimal Quantity { get; set; } = 1;
     public DateTime? RequiredDate { get; set; }
     public string? Notes { get; set; }
     public RequestStatus Status { get; set; } = RequestStatus.New;
+    /// <summary>Materials, purchased components, consumables, packaging and services the customer asked for (0..N lines).</summary>
+    public List<RequestItem> Items { get; set; } = new();
+}
+
+/// <summary>One requested material / component line of a customer request.</summary>
+public class RequestItem : Entity
+{
+    public long RequestId { get; set; }
+    public CustomerRequest? Request { get; set; }
+    public int LineNo { get; set; }
+    public ComponentCategory Category { get; set; } = ComponentCategory.RawMaterial;
+    public long? MaterialId { get; set; }
+    public Material? Material { get; set; }
+    public string? Description { get; set; }
+    /// <summary>Quantity per finished unit.</summary>
+    public decimal Quantity { get; set; } = 1;
+    public string? Unit { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class Attachment : Entity
@@ -47,6 +62,7 @@ public class DesignRevision : AuditableEntity, IAudited
     public decimal Width { get; set; }
     /// <summary>Design height in cm.</summary>
     public decimal Height { get; set; }
+    /// <summary>Main sheet material the design is cut from (the full list of materials and components is on the estimate and the job).</summary>
     public long? MaterialId { get; set; }
     public Material? Material { get; set; }
     public decimal Thickness { get; set; }

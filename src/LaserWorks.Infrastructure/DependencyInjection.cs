@@ -41,6 +41,8 @@ public static class DependencyInjection
         services.AddSingleton<EstimateService>();
         services.AddSingleton<QuotationService>();
         services.AddSingleton<JobService>();
+        services.AddSingleton<JobComponentService>();
+        services.AddSingleton<ProductTemplateService>();
         services.AddSingleton<ProductionService>();
         services.AddSingleton<JobCostingService>();
         services.AddSingleton<SalesService>();

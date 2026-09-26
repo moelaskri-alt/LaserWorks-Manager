@@ -47,6 +47,36 @@ public class Job : AuditableEntity, IAudited
     public DateTime? ClosedAt { get; set; }
 
     public List<JobOperation> Operations { get; set; } = new();
+    /// <summary>Planned materials and components of this job (0..N lines); actual cost is linked to them.</summary>
+    public List<JobComponent> Components { get; set; } = new();
+}
+
+/// <summary>
+/// One material / component requirement of a job (the job-specific bill of materials).
+/// Estimated figures come from the estimate line; actual quantities and cost come from the stock issues,
+/// remnant consumptions and direct cost documents linked to the line.
+/// </summary>
+public class JobComponent : AuditableEntity, IAudited
+{
+    public long JobId { get; set; }
+    public Job? Job { get; set; }
+    public int LineNo { get; set; }
+    public ComponentCategory Category { get; set; } = ComponentCategory.RawMaterial;
+    public ComponentSource Source { get; set; } = ComponentSource.Inventory;
+    public long? MaterialId { get; set; }
+    public Material? Material { get; set; }
+    public long? RemnantId { get; set; }
+    public Remnant? Remnant { get; set; }
+    public string? Description { get; set; }
+    public string? Unit { get; set; }
+    /// <summary>Planned quantity for the whole job.</summary>
+    public decimal PlannedQuantity { get; set; }
+    public decimal EstimatedUnitCost { get; set; }
+    public decimal EstimatedCost { get; set; }
+    public long? EstimateLineId { get; set; }
+    public long? SupplierId { get; set; }
+    public Supplier? Supplier { get; set; }
+    public string? Notes { get; set; }
 }
 
 /// <summary>Append-only actual cost ledger per job. Never contains estimated values.</summary>
@@ -64,6 +94,9 @@ public class JobCostEntry : Entity, IImmutableRecord
     public long? MaterialId { get; set; }
     public long? MachineId { get; set; }
     public long? EmployeeId { get; set; }
+    /// <summary>Component line this cost belongs to (materials, purchased components, services…).</summary>
+    public long? JobComponentId { get; set; }
+    public JobComponent? JobComponent { get; set; }
     public decimal Hours { get; set; }
     public long? JournalEntryId { get; set; }
     public JournalEntry? JournalEntry { get; set; }

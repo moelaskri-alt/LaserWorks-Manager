@@ -87,7 +87,8 @@ public class UiCriticalWorkflowTests
             var re = await OpenDialog<RequestEditorViewModel>(requests.NewCommand);
             re.Customer = re.Customers.Single(c => c.Id == customer.Id);
             re.Description = "Engraved acrylic door signs";
-            re.Material = re.Materials.First(m => m.Code == "MAT-00001");
+            re.AddItemCommand.Execute(null);
+            re.Items[0].Material = re.Materials.First(m => m.Code == "MAT-00001");
             re.Quantity = 10;
             re.Dimensions = "30 × 15 cm";
             await Run(re.ApplyCommand, re, "2 request");
