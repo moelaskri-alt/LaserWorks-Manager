@@ -28,6 +28,9 @@ Test classes run one at a time (the language setting and the desktop app's servi
 | `Integration/BackupRestoreTests` | backup → change → restore returns the earlier data, safety backup created, integrity OK; demo backup restores into a fresh installation; corrupted and foreign files rejected without touching data |
 | `Integration/MultiComponentTests` | restaurant sign (9–10 component lines of every type and source, V1/V2, remnant, direct purchase, service, scrap, rework, QC, delivery, invoice, payment); serving board (purchased accessory through order → receipt → supplier invoice → issue; ledger checked per account and every entry balanced); job with zero / one / added lines, unplanned lines, return, duplicate, locked identity; component rules (services never stocked, remnants raw only, credit needs supplier, reversal); 20 lines; product templates from estimate and job |
 | `Integration/MigrationTests` | the real 1.0.0-rc1 demo database is upgraded: no row lost, no amount re-priced, requests → items, estimates and jobs → component lines, every job stock movement linked to a line, reconciliation and reports pass |
+| `Integration/ReportOutputTests` | every report (unfiltered, filtered, per job) in Arabic and English holds display-ready values only; formatted text, Excel and CSV never contain `System.Object`, type names, `null`, exception text or untranslated internal codes; every source code, audited entity and sequence has a translation; every audit-trail detail is readable |
+| `Integration/BusinessValidationTests` | reference job (MDF 500 + acrylic 350 + LED 180 + wire 75 + glue 25 + packaging 60 + labor 300 + machine 450 + scrap 50 = 1,990) at 3,000 (profit), 1,500 (loss) and with variance, agreeing on the job, job profitability, job cost report, income statement and dashboard; inventory roll-forward in quantity and value; backup → modify → restore → close → reopen; data integrity (duplicates, required fields, records in use) |
+| `Ui/UiReportScreenTests` | all 41 reports on the real Reports screen (Arabic/Light, English/Dark): rendered cell text is the formatted value (never `System.Object`), report data unchanged by display, headers translated, drill-down opens the source job |
 | `Integration/ReportTests` | all 41 reports run on the demo company and export to PDF, Excel and CSV in Arabic and English; quotation and invoice PDFs |
 | `Integration/LocalizationTests` | Arabic and English have identical keys and placeholders, every Arabic text is translated, every enum value and every key used in code/XAML exists |
 | `Integration/PerformanceTests` | 3,000 customers, 10,000 jobs, 10,000 invoices, 20,000 stock movements, 50,000 journal lines; times real screens and reports |
@@ -38,26 +41,28 @@ Test classes run one at a time (the language setting and the desktop app's servi
 
 ## Latest results
 
-1.1.0-rc1, commit `28a735f`, Release configuration (`tools/release.sh`), Linux .NET 10.0.112:
-**61 passed, 0 failed, 0 skipped** (unit 24, integration 30, UI 7) in 5 min 36 s.
-Windows results are in [FINAL_QA_REPORT.md](../FINAL_QA_REPORT.md) §14.
+1.1.0-rc1, commit `6faf305`, Release configuration (`tools/release.sh`), Linux .NET 10.0.112:
+**75 passed, 0 failed, 0 skipped** (unit 24, integration 43, UI 8) in 7 min 19 s.
+Reports: 118 report tables / 9,064 cells and 82 screen runs / 3,276 rendered cells, 0 `System.Object` or other artifacts.
+Layout matrix: 384 screenshots, 70,316 element checks, 0 problems.
+Windows results are in [FINAL_QA_REPORT.md](../FINAL_QA_REPORT.md) §12.
 
 Performance on the large database (3,000 customers, 10,000 jobs, 10,000 invoices, 20,000 stock movements,
 50,000 journal lines; second run of each query):
 
 | Screen / report | Time |
 |---|---|
-| Customers page with balances | 3 ms |
+| Customers page with balances | 4 ms |
 | Customer search | 5 ms |
-| Jobs page sorted by customer | 6 ms |
+| Jobs page sorted by customer | 7 ms |
 | Jobs last page | 1 ms |
-| Open invoices page | 96 ms |
+| Open invoices page | 100 ms |
 | Stock movements page | 1 ms |
 | Journal entries page | 2 ms |
-| Trial balance (1 year) | 112 ms |
-| Dashboard | 328 ms |
-| AR aging report | 197 ms |
-| Sales register (1 year) | 176 ms |
+| Trial balance (1 year) | 134 ms |
+| Dashboard | 358 ms |
+| AR aging report | 200 ms |
+| Sales register (1 year) | 140 ms |
 
 ## Not covered by automated tests
 

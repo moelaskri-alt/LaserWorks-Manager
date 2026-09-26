@@ -1,356 +1,318 @@
-# LaserWorks Manager — Final QA Report
+# LaserWorks Manager — Final QA Report (Master QA, reporting fix)
 
-**Build:** 1.1.0-rc1 (assembly 1.1.0.0) · commit `28a735f` · branch `claude/affectionate-hawking-i1ywf5` · 2026-09-26
-(the commit adding this report changes documentation only; all code and test evidence is from `28a735f`)
+| | |
+|---|---|
+| **Version** | 1.1.0-rc1 (Version 1.1.0, AssemblyVersion/FileVersion 1.1.0.0, InformationalVersion 1.1.0-rc1) |
+| **Build date** | 2026-09-26 |
+| **Code commit** | `6faf305` (last application-code change; release artifacts built from it) |
+| **Branch** | `claude/affectionate-hawking-i1ywf5` |
+| **Toolchain** | .NET SDK 10.0.112 (Linux build), Avalonia 11.3, EF Core 10, SQLite; Windows CI: windows-latest (Windows Server 2025) |
 
-## Summary of results
-
-| Area | Result | Evidence |
-|---|---|---|
-| **Tests (whole suite)** | **61/61 passed**, 0 failed, 0 skipped | Release configuration, `tools/release.sh` run on commit `28a735f` (Linux, .NET 10.0.112) |
-| Unit | **24/24 passed** | calculators, inventory math, pricing/estimate (incl. the new cost components), passwords |
-| Integration | **30/30 passed** | real SQLite database, production services, nothing mocked |
-| UI (headless Avalonia, real XAML) | **7/7 passed** | all pages, all dialogs, layout matrix, two UI end-to-end workflows, 20-line stress |
-| End-to-end | **Passed** | 3 service-level E2Es + 2 UI E2Es (see §8) |
-| Multi-component | **Passed** | 6 service tests + 2 UI tests |
-| Accounting reconciliation | **Passed** | every test scenario + demo company: 15/15 checks, every posted entry balanced individually |
-| Inventory reconciliation | **Passed** | GL = stock value for all 5 stock accounts + remnants, quantities = warehouse balances = stock ledger |
-| Costing reconciliation | **Passed** | component lines + non-line rows = estimate total and = actual job cost = WIP per job |
-| Backup/Restore | **Passed** | `BackupRestoreTests` 3/3 |
-| Data migration (rc1 → 1.1) | **Passed** | real 1.0.0-rc1 demo database upgraded: no rows lost, no amount re-priced |
-| UI layout audit | **Passed** | 384 screenshots / 15,948 element checks / 0 problems (matrix) + every page, tab and dialog audited |
-| Performance | **Passed** | 3,000 customers, 10,000 jobs, 10,000 invoices, 50,000 journal lines: slowest screen 328 ms (dashboard) |
-| Windows automated (CI) | **Passed** | run 36222354588 on the final commit: 61/61 tests, packaged-exe smoke test, demo 15/15, silent install → start → uninstall on Windows Server 2025 |
-| **Windows interactive runtime** | **PENDING** | No person has installed and used this build by hand on Windows 10/11. **Windows runtime validation pending.** |
-
-The same suite also passed 61/61 in Debug configuration on Linux before the release build; three full regression
-runs were made after the last code change set (Debug run, then two `release.sh` runs), all 61/61.
+The commit that adds this report also adds step 3 (reference attachment) to the serving-board end-to-end test and
+updates documentation. It does not change application code. The full suite passed **75/75** again on that test code
+(Release, Linux, 8 min 2 s).
 
 ---
 
-## 1. What was found
+## 1. Release status
 
-Business model:
-- A request, estimate and job could carry **only one material**. Purchased components (LEDs, adapters, screws,
-  handles), consumables, packaging and outsourced services could not be planned or costed per job.
-- The item master had only raw material / consumable / finished good. Purchased components had to be faked as raw
-  materials, and there were no separate inventory accounts for components or packaging.
-- There was no way to charge a direct purchase or subcontractor bill to a job line. Nothing stopped a cost from
-  being charged both through stock and directly.
-- Estimated vs actual worked only by cost component, not by material/component line.
+# NOT READY FOR DELIVERY
 
-UI:
-- Several grids truncated headers ("المراجعة…", "الأبع…", "Qty per…") and important columns.
-- Grids and panels were squeezed on 1366×768 instead of scrolling. On the job screen the grids showed about four rows.
-- **Every dialog cut off wrapped text on the right.** The dialog ScrollViewer had padding, so content was measured
-  36 px wider than it was arranged. This was found by the new layout audit.
-- The request screen had one material dropdown, no attachment details, and a narrow revision list.
+Every blocker that automation can check is resolved, including the **System.Object** report blocker. One
+blocker remains, and automation cannot clear it:
 
-Found during this work (all fixed, each with a test that fails without the fix):
-- The old estimate editor saved every line with `MaterialId = 0` when no item was chosen, and dropped the category,
-  source and remnant.
-- A free-text purchased item on a request became a "manual cost" line instead of a direct purchase.
-- A product template re-priced external services from the item master, losing the job's quoted price.
-- Remnants saved from a job wrote their stock movement without the job's component line.
-- The migration test's fixture database was excluded by `.gitignore` (`*.db`), so the test ran only locally;
-  Windows CI caught it.
-- Changing the language on a non-UI thread re-measured grid headers off the UI thread and crashed
-  (Windows CI run 4 and a local ordering-dependent failure).
-- The demo "UV printing" service had a standard cost of 0, so its estimate line was 0.
+**Exact blocker list**
 
-## 2. What was fixed
+1. **Interactive Windows runtime validation is pending.** No person has installed and used this build on Windows 10
+   or Windows 11. The following have not been done by hand on Windows:
+   - install;
+   - launch and login;
+   - the end-to-end workflow through the screens;
+   - reports on a physical display: screen, PDF, Excel, print;
+   - backup → modify → restore → close → reopen;
+   - uninstall.
 
-Every item in §1. In detail:
-- **Multi-component architecture** end to end: request items → estimate component lines → job component lines →
-  stock issues, remnants and direct costs per line → estimated vs actual per line → reports and cost sheet (§5).
-- **Rules that prevent double charging**, enforced in the service layer (not the UI):
-  - a stock line is costed only by stock issues and remnants;
-  - a direct line is costed only by the cost recorded on it;
-  - services can never be stocked;
-  - remnants must be raw material;
-  - a line with cost keeps its item, source and type.
-- **UI standard applied globally** (§4). It is enforced by an automated audit that fails the build on truncated
-  headers, clipped text, unreachable buttons, off-screen dialog footers and squeezed grids.
-- Every bug in the second half of §1, each with a regression test.
+   Windows is validated by automation only (§12). **Windows runtime validation pending.**
 
-## 3. Database changes
+When that checklist passes on Windows 10/11, the status can change to READY FOR DELIVERY. No code change is known to
+be needed.
 
-EF Core migration `20260926015011_MultiComponentJobs`, applied automatically at start-up:
+---
 
-| Change | Detail |
-|---|---|
-| New table `JobComponents` | job, line no, type (category), source, item, remnant, description, unit, planned qty, estimated unit cost / cost (snapshot), estimate line, supplier, notes; cascade with the job |
-| New table `RequestItems` | request, line no, type, item (optional), free-text description, quantity per unit, unit, notes |
-| New table `ProductTemplates` | code (TPL-…), name, description, quantity, JSON bill of materials / routing, source estimate |
-| `EstimateMaterialLines` | + line no, type, source, remnant, description, unit; item now optional (free-text / service lines) |
-| `CostEstimates` | + rework allowance % |
-| `InventoryTransactions`, `JobCostEntries` | + `JobComponentId` (FK, indexed) |
-| `CustomerRequests` | single `MaterialId` / `Thickness` removed **after** their data is copied into `RequestItems` |
-| Enums | item kinds + purchased component, packaging, service; cost components + purchased components, external services |
-| Chart of accounts | + 1240 Inventory – purchased components, 1250 Inventory – packaging (added to existing databases at start-up) |
+## 2. Summary
 
-**Data migration:**
-1. Each request's material becomes a request item.
-2. Each estimate line gets a type from its item kind and the source "Inventory".
-3. Each job gets one component line per estimate line.
-4. Materials issued without an estimate line get an "unplanned" line.
-5. Stock movements and material cost entries are linked to their lines.
-
-No amount is recalculated.
-
-**Verified by `MigrationTests`** on the real 1.0.0-rc1 demo database (13 jobs, 19 requests, 17 lines created):
-- row counts of every table are unchanged;
-- every journal amount, stock movement, cost entry and job total is unchanged;
-- every job movement is linked to a line;
-- line totals equal the job totals;
-- all reconciliation checks pass;
-- all 41 reports still run.
-
-## 4. UI changes
-
-- **Request editor**: header fields plus tabs.
-  - *Requested items*: unlimited lines, add / duplicate / remove, item or free text, type, quantity per unit, unit, notes.
-  - *Attachments*: add / open / remove, with name, type, size, date and user.
-  - *Design revision*: revision, date, designer, dimensions, main material, machine minutes, files and status;
-    new / open / approve.
-- **Estimate editor**: *Components & materials* grid with a selected-line panel.
-  - Lines can be added from inventory, purchased for the job, as an external service, from a remnant or as another cost.
-  - Lines can be duplicated or removed.
-  - **New item** creates an item master record from the line.
-  - The panel holds sheet nesting with pieces and a remnant picker.
-  - New fields: rework allowance and a component total. **Save as template** is added.
-- **Job screen**:
-  - *Components* tab with add / edit / duplicate / delete, issue / return, use remnant, record direct cost,
-    and save job as template.
-  - *Cost & variance* tab shows component-level estimated vs actual above the cost-component table.
-  - *Reverse direct cost* on a selected cost entry.
-  - New dialogs: component line editor (with **New item**) and direct cost.
-  - Issue and remnant dialogs are bound to the selected line.
-- **Estimates list**: *New from template* (template picker with delete).
-- **Items & Materials**: the new kinds, with a wider filter and column.
-- **Global DataGrid standard** (`GridStandard`, applied by the global DataGrid style to every grid):
-  - headers wrap and are never trimmed;
-  - each column's minimum width fits its longest header word, in the current language;
-  - header and cell tooltips;
-  - numbers are aligned to the cell end, mirrored in RTL;
-  - empty and loading messages;
-  - the first column of list pages is frozen.
-
-  Existing features kept: search, filters, sort, resize, reorder, column chooser, export (PDF/Excel/CSV), print, paging.
-- **Scrolling**: pages sit in a vertical scroller with a minimum height (`ViewportFill`). On small screens the page
-  scrolls instead of squeezing grids; grids keep their own vertical and horizontal scrolling. Dialogs scroll their
-  content with Save/Cancel always visible, and the clipping defect is fixed.
-
-## 5. Multi-component architecture
-
-```
-Request ──< RequestItem (type, item or free text, qty per unit)
-   │
-Estimate ──< EstimateMaterialLine (type, source, item?, remnant?, sheet nesting / qty, unit cost, cost)
-   │                                       │ snapshot
-Job ──────< JobComponent (type, source, item?, planned qty, estimated cost, supplier)
-                 ├──< InventoryTransaction (issue / return / remnant saved or used)  ← stock lines only
-                 └──< JobCostEntry (stock cost, remnant value, or DirectCost with its journal) ← direct lines only
-```
-
-- **Types:** raw material, purchased component, consumable, packaging, external service, other direct cost.
-  Each maps to one cost component.
-- **Sources:** inventory, remnant, direct purchase, external service, manual cost.
-- A purchased component is either received into stock (Dr Inventory – purchased components) and issued to the line,
-  or its bill is recorded on a direct-purchase line (Dr WIP / Cr supplier). It is never both.
-- An estimate aggregates materials, purchased components, consumables, packaging, external services, machine,
-  maintenance, labor, design, setup, finishing, other direct costs, scrap allowance, rework allowance and overhead
-  (15 components).
-- Actual cost = the sum of cost entries. **Estimated vs actual by line:** line rows first, then rows for costs not on
-  a line (machine, labor, overhead, scrap, rework, per-unit allowances). They add up exactly to the estimate total
-  and the actual cost. Tested with unlimited lines (20 in the stress tests).
-- **Product templates:** save an estimate or a job as a template. A new estimate from a template re-prices stock
-  lines at today's average cost and keeps the template's price for direct purchases and services.
-
-## 6. Accounting validation
-
-Verified by assertions on ledger balances, not only by totals:
-
-| Step | Posting checked |
-|---|---|
-| Purchase LED / handle for stock | receipt: Dr **Inventory – purchased components** 280 / Cr GRNI 280; supplier invoice: Dr GRNI + input VAT / Cr **AP 322**; GRNI back to 0 |
-| Issue components and material to job | Dr WIP (job) / Cr the item's inventory account (raw −q×62, components −140, remnants −12 + offcut) |
-| Direct purchase on credit | Dr WIP 52 + input tax 7.80 / Cr AP 59.80 (supplier); no stock movement for the line |
-| External service / manual cost, cash | Dr WIP + tax / Cr Cash; reversal returns WIP and the line to 0 while keeping the original entry |
-| Completion / delivery | WIP (job) = actual cost of the job |
-| Invoice | Dr AR = invoice total / Cr Sales + output VAT; Dr COGS = actual job cost / Cr WIP → WIP (job) = 0 |
-| Payment | AR (customer) back to 0 |
-| Every posted journal entry | Σ debit = Σ credit **per entry** (serving-board E2E) and overall (all scenarios) |
-
-The demo company (release artifact) passes all 15 reconciliation checks, including "every posted entry balances"
-(0 unbalanced) and ledger debits = credits (504,514.49).
-
-## 7. Inventory validation
-
-- Inventory GL equals stock value for each account: raw 15,899.69, consumables 298.80, finished goods 360.00,
-  purchased components 3,675.60, packaging 690.90, remnants 138.62 (demo company). The same is checked after every
-  test scenario.
-- Material quantity = warehouse balances = stock ledger.
-- Every job stock movement references the job, component line, date, warehouse, quantity, unit cost, total cost and
-  user. Asserted in the serving-board E2E; demo company: 0 unlinked movements.
-- A remnant used on a line leaves remnant inventory at its value and becomes *Consumed*. A remnant saved from a job
-  reduces that line's cost.
-- Services cannot be stocked. Over-issue and over-return are rejected (existing tests).
-
-## 8. Costing validation
-
-End-to-end cases (service level unless noted):
-- **Restaurant illuminated sign (spec §28):**
-  - 9 lines, including acrylic sheet (nesting), LED, adapter, screws, tape, box, UV service, mounting kit
-    (direct purchase) and installation;
-  - design V1 rejected, V2 approved; remnant; scrap; rework; QC; delivery; invoice; payment;
-  - estimate 917.30, actual 912.62, revenue 1,310.43, profit 397.81 (30.36 %).
-- **Engraved wooden serving board with restaurant logo (spec §29):**
-  - plywood, acrylic logo from a remnant, brass handle bought through PO → receipt → supplier invoice → issue,
-    gift box, glue/tape;
-  - operations, scrap, rework, QC, completion, delivery, invoice, payment;
-  - estimate 409.11, actual 460.82, revenue 584.44, profit 123.62 (21.15 %).
-- **Original 32-step workflow:** still passes (service and UI).
-- **UI:** restaurant sign through the screens, with request items, V1/V2, estimate component grid, job component
-  lines, issue per line, direct purchase, external service, manual cost plus reversal, an added line, save as
-  template and estimate from template.
-
-In every case the checks hold:
-- category totals = estimate cost components;
-- line estimates = estimate total;
-- line actuals + non-line rows = actual cost = WIP;
-- gross profit = revenue − actual;
-- margin = profit ÷ revenue;
-- job profitability report = cost sheet.
-
-**Stress:** 20 lines of every type and source through estimate, duplicate, quotation, job, issue / direct cost and
-report (service); 20 lines entered in the estimate grid, saved, reopened in order and scrolled to the last line, in
-English and Arabic at 1366×768 with the layout audit (UI).
-
-## 9. Test count
-
-61 automated test methods. Most are scenario tests with many assertions each.
-
-| Group | Tests |
-|---|---|
-| Unit | 24 |
-| Integration | 30 (accounting integrity 5, backup/restore 3, critical workflow 1, inventory costing 2, localization 4, **migration 1**, **multi-component 6**, performance 1, reports 2, sales return 1, security 4) |
-| UI (headless) | 7 (smoke 2, dialogs 1, critical workflow 1, **layout matrix 1**, **multi-component 2**) |
-
-Coverage of the 25 required areas:
-
-| # | Area | Test |
+| Area | Result | Evidence |
 |---|---|---|
-| 1 | Job with zero components | `Job_without_components_and_manual_lines` |
-| 2 | Job with one component | `CriticalWorkflowTests` (1 line), `Job_without_components_and_manual_lines` (line added later) |
-| 3 | Multiple components | restaurant sign (9–10 lines), serving board (5) |
-| 4 | 20 components | `Twenty_component_lines` + `Twenty_component_lines_in_the_estimate_grid` (UI) |
-| 5–10 | Material / purchased / consumable / packaging / remnant / external service | restaurant sign, serving board, twenty lines |
-| 11–13 | Estimated / actual / estimated vs actual | all E2Es (per line and per component) |
-| 14–15 | Inventory issue / purchased component issue | serving board (PO → receipt → invoice → issue), restaurant sign |
-| 16–17 | Scrap / rework | restaurant sign, serving board, critical workflow |
-| 18 | Profitability | all E2Es (`JobProfitabilityAsync` = cost sheet) |
-| 19 | Accounting posting | serving board (per account and per entry), `Component_rules_are_enforced` (reversal), accounting integrity |
-| 20 | Sales return | `SalesReturnTests` |
-| 21–22 | Backup / restore | `BackupRestoreTests` |
-| 23–24 | Arabic / English UI | smoke, dialog, layout matrix, 20-line UI test (both languages) |
-| 25 | DataGrid scrolling/layout | layout matrix + audit in smoke and dialog tests; 20-line grid scroll |
+| **Build** | **PASS** | Release build 0 errors; self-contained win-x64 exe, NSIS installer, portable zip (`tools/release.sh`, exit 0) |
+| **Tests — total** | **75 / 75 passed**, 0 failed, 0 skipped | Release configuration, `tools/release.sh` on `6faf305`, 7 min 19 s (`artifacts/test-results/results.trx`) |
+| Unit | 24 / 24 | calculators, inventory math, pricing and estimate, passwords |
+| Integration | 43 / 43 | real SQLite, production service registrations, nothing mocked |
+| UI (headless Avalonia, real XAML) | 8 / 8 | every page, tab and dialog; layout matrix; report screen; 2 UI end-to-end workflows |
+| Reporting (subset of the above) | 10 / 10 | `ReportTests` 2, `ReportOutputTests` 7, `UiReportScreenTests` 1 |
+| End-to-end (subset of the above) | 9 / 9 | 32-step workflow (service + UI), restaurant sign (service + UI), serving board (39-step, §7), reference job × 3 |
+| **Reports** | **41 total · 41 tested · 41 passed** | every report on the data (Integration) and on the real Reports screen (UI) |
+| **System.Object occurrences** | **0** | 118 report tables / 9,064 cells (en + ar, data + PDF/Excel/CSV scans); 82 screen runs / 3,276 rendered cells |
+| Accounting | **PASS** | every entry balanced; demo company 15/15 reconciliation checks |
+| Inventory | **PASS** | roll-forward in quantity and value; GL = stock value for 5 stock accounts + remnants |
+| Costing | **PASS** | reference job 1,990 agrees across 5 places at profit, at loss and with variance |
+| Multi-component | **PASS** | 6 service tests + 2 UI tests; no double cost for purchased components |
+| Sales return | **PASS** | `SalesReturnTests` |
+| Backup / restore | **PASS (automated, Linux)** · Windows **PENDING** | `BackupRestoreTests` 3/3 + backup → modify → restore → close → reopen |
+| UI layout (ar/en × RTL/LTR × light/dark × 3 resolutions) | **PASS** | 384 screenshots, 70,316 element checks, 0 problems (matrix) + every page/tab/dialog audited |
+| Performance | **PASS** | large database: slowest screen 358 ms (dashboard) |
+| Windows automated (CI) | **PASS** | run 13 on `6faf305`: 75/75 tests, packaged-exe smoke test, demo 15/15, silent install → start → uninstall (§12) |
+| **Windows interactive runtime** | **PENDING** | not performed; see §1 |
 
-## 10. Passed tests
+---
 
-**61/61** (Release, commit `28a735f`, 5 min 36 s). Earlier full runs after the last functional changes: 61/61 (Debug)
-and 61/61 (Release, previous `release.sh`).
+## 3. The System.Object blocker (root cause and fix)
 
-## 11. Failed tests
+**Symptom.** Report data cells on the Reports screen showed `System.Object` instead of values. Exports were
+correct.
 
-**0.** Failures seen during development were fixed and re-run (§1, second list), including:
-- two Windows CI failures: the missing fixture, and the off-UI-thread header re-measure;
-- false positives in the first version of the layout audit, fixed by making it inspect the real laid-out text lines instead of estimated text widths.
+**Root cause.** The screen bound each column to the report row's mutable `object?[] Cells`. Avalonia's
+`DataGridTextColumn` binds **TwoWay** by default. When a cell was realised, the binding wrote its value back into the
+array, and the next read displayed the object's type name. The data layer was correct; the defect was in the
+display binding.
 
-## 12. Known limitations
+**Fix, at the root.**
+- The report screen now binds to a strongly typed read-only display row, `ReportGridRow`.
+  - `Text` is an `IReadOnlyList<string>`, formatted once by `CellFormatter` with the company's decimal places.
+  - `Source` keeps the original `ReportRow` for drill-down.
+  - `Style` carries the row style.
+- Every column binding is explicitly **OneWay** and `IsReadOnly`. No `ToString()` is used to hide objects.
+- `ReportRow.Cells` is now `IReadOnlyList<object?>`: a cloned array wrapped by `Array.AsReadOnly`. Nothing can write
+  into report data.
+- The same scan found raw internal codes, and these were fixed too:
+  - source codes (`JobOperation`, `DirectCost`, …) in the job cost sheet, general ledger, journals and ledger
+    screens, and their exports;
+  - entity class names in the audit log;
+  - sequence keys on the numbering screen;
+  - raw JSON and status tokens (`QualityCheck`) in the audit details.
 
-- **Windows interactive validation is pending** (§14).
-- Visual review was done on headless Skia screenshots, not on a physical Windows display. High-DPI scaling (125–200 %)
-  was not reviewed.
-- Grids set minimum widths but no global maximum. Setting a maximum on an unmeasured column crashes inside the
-  Avalonia DataGrid, so it was left out. Users can widen columns freely.
-- The empty-grid message appears in the rows area. A *loading* message only shows when a page reports it is busy
-  and the grid is empty.
-- The layout matrix covers the critical screens listed in spec §33 plus the request, estimate, job, component,
-  direct-cost, template, issue, customer, quotation and invoice dialogs. The remaining screens are audited at
-  1366×768 only, in Arabic/Light and English/Dark (smoke and dialog tests).
-- A direct-purchase line is costed by the amount recorded on the line. It is not matched to a separate purchase-order
-  document. Purchases into stock use the full purchasing module.
-- Unchanged from 1.0: not code-signed (SmartScreen warning); single currency and company; the utilisation calculator
-  is an estimate, not a nesting engine; supplier invoices are posted at receipt cost; QuestPDF Community License terms.
+  All are now translated through `Loc.Source`, `Loc.EntityName`, `Loc.SequenceName` and `AuditText`.
 
-## 13. Known risks
+**Regression tests that fail on the defect**
 
-- **Upgrading real customer databases.** The migration was proven on the 1.0.0-rc1 demo database only. Take a backup
-  before upgrading a production database. The app also makes an automatic safety backup when you restore.
-- **Windows-specific behaviour** not covered by automation: printing through the Windows print verb, native file
-  pickers, fonts and RTL rendering on physical displays, and antivirus interaction with an unsigned single-file exe.
-- **Performance with very large component counts per job** was tested up to 20 lines. The large-database test covers
-  volume across jobs, not hundreds of lines on one job.
-
-## 14. Windows validation status
-
-- **Automated (GitHub Actions, `windows-latest`):**
-  - Run [36221580894](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36221580894) on commit
-    `4bd0571` (the last one before the remnant-link fix): **success**.
-  - **Final commit `28a735f`: run [36222354588](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36222354588)
-    — success** on Windows Server 2025 (10.0.26100), .NET SDK 10.0.401:
-    - build: 0 warnings, 0 errors;
-    - tests: **61 passed, 0 failed** (4 min 16 s);
-    - published `LaserWorksManager.exe --smoke-test`: "Smoke test passed: screen SetupWizardViewModel";
-    - demo company: 15/15 reconciliation checks PASS;
-    - NSIS installer built; silent install, start of the installed exe (smoke test) and silent uninstall passed
-      (the executable was removed);
-    - portable zip and checksums built. The artifact `LaserWorksManager-windows` holds the Windows-built release.
-  - Earlier failures (runs 3–5) came from the missing fixture and the off-thread header re-measure; see §1.
-- **Interactive: Windows runtime validation pending.** This environment is Linux. The installer was not run by a
-  person, and the manual checklist from spec §37 (launch, login, customer, request, multi-component job, cost,
-  production, invoice, reports, backup, restore, close, reopen, uninstall on Windows 10/11) has **not** been
-  performed by hand. It must be done before delivery to a workshop.
-
-## 15. Release artifact names
-
-Built by `tools/release.sh` into `artifacts/release/` (commit `28a735f`):
-
-| File | SHA-256 |
+| Test | What it checks |
 |---|---|
-| `LaserWorksManager.exe` (self-contained, win-x64, 65.5 MB) | `11674ab25327a2629d09c36f532f54fec057a2f09bbaa2ee3a6bebddd9c20035` |
-| `LaserWorksManagerSetup.exe` (NSIS installer, 59.2 MB) | `28323ee31a440ad87f7cbb2b9cc3ee70567d646e5ff5514c6480db48a5b203d7` |
-| `LaserWorksManager-1.1.0-rc1-win-x64-portable.zip` | `2ac4ef68d7978ecf0772e4d64f1adc9fb7cd121b817e2ad98d43092eae3441ce` |
-| `LaserWorksDemo.lwbak` (demo company backup) | `3e39da0bdcdb497b5d5480dc77e59dff0487018df8a6501906c0adac2bca9cdf` |
-| `LaserWorksDemo-database.zip` | `48a319c4ec2d723d9e434e5a2cde41f268132426d228e9f30ab33b643752ac32` |
-| `RELEASE_NOTES.md`, `SHA256SUMS.txt` | |
+| `Ui/UiReportScreenTests.Every_report_renders_business_values_on_screen` | Opens all 41 reports on the **real Reports screen** (Arabic/Light and English/Dark). It reads the rendered cell text, checks that the report data is unchanged after display, checks the headers, and checks that a row's drill-down opens the source job. **Reproduced the defect before the fix** (every data cell `System.Object`); 0 problems after. |
+| `Integration/ReportOutputTests.No_report_shows_object_names_or_internal_codes` (en, ar) | Every report runs unfiltered, filtered, and per job for the job reports. Every cell must be a display type (string, number, date, bool). Its formatted text, the Excel file and the CSV file must not contain `System.`, `Microsoft.`, `LaserWorks.`, anonymous types, `null`, exception text, `{x=` or an untranslated internal code. |
+| `ReportOutputTests.The_check_catches_object_artifacts` | Proves the check itself flags `new object()`, a list, an anonymous type and a raw code. |
+| `ReportOutputTests.Every_source_code_has_a_translated_name`, `Every_audited_entity_and_sequence_has_a_translated_name`, `Audit_trail_details_are_readable` (en, ar) | Every code the services write has a translation. All 443 distinct audit details of the demo company display without codes or JSON. |
+| Layout audit (smoke, dialog, matrix) | Fails if any visible text on any page, tab or dialog shows an object name, internal code or serialized JSON. |
 
-The Windows CI run on the same commit builds the same set on Windows (artifact `LaserWorksManager-windows` of run
-36222354588). Its checksums differ from the Linux-built files because they come from a different build machine; both
-are listed in that run's `SHA256SUMS.txt` and here respectively.
+**Pipeline checked:** service → `ReportTable` → `ReportGridRow` (screen) / `PdfExporter` (PDF) / Excel / CSV. The
+serving-board test also renders the job cost report to PDF and Excel and reads the Excel file back (totals, translated
+sources).
 
-## 16. Exact build version
+---
 
-`1.1.0-rc1` — `Version 1.1.0`, `AssemblyVersion/FileVersion 1.1.0.0`, `InformationalVersion 1.1.0-rc1`,
-commit `28a735fedf2dcbdfcba7c7ee9484a811d86f09d7`, .NET SDK 10.0.112 (Linux build) / 10.0.x (Windows CI),
-Avalonia 11.3, EF Core 10, SQLite.
+## 4. Reports
 
-## Release blockers (spec §35)
-
-| Blocker | Status |
+| | |
 |---|---|
-| Job cannot contain multiple components | **Resolved.** 0…N lines, tested to 20 |
-| Purchased components cannot be costed | **Resolved.** Via stock or direct purchase, with ledger checks |
-| Inventory does not reconcile | **Resolved.** All inventory checks pass |
-| Accounting does not balance | **Resolved.** Every entry balances; 15/15 checks |
-| Internal scrolling is broken | **Resolved.** Page scroller with minimum height, grid scrolling, dialog scrolling; audited |
-| Important DataGrid columns are unreadable | **Resolved.** Wrapped headers with fitted minimum widths; 0 audit problems |
-| Important buttons are inaccessible | **Resolved.** Button reachability audited on every page, tab and dialog |
-| Data is lost during migration | **Resolved.** Migration test on the real rc1 database |
-| Critical workflow fails | **Resolved.** 5 E2E workflows pass |
-| Backup/restore fails | **Resolved.** 3/3 |
-| Application crashes during normal workflow | None seen in any automated run. **Interactive Windows use is still pending.** |
-| Any major button is fake/non-functional | All new buttons are driven by tests through their commands. The dialog test executes every New/Edit/Open command on every module |
+| Total reports | **41** |
+| Reports tested | **41** (data + PDF/Excel/CSV + real screen) |
+| Reports passed | **41** |
+| System.Object occurrences | **0** |
+| Other artifacts (type names, codes, JSON) | **0** |
 
-Every blocker that automation can check is resolved. Delivery still requires the interactive Windows validation in §14.
+Coverage by group: customers, quotations, jobs, costing and profitability, production and machines, inventory,
+purchasing and sales, and accounting.
+
+The job reports (JobCostSheet, EstimatedVsActual, JobComponents) run for every job of the demo company. Each report
+runs in Arabic and English.
+
+---
+
+## 5. Costing — the reference job (PASS)
+
+`BusinessValidationTests.Reference_job_costs_1990_and_profit_is_the_same_everywhere` builds the job through the real
+services. The rates are set so each cost equals the specification:
+- machine rate override 45/h, 10 h → 450;
+- operator 30/h, 10 h → 300;
+- overhead rate 0.
+
+| Component | Amount |
+|---|---|
+| MDF | 500 |
+| Acrylic | 350 |
+| LED | 180 |
+| Wire | 75 |
+| Glue | 25 |
+| Packaging | 60 |
+| Labor | 300 |
+| Machine | 450 |
+| Scrap | 50 |
+| **Total actual cost** | **1,990** |
+
+| Case | Price | Actual cost | Gross profit | Margin | Checked in |
+|---|---|---|---|---|---|
+| Profit | 3,000 | 1,990 | **1,010** | **33.67 %** | job, job profitability report, job cost report, income statement, dashboard |
+| Loss | 1,500 | 1,990 | **−490** | **−32.67 %** | same five places; loss flagged and row styled *Negative* |
+| Variance | 3,000 | 2,140 | **860** | **28.67 %** | MDF 2.44 sheets (560) and 12 machine hours (540); variance shown per line; main driver = machine time |
+
+The same figures are used in the commercial demo script.
+
+---
+
+## 6. Other validations
+
+| Validation | Result | Test |
+|---|---|---|
+| **Multi-component / purchased components** | PASS | `MultiComponentTests` (6).<br>A purchased component is either received into stock and issued, or recorded as a direct purchase on its line, never both; a direct cost on a stocked line is refused (`Err.ComponentIsStocked`) and a stock issue on a direct line is refused (`Err.ComponentNotStocked`).<br>Ledger checked per account. 20-line stress. |
+| **No duplicate cost** | PASS | Recording a direct cost on a stock line is rejected. Line actuals plus non-line rows = actual cost = WIP. |
+| **Remnants** | PASS | `InventoryCostingTests.Remnant_takes_area_proportional_value_out_of_the_job_and_can_be_reused` checks dimensions, thickness, warehouse, source and consuming job, value and *Consumed* status.<br>The value leaves remnant inventory and enters the consuming job's line cost. |
+| **Inventory roll-forward** | PASS | `Inventory_roll_forward_and_moving_average`.<br>Receipts at different prices, issue, return, adjustments (+/−), scrap from stock, transfer.<br>Quantity and value roll forward; moving average checked against hand calculation (stock value 4,036.76). |
+| **Accounting** | PASS | `AccountingIntegrityTests` (5): unbalanced entries rejected, posted lines immutable, reversal, closed periods.<br>Demo company: ledger debits = credits 504,514.49; every posted entry balanced; AR, AP, WIP and inventory reconcile (15/15). |
+| **Sales return** | PASS | `SalesReturnTests`: return at the original cost although the average moved; COGS, inventory, revenue, VAT and receivable reconcile. |
+| **Profitability (profit and loss jobs)** | PASS | §5 |
+| **Backup → modify → restore → close → reopen** | PASS (Linux automation) | `Backup_restore_then_close_and_reopen` reopens the same database folder in a new service provider after restore.<br>`BackupRestoreTests` (3): safety backup; corrupt and foreign files rejected. |
+| **Security / data integrity** | PASS | `SecurityTests` (4): hashing, lockout, permissions in services, audit.<br>`Duplicates_required_fields_and_records_in_use_are_refused`. |
+| **Migration from 1.0.0-rc1** | PASS | `MigrationTests`: no rows lost, no amount re-priced. |
+| **Performance** | PASS | 3,000 customers, 10,000 jobs, 10,000 invoices, 50,000 journal lines.<br>Dashboard 358 ms, trial balance 134 ms, AR aging 200 ms, sales register 140 ms, open invoices 100 ms, list pages ≤ 7 ms. |
+
+---
+
+## 7. The 39-step end-to-end workflow
+
+`MultiComponentTests.Serving_board_with_purchased_accessory_end_to_end` runs all 39 steps in one test, through the
+production services on a real database:
+
+| Steps | What the test does |
+|---|---|
+| 1–3 | Customer, request with 5 requested items, reference file attached (SVG) |
+| 4–6 | Revision V1 rejected, V2 created and approved |
+| 7–10 | Plywood + acrylic (raw), brass handle (purchased: PO → receipt → supplier invoice), glue/tape (consumable), gift box (packaging) |
+| 11–15 | Sheet usage, machine line, labor line, overhead, scrap and rework allowances, estimate |
+| 16–18 | Quotation, approved, converted to job |
+| 19–21 | Materials and purchased component issued per line, acrylic logo from a remnant, off-cut saved as a remnant |
+| 22–27 | Machine time and labor on operations, scrap, rework, production completed, quality check passed |
+| 28–30 | Delivered, invoiced, paid |
+| 31–33 | Actual cost, estimated vs actual per line, profitability = cost sheet |
+| 34–35 | Stock movements linked to job and line; ledger per account; every journal entry balanced on its own |
+| 36–39 | Job cost report run; exported to **PDF** (valid) and **Excel**; the Excel file read back: amounts total, sources translated |
+
+Also passing:
+- the 32-step workflow at service level (`CriticalWorkflowTests`) and through the desktop view models and dialogs
+  (`UiCriticalWorkflowTests`);
+- the restaurant-sign multi-component workflow at service level and through the screens (`UiMultiComponentTests`).
+
+---
+
+## 8. UI and DataGrid audit
+
+- **Matrix:** critical screens and dialogs at 1366×768, 1600×900 and 1920×1080 × Arabic/English × RTL/LTR ×
+  light/dark. Result: **384 screenshots, 70,316 element checks, 0 problems.**
+- **Smoke:** every page and every tab in 4 combinations:
+  - 1366 ar/Light;
+  - 1366 en/Dark;
+  - 1600 en/Light;
+  - 1920 ar/Dark.
+- **Dialogs:** 62 dialogs and detail pages opened in Arabic and English.
+- **What the audit fails on:**
+  - buttons unreachable;
+  - dialog footer off screen;
+  - grid wider than the window or squeezed;
+  - header trimmed or broken inside a word;
+  - wrapped text clipped by any clipping ancestor;
+  - an object name, internal code or JSON shown.
+- **Report columns** are sized to their content (up to 360 px) with horizontal scrolling. Before this change, job
+  numbers were cut ("JOB-00…").
+- The codebase audit found no TODO, `NotImplementedException`, placeholder text or swallowed exceptions. It found no
+  button without a command; the dialog test executes every New/Edit/Open command.
+
+---
+
+## 9. Defects found and fixed in this phase
+
+| # | Defect | Fix | Test |
+|---|---|---|---|
+| 1 | **System.Object in every report data cell on screen** (release blocker) | Read-only `ReportGridRow`, OneWay bindings, read-only `Cells` | `UiReportScreenTests` (failed before) |
+| 2 | Raw source codes in job cost sheet, GL, journals, ledger and exports | `Loc.Source` + 20 translations | `ReportOutputTests` |
+| 3 | Report columns truncated | Content-measured minimum widths + horizontal scroll | report screen and matrix |
+| 4 | Numbering screen showed sequence keys | `Conv.SequenceName` | smoke audit (Windows CI run 9 caught it) |
+| 5 | Audit log showed entity class names and raw JSON | `Conv.EntityName`, readable change sets | smoke audit |
+| 6 | Audit details showed status tokens (`QualityCheck`) | `AuditText` translates status values; also in the audit export | `Audit_trail_details_are_readable`; Windows CI run 11 caught it |
+| 7 | Test harness deleted the data folder, so reopen could not be tested | `TestDb.KeepFolder` | backup/close/reopen test |
+
+---
+
+## 10. Known issues
+
+None open in application code.
+
+---
+
+## 11. Known limitations
+
+- **Windows interactive validation is pending** (§1).
+- Visual review used headless Skia screenshots, not a physical Windows display. High-DPI scaling (125–200 %) was not
+  reviewed.
+- Grids have minimum widths but no global maximum width. A maximum on an unmeasured column crashes inside the
+  Avalonia DataGrid. Report columns are capped at 360 px by content measurement.
+- Single PC, single company, single currency per database. Not a network multi-user system.
+- The sheet utilisation calculator is an estimate, not a nesting engine.
+- No payroll and no fixed-asset register. Machine depreciation is inside the machine hourly rate.
+- The executable is not code-signed, so Windows SmartScreen may warn on first run.
+- Native file pickers and printing through the Windows print verb are not covered by automation.
+- Migration was proven on the 1.0.0-rc1 demo database. Back up a real database before upgrading.
+
+---
+
+## 12. Windows validation
+
+**Automated (GitHub Actions, windows-latest / Windows Server 2025).** Each run does:
+- build;
+- the full test suite;
+- `LaserWorksManager.exe --smoke-test` on the published exe;
+- demo company reconciliation;
+- NSIS installer build;
+- silent install, start of the installed exe, silent uninstall;
+- artifact upload.
+
+| Run | Commit | Result |
+|---|---|---|
+| 9 | `7fa9f4e` | failure: numbering keys and audit entity names shown raw (defects 4, 5) |
+| 10 | `d80dd06` | success |
+| 11 | `79da25b` | failure: audit details showed `QualityCheck` (defect 6) |
+| 12 | `416cf74` | success |
+| **13** | [`6faf305`](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36226746918) | **success**:<br>• build 0 warnings / 0 errors;<br>• tests **75 passed, 0 failed** (7 min 6 s);<br>• packaged exe smoke test passed;<br>• demo company 15/15 PASS;<br>• NSIS installer built;<br>• silent install → start → uninstall passed;<br>• artifact `LaserWorksManager-windows` uploaded |
+
+**Backup/restore on Windows: PENDING.** It is tested by automation on Linux. The Windows CI suite runs the same
+tests, but restore has not been performed by hand on Windows.
+
+**Windows runtime: PENDING.** Windows runtime validation pending.
+
+---
+
+## 13. Release artifacts
+
+Built by `tools/release.sh` from `6faf305` into `artifacts/release/`:
+
+| File | Size | SHA-256 |
+|---|---|---|
+| `LaserWorksManager.exe` (self-contained win-x64) | 65.5 MB | `0d4acaeb635dd9be1b064f5dd5193ccad814a56f54b673d3ed209ec5c30bfbe4` |
+| `LaserWorksManagerSetup.exe` (NSIS) | 59.2 MB | `721cce022553ad0bc40168d0ba0dda9d8e794747680fb485a614f3f3718b3b19` |
+| `LaserWorksManager-1.1.0-rc1-win-x64-portable.zip` | 59.9 MB | `424762a4617bcee9a204494f3bc2457a7cdf53f7d7914117d0d2e163db867b4b` |
+| `LaserWorksDemo.lwbak` | 135 KB | `fe2e44309f6ec5440e566544f36ddb85fc43e9504ee71144a133a545f908d5db` |
+| `LaserWorksDemo-database.zip` | 134 KB | `9839eb8c260904d3d6768e5412c6048f6d00a0548d49c4e25ed93865e547c1e1` |
+| `RELEASE_NOTES.md`, `SHA256SUMS.txt` | | |
+
+The demo company in these artifacts passes 15/15 reconciliation checks.
+
+---
+
+## 14. Commercial package
+
+Written in Egyptian Arabic with English software terms. Every figure and screen in it is covered by the tests above.
+The documents make no claims beyond tested behaviour and list the limitations openly.
+
+| File | Content |
+|---|---|
+| `COMMERCIAL_DEMO_SCRIPT_AR.md` | 15 scenes (~14 min): screen, click, say, why it matters, key message, transition, and VIDEO PRODUCTION NOTES |
+| `COMMERCIAL_FAQ_AR.md` | 26 questions, including honest "no" answers |
+| `PRODUCT_DESCRIPTION_AR.md` | short, medium, long descriptions, requirements, limitations |
+| `docs/USER_GUIDE_AR.md` | Arabic user guide (16 sections) |
+| `docs/RELEASE_NOTES.md` | release notes including the report fix |

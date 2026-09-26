@@ -82,7 +82,7 @@ No posted amount changes during the upgrade.
 ## Known limitations
 
 - **Interactive Windows validation is pending.** On Windows this release was validated by automation only
-  (all 61 tests, packaged-exe start-up smoke test, demo reconciliation, silent install/start/uninstall on a
+  (all 75 tests, packaged-exe start-up smoke test, demo reconciliation, silent install/start/uninstall on a
   Windows Server 2025 runner); it has not yet been used by hand on Windows 10/11.
 - Upgrading from 1.0.0-rc1 was tested on the rc1 demo database. Back up a production database before the first start
   of 1.1.0-rc1.

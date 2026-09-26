@@ -293,6 +293,10 @@ public class MultiComponentTests
                 new RequestItem { MaterialId = it.Tape, Quantity = 0.1m, Notes = "glue / tape" }
             }
         });
+        var logoFile = Path.Combine(t.Folder, "restaurant-logo.svg");
+        await File.WriteAllTextAsync(logoFile, "<svg xmlns='http://www.w3.org/2000/svg'><circle r='10'/></svg>");
+        await reqSvc.AddAttachmentAsync(AttachmentOwner.Request, requestId, logoFile);
+        Assert.Single(await reqSvc.AttachmentsAsync(AttachmentOwner.Request, requestId));
         var design = t.Get<DesignService>();
         var v1 = await design.SaveAsync(new DesignRevision { RequestId = requestId, Date = day, Width = 40, Height = 25, MaterialId = plywood, Thickness = 4, CuttingLengthM = 1.5m, EstimatedMachineMinutes = 8 });
         await design.RejectAsync(v1);

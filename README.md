@@ -58,12 +58,19 @@ tools/release.sh                                    # exe, installer, portable z
 
 ## Status
 
-Version 1.1.0-rc1 (multi-component jobs). All 61 automated tests pass on Linux and on Windows.
-Automated Windows validation **passed** on a Windows Server 2025 runner (GitHub Actions run
-[36222354588](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36222354588), commit 28a735f):
-61/61 tests (including headless UI), the published `LaserWorksManager.exe --smoke-test`, the demo company's 15
-reconciliation checks, and a silent install → start → uninstall of `LaserWorksManagerSetup.exe`.
-**Interactive Windows validation is pending**: nobody has yet used this build by hand on Windows 10/11 (file dialogs,
-printing, high-DPI, SmartScreen).
+Version 1.1.0-rc1 (multi-component jobs, report display fix). **Status: NOT READY FOR DELIVERY. Interactive
+Windows validation is pending.**
+
+- All 75 automated tests pass on Linux and on Windows.
+- All 41 reports are checked on screen and in PDF, Excel and CSV: 0 `System.Object` occurrences.
+- Automated Windows validation **passed** on a Windows Server 2025 runner (GitHub Actions run
+  [36226746918](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36226746918), commit 6faf305):
+  - 75/75 tests, including headless UI;
+  - the published `LaserWorksManager.exe --smoke-test`;
+  - the demo company's 15 reconciliation checks;
+  - a silent install → start → uninstall of `LaserWorksManagerSetup.exe`.
+- **Interactive Windows validation is pending**: nobody has yet used this build by hand on Windows 10/11. That
+  covers install, workflow, backup/restore, close/reopen, uninstall, file dialogs, printing, high-DPI and
+  SmartScreen.
 
 See [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md) and [docs/TESTING.md](docs/TESTING.md).
