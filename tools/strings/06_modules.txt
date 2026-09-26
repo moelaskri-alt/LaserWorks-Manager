@@ -245,7 +245,7 @@ Quotation.New|New quotation|عرض سعر جديد
 Quotation.NewVersion|New version|نسخة جديدة
 Quotation.Title|Quotation|عرض سعر
 Quotation.Versions|Versions|النسخ
-Receipt.Help|Received goods increase stock at the order price; the supplier invoice later settles the difference.|البضائع المستلمة تزيد المخزون بسعر الأمر؛ وتسوي فاتورة المورد الفرق لاحقاً.
+Receipt.Help|Received goods enter stock at the receipt unit cost; enter the prices and tax exactly as on the supplier's delivery or invoice.|تدخل البضائع المستلمة المخزون بتكلفة الوحدة في الاستلام؛ أدخل الأسعار والضريبة كما في مستند المورد تماماً.
 Receipt.Hint|Receipts not yet invoiced are shown in "Goods received not invoiced".|الاستلامات غير المفوترة تظهر في "بضائع مستلمة غير مفوترة".
 Receipt.New|Receive goods|استلام بضائع
 Receipt.PostInvoice|Enter supplier invoice|إدخال فاتورة المورد
@@ -340,6 +340,6 @@ Supplier.Edit|Edit supplier|تعديل المورد
 Supplier.New|New supplier|مورد جديد
 Supplier.OpeningBalance|Opening balance (amount we owe)|الرصيد الافتتاحي (المبلغ المستحق علينا)
 Supplier.Pay|Pay supplier|سداد للمورد
-SupplierInvoice.Help|Matches the receipt: the difference to the received value adjusts inventory or cost of sales.|تُطابق الاستلام: الفرق عن القيمة المستلمة يعدّل المخزون أو تكلفة المبيعات.
+SupplierInvoice.Help|The supplier invoice is posted at the received quantities and costs: it clears Goods Received Not Invoiced and records the payable and input tax.|تُرحَّل فاتورة المورد بكميات وتكاليف الاستلام: تُقفل حساب البضاعة المستلمة غير المفوترة وتسجل الذمة الدائنة وضريبة المدخلات.
 SupplierInvoice.Title|Supplier invoice|فاتورة مورد
 SupplierPayment.Title|Supplier payment|دفعة لمورد

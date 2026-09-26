@@ -57,6 +57,10 @@ internal static class Tools
         Console.WriteLine($"Demo created in {sw.Elapsed.TotalSeconds:0.0}s at {paths.DatabasePath}");
         var checks = await sp.GetRequiredService<ReconciliationService>().RunAsync();
         foreach (var c in checks) Console.WriteLine($"{(c.Passed ? "PASS" : "FAIL")}  {c.Name}  expected={c.Expected} actual={c.Actual}");
+        // a restorable backup of the demo company (Backup & Restore → Restore from file…)
+        var backupFile = Path.Combine(folder, "LaserWorksDemo" + LaserWorks.Infrastructure.Backup.BackupService.Extension);
+        var backup = await sp.GetRequiredService<LaserWorks.Infrastructure.Backup.BackupService>().CreateBackupAsync(backupFile, "LaserWorks Manager demo company", "Demo");
+        Console.WriteLine($"Demo backup: {backup.FilePath}");
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
         return checks.All(c => c.Passed) ? 0 : 2;
     }

@@ -20,6 +20,7 @@ internal static class Program
         {
             Log.Information("LaserWorks Manager starting. Data: {Data}", paths.DataDirectory);
             App.Paths = paths;
+            App.SmokeTest = args.Contains("--smoke-test");
             return BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex)

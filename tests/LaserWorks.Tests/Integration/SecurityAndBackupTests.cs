@@ -106,6 +106,24 @@ public class BackupRestoreTests
     }
 
     [Fact]
+    public async Task Demo_backup_restores_into_a_fresh_installation()
+    {
+        string demoBackup;
+        await using (var demo = await TestDb.CreateAsync(demo: true, now: DateTime.Today.AddHours(9)))
+        {
+            demoBackup = Path.Combine(TestDb.NewFolder("demo-backup"), "LaserWorksDemo" + BackupService.Extension);
+            await demo.Get<BackupService>().CreateBackupAsync(demoBackup, "demo", "Demo");
+        }
+        await using var fresh = await TestDb.CreateAsync(setup: false);
+        Assert.False(await fresh.Get<SetupService>().IsSetupCompletedAsync());
+        await fresh.Get<BackupService>().RestoreAsync(demoBackup);
+        Assert.True(await fresh.Get<SetupService>().IsSetupCompletedAsync());
+        await fresh.LoginAsync("admin", "Admin@2026");
+        Assert.True((await fresh.Get<CustomerService>().LookupAsync()).Count >= 8);
+        await Ledger.AssertBooksBalanceAsync(fresh);
+    }
+
+    [Fact]
     public async Task Corrupted_or_foreign_files_are_rejected_before_anything_is_replaced()
     {
         await using var t = await TestDb.CreateAsync();

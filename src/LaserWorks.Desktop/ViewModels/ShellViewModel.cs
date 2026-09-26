@@ -83,7 +83,7 @@ public sealed partial class ShellViewModel : ViewModelBase
             var items = keys.Select(k => _all.First(n => n.Key == k)).Where(n => Can(n.Module, Permission.View)).ToList();
             if (items.Count > 0) Groups.Add(new NavGroup(title, items));
         }
-        Loc.Instance.LanguageChanged += OnLanguageChanged;
+        Loc.Instance.LanguageChanged += OnLanguageChangedAnyThread;
     }
 
     public ObservableCollection<NavGroup> Groups { get; } = new();
@@ -101,6 +101,8 @@ public sealed partial class ShellViewModel : ViewModelBase
         await Get<PermissionService>().LoadAsync();
         NavigateTo(Groups.SelectMany(g => g.Items).FirstOrDefault()?.Key ?? "Dashboard");
     }
+
+    private void OnLanguageChangedAnyThread(object? sender, EventArgs e) => UiThread.Run(() => OnLanguageChanged(sender, e));
 
     private void OnLanguageChanged(object? sender, EventArgs e)
     {
@@ -161,7 +163,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     [RelayCommand]
     private async Task Logout()
     {
-        Loc.Instance.LanguageChanged -= OnLanguageChanged;
+        Loc.Instance.LanguageChanged -= OnLanguageChangedAnyThread;
         await Get<AuthService>().LogoutAsync();
         Get<Navigator>().Shell = null;
         _main.Content = new LoginViewModel(_main);

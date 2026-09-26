@@ -38,11 +38,13 @@ public sealed class DemoDataService
         var clock = _ctx.Clock as MutableClock;
         var today = DateTime.Today;
         var start = today.AddDays(-95);
+        // opening balances on the first day of the first demo month, before any demo transaction
+        var opening = new DateTime(start.Year, start.Month, 1);
         void At(DateTime d, int hour = 10) => clock?.Set(d.Date.AddHours(hour));
         var rnd = new Random(20260925);
         try
         {
-            At(start.AddDays(-5), 9);
+            At(opening, 9);
             var settings = await _ctx.Settings.GetAsync();
             var wh = settings.DefaultWarehouseId!.Value;
             var units = await ReadUnitsAsync();
@@ -125,12 +127,12 @@ public sealed class DemoDataService
             var accounts = await acc.PostableAccountsAsync();
             var cashBal = await acc.SystemBalanceAsync(SystemAccounts.Cash);
             var bankBal = await acc.SystemBalanceAsync(SystemAccounts.Bank);
-            if (cashBal == 0) await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.Cash).Id, 15000, start.AddDays(-5));
-            if (bankBal == 0) await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.Bank).Id, 180000, start.AddDays(-5));
-            await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.FixedAssets).Id, 117000, start.AddDays(-5));
-            await S<InventoryService>().OpeningBalanceAsync(coasterSet, wh, 40, 12, start.AddDays(-5));
-            await S<InventoryService>().OpeningBalanceAsync(tape, wh, 12, 24, start.AddDays(-5));
-            await S<InventoryService>().OpeningBalanceAsync(glue, wh, 6, 18, start.AddDays(-5));
+            if (cashBal == 0) await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.Cash).Id, 15000, opening);
+            if (bankBal == 0) await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.Bank).Id, 180000, opening);
+            await acc.PostAccountOpeningBalanceAsync(accounts.First(a => a.SystemKey == SystemAccounts.FixedAssets).Id, 117000, opening);
+            await S<InventoryService>().OpeningBalanceAsync(coasterSet, wh, 40, 12, opening);
+            await S<InventoryService>().OpeningBalanceAsync(tape, wh, 12, 24, opening);
+            await S<InventoryService>().OpeningBalanceAsync(glue, wh, 6, 18, opening);
 
             var pur = S<PurchaseService>();
             async Task Buy(long supplier, DateTime date, params (long Mat, decimal Qty, decimal Cost)[] lines)

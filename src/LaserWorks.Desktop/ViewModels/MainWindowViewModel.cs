@@ -14,7 +14,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
-        Loc.Instance.LanguageChanged += (_, _) => OnPropertyChanged(nameof(IsRightToLeft));
+        Loc.Instance.LanguageChanged += (_, _) => UiThread.Run(() => OnPropertyChanged(nameof(IsRightToLeft)));
     }
 
     public ObservableCollection<ViewModelBase> DialogStack => Get<DialogService>().Stack;

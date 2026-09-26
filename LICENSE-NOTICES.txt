@@ -1,0 +1,21 @@
+LaserWorks Manager
+Copyright (c) 2026 LaserWorks. All rights reserved.
+
+This program includes third-party components. Their licenses:
+
+  .NET runtime, Entity Framework Core, Microsoft.Extensions.*   MIT License (c) .NET Foundation and contributors
+  Avalonia UI, Avalonia.Controls.DataGrid                        MIT License (c) The Avalonia Project
+  SkiaSharp, HarfBuzzSharp                                        MIT License (c) Microsoft Corporation
+  CommunityToolkit.Mvvm                                           MIT License (c) .NET Foundation and contributors
+  SQLite (via SQLitePCLRaw / Microsoft.Data.Sqlite)               Public domain (SQLite) / Apache-2.0 (SQLitePCLRaw)
+  ClosedXML                                                       MIT License (c) ClosedXML contributors
+  Serilog, Serilog.Sinks.File, Serilog.Extensions.Logging         Apache License 2.0 (c) Serilog contributors
+  QuestPDF                                                        QuestPDF Community License — free for individuals and
+                                                                  organisations with annual gross revenue below USD 1M;
+                                                                  larger organisations need a commercial QuestPDF licence.
+  Noto Sans, Noto Sans Arabic fonts                               SIL Open Font License 1.1 (c) Google LLC
+
+Full license texts are available from each project's repository and package page.
+
+By installing this software you accept the terms above. The application stores its data
+(database, attachments, backups, logs) on this computer only; nothing is sent over the network.

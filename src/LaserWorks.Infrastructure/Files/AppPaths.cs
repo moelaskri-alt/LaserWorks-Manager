@@ -20,7 +20,8 @@ public sealed class AppPaths : IAppPaths
 
     public static string ResolveDefault()
     {
-        var baseDir = AppContext.BaseDirectory;
+        // The folder of the .exe itself (not AppContext.BaseDirectory, which is the extraction folder of a single-file build)
+        var baseDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
         if (File.Exists(Path.Combine(baseDir, "portable.flag"))) return Path.Combine(baseDir, "data");
         var env = Environment.GetEnvironmentVariable("LASERWORKS_DATA");
         if (!string.IsNullOrWhiteSpace(env)) return env;

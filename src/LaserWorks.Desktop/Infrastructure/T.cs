@@ -29,7 +29,7 @@ public sealed class LocEntry : INotifyPropertyChanged
         {
             List<LocEntry> all;
             lock (Entries) all = Entries.Values.ToList();
-            foreach (var e in all) e.PropertyChanged?.Invoke(e, ValueChanged);
+            UiThread.Run(() => { foreach (var e in all) e.PropertyChanged?.Invoke(e, ValueChanged); });
         };
     }
 

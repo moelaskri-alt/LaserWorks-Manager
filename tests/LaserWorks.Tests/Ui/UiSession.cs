@@ -92,9 +92,24 @@ public static class UiSession
     public static string Capture(string name)
     {
         _window!.UpdateLayout();
-        var frame = _window.CaptureRenderedFrame();
         var path = Path.Combine(ScreenshotFolder, name + ".png");
-        frame?.Save(path);
+        // Render into a bitmap we own and dispose, then encode in managed code. (Encoding the headless window
+        // surface through Skia while it was being re-rendered crashed the test host intermittently.)
+        var size = new Avalonia.PixelSize((int)_window.ClientSize.Width, (int)_window.ClientSize.Height);
+        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size);
+        bitmap.Render(_window);
+        var stride = size.Width * 4;
+        var pixels = new byte[stride * size.Height];
+        var handle = System.Runtime.InteropServices.GCHandle.Alloc(pixels, System.Runtime.InteropServices.GCHandleType.Pinned);
+        try
+        {
+            bitmap.CopyPixels(new Avalonia.PixelRect(size), handle.AddrOfPinnedObject(), pixels.Length, stride);
+        }
+        finally
+        {
+            handle.Free();
+        }
+        Png.Write(path, size.Width, size.Height, stride, pixels, rgba: false);
         return path;
     }
 
