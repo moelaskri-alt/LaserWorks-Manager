@@ -29,6 +29,14 @@ No posted amount changes during the upgrade.
 - Every stock movement of a job is attached to a component line. Issues made outside the job screen go to
   the item's line, or to a new *unplanned* line.
 
+**Reports (fixed in this release candidate)**
+- The Reports screen showed "System.Object" in every data cell. The screen bound its columns straight into the
+  report's values, and the grid's two-way cell binding overwrote them. The grid now shows read-only,
+  pre-formatted display rows, and report values can no longer be changed by any screen.
+- Internal document codes (JobOperation, DirectCost, SalesInvoice, …), audit-trail entity names and numbering keys
+  are now shown with translated names. The audit trail shows readable change details instead of JSON.
+- Report columns are sized to their content and scroll horizontally.
+
 **Screens**
 - Page-level scrolling with a minimum height: small screens scroll the page instead of squeezing grids.
 - Dialogs keep Save/Cancel visible and scroll their content. A layout defect that cut off wrapped text on the

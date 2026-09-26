@@ -145,7 +145,7 @@ job cost sheet. See [COSTING.md](COSTING.md).
 
 **Job profitability** shows revenue, estimated and actual cost, gross profit, margin and variances for every
 job, with flags (loss, low margin, high material or machine variance, high scrap). Other tabs group results by
-customer, machine, material and month. Click a row to open the job. The **Reports** page adds 40 reports in
+customer, machine, material and month. Click a row to open the job. The **Reports** page adds 41 reports in
 seven groups, each exportable to PDF, Excel and CSV or printable.
 
 ## 13. Sales, purchases, expenses and accounting

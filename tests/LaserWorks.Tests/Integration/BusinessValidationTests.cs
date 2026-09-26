@@ -58,10 +58,13 @@ public class BusinessValidationTests
     }
 
     /// <summary>Spec §8 and §12: the 1,990 job sold for 3,000 (profit 1,010, 33.67 %) and for 1,500 (loss 490, −32.67 %).</summary>
+    /// Third case — the demo script's variance job: 2.44 MDF sheets issued (0.2 scrapped) and 12 machine hours instead of 10:
+    /// MDF 560 (+60), machine 540 (+90), actual 2,140, profit 860 (28.67 %), main variance driver = machine time.
     [Theory]
-    [InlineData(3000, 1010, 33.67)]
-    [InlineData(1500, -490, -32.67)]
-    public async Task Reference_job_costs_1990_and_profit_is_the_same_everywhere(decimal price, decimal expectedProfit, decimal expectedMargin)
+    [InlineData(3000, 1010, 33.67, 2.2, 10)]
+    [InlineData(1500, -490, -32.67, 2.2, 10)]
+    [InlineData(3000, 860, 28.67, 2.44, 12)]
+    public async Task Reference_job_costs_1990_and_profit_is_the_same_everywhere(decimal price, decimal expectedProfit, decimal expectedMargin, decimal mdfIssued, decimal machineHours)
     {
         await using var t = await TestDb.CreateAsync();
         var day = t.Clock.Now.Date;
@@ -113,12 +116,12 @@ public class BusinessValidationTests
         // actual: every line issued; MDF 2.2 sheets of which 0.2 scrapped (50) → MDF 500 + scrap 50
         var jc = t.Get<JobComponentService>();
         foreach (var l in await jc.ListAsync(jobId))
-            await jc.IssueAsync(l.Id, s.Wh, l.MaterialId == s.Mdf ? 2.2m : l.PlannedQuantity, day);
+            await jc.IssueAsync(l.Id, s.Wh, l.MaterialId == s.Mdf ? mdfIssued : l.PlannedQuantity, day);
         var prod = t.Get<ProductionService>();
         await prod.RecordScrapAsync(new ScrapRecord { JobId = jobId, Date = day, Type = ScrapType.NormalScrap, MaterialId = s.Mdf, Quantity = 0.2m, Reason = "burnt edge" });
         foreach (var o in (await prod.ListOperationsAsync(new PageRequest(PageSize: 50), jobId)).Items)
         {
-            var machine = o.OperationType == OperationType.Cutting ? 10m : 0;
+            var machine = o.OperationType == OperationType.Cutting ? machineHours : 0;
             var labor = o.OperationType == OperationType.Assembly ? 10m : 0;
             await prod.CompleteOperationAsync(o.Id, new OperationCompletion(labor, machine, 1, EmployeeId: s.Employee, MachineId: machine > 0 ? s.Machine : null));
         }
@@ -137,24 +140,30 @@ public class BusinessValidationTests
         var cs = await costing.CostSheetAsync(jobId);
         decimal A(CostComponent c) => cs.Entries.Where(e => e.Component == c).Sum(e => e.Amount);
         _out.WriteLine(string.Join(", ", cs.Entries.GroupBy(e => e.Component).Select(g => $"{g.Key} {g.Sum(e => e.Amount)}")));
-        Assert.Equal(850m, A(CostComponent.Material));
+        var mdfActual = Money.Round((mdfIssued - 0.2m) * 250);
+        var machineActual = machineHours * 45;
+        var expectedActual = 1990m + (mdfActual - 500) + (machineActual - 450);
+        Assert.Equal(350m + mdfActual, A(CostComponent.Material));
         Assert.Equal(255m, A(CostComponent.PurchasedComponents));
         Assert.Equal(25m, A(CostComponent.Consumables));
         Assert.Equal(60m, A(CostComponent.Packaging));
         Assert.Equal(300m, A(CostComponent.Labor));
-        Assert.Equal(450m, A(CostComponent.Machine) + A(CostComponent.Maintenance));
+        Assert.Equal(machineActual, A(CostComponent.Machine) + A(CostComponent.Maintenance));
         Assert.Equal(50m, A(CostComponent.Scrap));
         Assert.Equal(0m, A(CostComponent.Overhead));
-        Assert.Equal(1990m, cs.ActualCost);
+        Assert.Equal(expectedActual, cs.ActualCost);
         Assert.Equal(1990m, cs.Variance.EstimatedTotal);
-        Assert.Equal(0m, cs.Variance.ActualTotal - cs.Variance.EstimatedTotal);
+        Assert.Equal(expectedActual - 1990m, cs.Variance.ActualTotal - cs.Variance.EstimatedTotal);
+        var mdfLine = cs.Components.Single(c => c.IsLine && c.Item.Contains("MDF"));
+        Assert.Equal((500m, mdfActual), (mdfLine.Estimated, mdfLine.Actual));
+        if (machineHours != 10) Assert.Equal(CostComponent.Machine, cs.Variance.MainDriver);
         Assert.Equal(price, cs.Revenue);
         Assert.Equal(expectedProfit, cs.GrossProfit);
         Assert.Equal(expectedMargin, cs.MarginPercent);
 
         // job profitability (list and flags: a loss is flagged, never hidden)
         var row = (await costing.JobProfitabilityAsync()).Single(r => r.JobId == jobId);
-        Assert.Equal(1990m, row.ActualCost);
+        Assert.Equal(expectedActual, row.ActualCost);
         Assert.Equal(expectedProfit, row.GrossProfit);
         Assert.Equal(expectedMargin, row.MarginPercent);
         Assert.Equal(expectedProfit < 0, costing.Flags(row).NegativeMargin);
@@ -164,14 +173,14 @@ public class BusinessValidationTests
         var range = new DateRange(day.AddDays(-1), day);
         var sheet = await catalog.RunAsync("JobCostSheet", new ReportFilter(range, day, JobId: jobId));
         var amountCol = sheet.Columns.FindIndex(c => c.Key == "amount");
-        Assert.Equal(1990m, sheet.Totals()[amountCol]);
+        Assert.Equal(expectedActual, sheet.Totals()[amountCol]);
         var prof = await catalog.RunAsync("JobProfitability", new ReportFilter(range, day));
         var profRow = prof.Rows.Single(r => r.SourceId == jobId);
         Assert.Contains(expectedProfit, profRow.Cells.OfType<decimal>());
         if (expectedProfit < 0) Assert.Equal(RowStyle.Negative, profRow.Style);
         var income = await t.Get<AccountingService>().IncomeStatementAsync(range);
         Assert.Equal(price, income.Single(l => l.Name == "Net revenue").Amount);
-        Assert.Equal(1990m, income.Single(l => l.Name == "Total cost of sales").Amount);
+        Assert.Equal(expectedActual, income.Single(l => l.Name == "Total cost of sales").Amount);
         Assert.Equal(expectedProfit, income.Single(l => l.Code == "GP").Amount);
 
         // dashboard for the same day
