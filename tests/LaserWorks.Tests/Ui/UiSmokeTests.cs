@@ -37,6 +37,7 @@ public class UiSmokeTests
                 await UiSession.SettleAsync();
                 Assert.Equal(page, UiSession.Shell.CurrentKey);
                 UiSession.Capture($"{lang}-{theme}-{page}");
+                failures.AddRange(UiLayoutMatrixTests.AuditPublic(window, false).Problems.Select(e => $"{lang}/{page}: layout {e}"));
                 var tabs = window.GetVisualDescendants().OfType<TabControl>().FirstOrDefault();
                 if (tabs != null)
                 {
@@ -45,6 +46,7 @@ public class UiSmokeTests
                         tabs.SelectedIndex = i;
                         await UiSession.SettleAsync();
                         UiSession.Capture($"{lang}-{theme}-{page}-tab{i}");
+                        failures.AddRange(UiLayoutMatrixTests.AuditPublic(window, false).Problems.Select(e => $"{lang}/{page}/tab{i}: layout {e}"));
                     }
                     tabs.SelectedIndex = 0;
                 }

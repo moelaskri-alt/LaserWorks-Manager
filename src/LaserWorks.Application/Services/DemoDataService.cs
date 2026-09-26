@@ -124,7 +124,7 @@ public sealed class DemoDataService
             var hook = await Mat("Brass Wall Hook", "Hook", 0, 0, 0, "PCS", 4.5m, "Hardware & Fittings", suppliers[0], 20, MaterialKind.PurchasedComponent);
             var giftBox = await Mat("Gift Box 30×20×8 cm", "Box", 0, 0, 0, "PCS", 7.5m, "Packaging", suppliers[4], 20, MaterialKind.Packaging);
             var bubble = await Mat("Bubble Wrap 100 cm", "Wrap", 0, 0, 0, "M", 1.8m, "Packaging", suppliers[4], 30, MaterialKind.Packaging);
-            var uvPrint = await Mat("UV Colour Printing (outsourced)", "Service", 0, 0, 0, "PCS", 0, "Finished Goods", suppliers[5], 0, MaterialKind.Service);
+            var uvPrint = await Mat("UV Colour Printing (outsourced)", "Service", 0, 0, 0, "PCS", 85, "Finished Goods", suppliers[5], 0, MaterialKind.Service);
 
             var lookup = S<LookupService>();
             await lookup.SaveLaserParameterAsync(new LaserParameter { MaterialId = mats[0], MachineId = m1, Thickness = 3, OperationType = OperationType.Cutting, PowerPercent = 55, SpeedMmPerSec = 25, PassCount = 1, Notes = "Air assist on" });

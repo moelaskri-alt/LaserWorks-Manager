@@ -51,6 +51,7 @@ public class UiDialogTests
                         {
                             opened++;
                             UiSession.Capture("dlg-" + tag);
+                            failures.AddRange(UiLayoutMatrixTests.AuditPublic(UiSession.Window, true).Problems.Select(e => $"{tag}: layout {e}"));
                             failures.AddRange(UiLog.Instance.Snapshot().Select(e => $"{tag}: {e}"));
                             failures.AddRange(UiSession.VisibleErrors().Select(e => $"{tag}: banner {e}"));
                             await CloseAllAsync(dialogs);
@@ -59,6 +60,7 @@ public class UiDialogTests
                         {
                             opened++;
                             UiSession.Capture("page-" + tag);
+                            failures.AddRange(UiLayoutMatrixTests.AuditPublic(UiSession.Window, false).Problems.Select(e => $"{tag}: layout {e}"));
                             failures.AddRange(UiLog.Instance.Snapshot().Select(e => $"{tag}: {e}"));
                             failures.AddRange(UiSession.VisibleErrors().Select(e => $"{tag}: banner {e}"));
                             UiSession.Shell.NavigateTo(page);

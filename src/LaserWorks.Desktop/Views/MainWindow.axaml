@@ -53,8 +53,9 @@
                     <TextBlock Classes="error" Text="{Binding ErrorMessage}" VerticalAlignment="Center" MaxLines="3" />
                   </DockPanel>
                 </Border>
-                <ScrollViewer Padding="18,14" HorizontalScrollBarVisibility="Disabled">
-                  <ContentControl Content="{Binding}" ContentTemplate="{x:Static l:ViewLocator.Instance}" />
+                <!-- padding sits on the content, not the ScrollViewer: a padded ScrollViewer measures its content wider than it arranges it, clipping wrapped text -->
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                  <ContentControl Content="{Binding}" ContentTemplate="{x:Static l:ViewLocator.Instance}" Margin="18,14" />
                 </ScrollViewer>
               </DockPanel>
             </Border>

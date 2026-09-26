@@ -76,7 +76,7 @@ public class UiMultiComponentTests
         {
             var customer = (await S<CustomerService>().LookupAsync()).First();
             var mats = await S<MaterialService>().LookupAsync();
-            var sheetMat = mats.First(m => m.Kind == MaterialKind.RawMaterial && m.IsSheet);
+            var sheetMat = mats.First(m => m.Kind == MaterialKind.RawMaterial && m.IsSheet && Math.Max(m.Length, m.Width) >= 130 && Math.Min(m.Length, m.Width) >= 50 && m.QuantityOnHand >= 2);
             var led = mats.First(m => m.Kind == MaterialKind.PurchasedComponent && m.Unit == "M");
             var box = mats.First(m => m.Kind == MaterialKind.Packaging);
             var uv = mats.First(m => m.Kind == MaterialKind.Service);
@@ -235,7 +235,7 @@ public class UiMultiComponentTests
             Assert.All(job.Components.Where(c => c.IsStocked), c => Assert.Equal(c.PlannedQuantity, c.UsedQuantity));
             await using (var db = S<IAppDbFactory>().Create())
             {
-                var wip = await db.JournalLines.Where(l => l.JobId == jobId && l.Account!.SystemKey == SystemAccounts.WIP && l.JournalEntry!.Status == JournalStatus.Posted)
+                var wip = await db.JournalLines.Where(l => l.JobId == jobId && l.Account!.SystemKey == SystemAccounts.WIP && l.JournalEntry!.Status != JournalStatus.Draft)
                     .Select(l => new { l.Debit, l.Credit }).ToListAsync();
                 Assert.Equal(cs.ActualCost, wip.Sum(l => l.Debit - l.Credit));
                 Assert.Equal(0, await db.InventoryTransactions.CountAsync(t => t.JobId == jobId && t.JobComponentId == null));

@@ -194,6 +194,17 @@ public class UiLayoutMatrixTests
                 problems.Add($"button '{Label(b)}' clipped by {clip.GetType().Name}");
         }
 
+        // wrapped text must fit its own width (a wider layout than bounds means the text is cut off on the right)
+        foreach (var tb in scope.OfType<TextBlock>().Where(t => t.TextWrapping != TextWrapping.NoWrap && !string.IsNullOrEmpty(t.Text)))
+        {
+            if (tb.GetVisualAncestors().Any(a => a is DataGrid || a is ComboBox)) continue;
+            n++;
+            if (tb.TextLayout.Width > tb.Bounds.Width + tol) problems.Add($"text '{Short(tb.Text!)}' cut off ({tb.TextLayout.Width:0}px in {tb.Bounds.Width:0}px)");
+            if (ClippedByViewport(tb, window)) problems.Add($"text '{Short(tb.Text!)}' cut off");
+        }
+        foreach (var b in scope.OfType<Button>().Where(b => !b.GetVisualAncestors().Any(a => a is DataGrid || a is ComboBox || a is ScrollBar)))
+            if (ClippedByViewport(b, window)) problems.Add($"button '{Label(b)}' cut off");
+
         foreach (var g in scope.OfType<DataGrid>())
         {
             n++;
@@ -215,6 +226,25 @@ public class UiLayoutMatrixTests
         }
         return new AuditResult(n, problems);
     }
+
+    /// <summary>
+    /// True when part of the control is cut off horizontally by a clipping ancestor it can't be scrolled within
+    /// (any ancestor with ClipToBounds, up to the first area that scrolls horizontally).
+    /// </summary>
+    private static bool ClippedByViewport(Control c, Window window)
+    {
+        if (BoundsIn(c, window) is not { } cr) return false;
+        foreach (var a in c.GetVisualAncestors().OfType<Control>())
+        {
+            if (a is Avalonia.Controls.Presenters.ScrollContentPresenter { Parent: ScrollViewer { HorizontalScrollBarVisibility: not ScrollBarVisibility.Disabled } }) return false;
+            if (a is ScrollViewer { HorizontalScrollBarVisibility: not ScrollBarVisibility.Disabled }) return false;
+            if (!a.ClipToBounds || BoundsIn(a, window) is not { } ar) continue;
+            if (cr.Right > ar.Right + 1.5 || cr.X < ar.X - 1.5) return true;
+        }
+        return false;
+    }
+
+    private static string Short(string t) => t.Length > 40 ? t[..40] + "…" : t;
 
     private static string Label(Button b) => b.Name ?? (b.Content as string) ?? b.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault()?.Text ?? ToolTip.GetTip(b)?.ToString() ?? b.GetType().Name;
 }
