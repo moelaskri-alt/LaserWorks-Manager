@@ -64,6 +64,20 @@ public class UiReportScreenTests
                     if (key is "JobCostSheet" or "EstimatedVsActual" or "TrialBalance" or "GeneralLedger" or "JobProfitability" or "CustomerList") UiSession.Capture($"report-{lang}-{theme}-{key}");
                 }
             }
+            // drill-down: a report row opens its source document (job profitability → the job)
+            UiSession.Shell.NavigateTo("Reports");
+            await UiSession.SettleAsync();
+            var reports = (ReportsViewModel)UiSession.Shell.CurrentPage!;
+            reports.SelectedReport = reports.AllReports.Single(r => r.Definition.Key == "JobProfitability");
+            await reports.Run();
+            await UiSession.SettleAsync();
+            var grid2 = window.GetVisualDescendants().OfType<DataGrid>().Single(g => g.Name == "grid");
+            var first = grid2.ItemsSource!.Cast<ReportGridRow>().First(r => r.Source.SourceType == "Job");
+            Assert.True(reports.OpenRowCommand.CanExecute(first));
+            reports.OpenRowCommand.Execute(first);
+            await UiSession.SettleAsync();
+            var detail = Assert.IsType<JobDetailViewModel>(UiSession.Shell.CurrentPage);
+            Assert.Equal(first.Source.SourceId, detail.JobId);
         }
         finally
         {
