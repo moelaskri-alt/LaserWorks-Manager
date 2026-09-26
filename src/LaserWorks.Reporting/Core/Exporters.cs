@@ -104,7 +104,7 @@ public static class PdfExporter
                         for (int ci = 0; ci < table.Columns.Count; ci++)
                         {
                             var c = table.Columns[ci];
-                            var text = ci < r.Cells.Length ? CellFormatter.Format(r.Cells[ci], c.Kind, company.DecimalPlaces) : "";
+                            var text = ci < r.Cells.Count ? CellFormatter.Format(r.Cells[ci], c.Kind, company.DecimalPlaces) : "";
                             var cell = t.Cell().Background(bg).BorderBottom(0.5f).BorderColor("#E1E6EE").Padding(3).Element(e => CellAlign(e, c.Kind)).Text(text);
                             if (r.Style is RowStyle.Subtotal or RowStyle.Header) cell.SemiBold();
                             if (r.Cells.ElementAtOrDefault(ci) is decimal d && d < 0 && CellFormatter.IsNumeric(c.Kind)) cell.FontColor("#B42318");
@@ -198,7 +198,7 @@ public static class ExcelExporter
         foreach (var r in table.Rows)
         {
             for (int c = 0; c < table.Columns.Count; c++)
-                SetCell(ws.Cell(row, c + 1), c < r.Cells.Length ? r.Cells[c] : null, table.Columns[c].Kind, company.DecimalPlaces);
+                SetCell(ws.Cell(row, c + 1), c < r.Cells.Count ? r.Cells[c] : null, table.Columns[c].Kind, company.DecimalPlaces);
             if (r.Style == RowStyle.Negative) ws.Range(row, 1, row, table.Columns.Count).Style.Fill.BackgroundColor = XLColor.FromHtml("#FDECEC");
             else if (r.Style == RowStyle.Warning) ws.Range(row, 1, row, table.Columns.Count).Style.Fill.BackgroundColor = XLColor.FromHtml("#FFF6E0");
             else if (r.Style is RowStyle.Subtotal or RowStyle.Header) ws.Range(row, 1, row, table.Columns.Count).Style.Font.Bold = true;
@@ -250,7 +250,7 @@ public static class CsvExporter
         var sb = new StringBuilder();
         sb.AppendLine(string.Join(",", table.Columns.Select(c => Esc(loc[c.HeaderKey]))));
         foreach (var r in table.Rows)
-            sb.AppendLine(string.Join(",", table.Columns.Select((c, i) => Esc(Raw(i < r.Cells.Length ? r.Cells[i] : null)))));
+            sb.AppendLine(string.Join(",", table.Columns.Select((c, i) => Esc(Raw(i < r.Cells.Count ? r.Cells[i] : null)))));
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
     }
 

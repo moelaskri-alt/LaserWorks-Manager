@@ -64,6 +64,12 @@ public sealed class Loc : INotifyPropertyChanged
     /// <summary>Keys requested at runtime that were missing in the current language ("lang:key") or everywhere ("*:key").</summary>
     public IReadOnlyCollection<string> MissingKeys { get { lock (_missing) return _missing.ToList(); } }
 
+    /// <summary>
+    /// Display name of a document/source type code stored on journal entries, cost entries and stock movements
+    /// (e.g. "JobOperation" → "Operation" / "عملية تشغيل"). Codes are never shown raw.
+    /// </summary>
+    public string Source(string? code) => string.IsNullOrEmpty(code) ? "" : Has("Source." + code) ? Get("Source." + code) : Get("Source.Other");
+
     public bool Has(string key) => _current.ContainsKey(key) || _fallback.ContainsKey(key);
 
     public string Format(string key, params object?[] args)

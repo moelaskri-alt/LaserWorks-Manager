@@ -250,7 +250,7 @@ public sealed partial class JournalsViewModel : ListPageViewModel<JournalRow>
     {
         var t = new ReportTable().Col("no", "Col.Entry").Col("date", "Col.Date", K.Date).Col("desc", "Col.Description", width: 3).Col("src", "Col.Source").Col("doc", "Col.Document")
             .Col("dr", "Col.Debit", K.Money, total: true).Col("cr", "Col.Credit", K.Money, total: true).Col("status", "Col.Status");
-        foreach (var j in rows) t.Add(j.Number, j.Date, j.Description, j.SourceType, j.SourceNumber, j.TotalDebit, j.TotalCredit, j.Status);
+        foreach (var j in rows) t.Add(j.Number, j.Date, j.Description, L.Source(j.SourceType), j.SourceNumber, j.TotalDebit, j.TotalCredit, j.Status);
         return t;
     }
 
@@ -308,7 +308,7 @@ public sealed partial class JournalEditorViewModel : DialogViewModel
     {
         var e = await Get<AccountingService>().GetEntryAsync(_id);
         if (e == null) return;
-        Number = e.Number; Status = e.Status; IsManual = e.IsManual; Date = e.Date; Description = e.Description; Source = $"{e.SourceType} {e.SourceNumber}".Trim();
+        Number = e.Number; Status = e.Status; IsManual = e.IsManual; Date = e.Date; Description = e.Description; Source = $"{L.Source(e.SourceType)} {e.SourceNumber}".Trim();
         ReversalInfo = e.ReversalOfId != null ? L["Journal.IsReversal"] : e.ReversedById != null ? L["Journal.WasReversed"] : null;
         Lines.Clear();
         var rows = await Get<AccountingService>().EntryLinesAsync(_id);

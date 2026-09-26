@@ -81,3 +81,23 @@ Grid.Empty|No records to show.|لا توجد سجلات لعرضها.
 Grid.Loading|Loading…|جارٍ التحميل…
 Component.NewItem|New item|صنف جديد
 Component.NewItemTip|Create a new item in the item master (raw material, purchased component, consumable, packaging or service) and use it on this line.|إنشاء صنف جديد في دليل الأصناف (مادة خام أو مكوّن مشترى أو مستهلكات أو تغليف أو خدمة) واستخدامه في هذا البند.
+Source.CustomerPayment|Customer payment|دفعة عميل
+Source.DirectCost|Direct cost|تكلفة مباشرة
+Source.DirectCostReversal|Direct cost reversal|عكس تكلفة مباشرة
+Source.Expense|Expense|مصروف
+Source.InventoryTx|Stock movement|حركة مخزون
+Source.Job|Job|أمر عمل
+Source.JobComponent|Job component|مكوّن أمر عمل
+Source.JobOperation|Operation|عملية تشغيل
+Source.Manual|Manual entry|قيد يدوي
+Source.Opening|Opening balance|رصيد افتتاحي
+Source.Overhead|Overhead allocation|تحميل تكاليف غير مباشرة
+Source.PurchaseReceipt|Goods receipt|استلام مشتريات
+Source.PurchaseReturn|Purchase return|مرتجع مشتريات
+Source.Remnant|Remnant|قطعة بقايا
+Source.SalesInvoice|Sales invoice|فاتورة مبيعات
+Source.SalesReturn|Sales return|مرتجع مبيعات
+Source.Scrap|Scrap / rework|هالك / إعادة تشغيل
+Source.SupplierInvoice|Supplier invoice|فاتورة مورد
+Source.SupplierPayment|Supplier payment|دفعة لمورد
+Source.Other|Other|أخرى

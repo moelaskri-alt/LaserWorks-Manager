@@ -248,7 +248,7 @@ public sealed partial class ReportCatalog
             .Col("qty", "Col.Quantity", K.Number, 0.6f).Col("hours", "Col.Hours", K.Number, 0.6f).Col("amount", "Col.Amount", K.Money, total: true).Col("je", "Col.Entry", width: 0.8f);
         t.Parameters.Add($"{L["Col.Job"]}: {sheet.Job.Number} — {sheet.Job.Title}");
         t.Parameters.Add($"{L["Col.Customer"]}: {sheet.Customer}");
-        foreach (var e in sheet.Entries) t.Add(e.Date, e.Component, e.SourceType, e.Description, e.Quantity == 0 ? null : e.Quantity, e.Hours == 0 ? null : e.Hours, e.Amount, e.JournalNumber);
+        foreach (var e in sheet.Entries) t.Add(e.Date, e.Component, L.Source(e.SourceType), e.Description, e.Quantity == 0 ? null : e.Quantity, e.Hours == 0 ? null : e.Hours, e.Amount, e.JournalNumber);
         t.Notes.Add($"{L["Col.SellingPrice"]}: {L.Money(sheet.Revenue)}   {L["Col.ActualCost"]}: {L.Money(sheet.ActualCost)}   {L["Col.GrossProfit"]}: {L.Money(sheet.GrossProfit)}   {L["Col.Margin"]}: {L.Percent(sheet.MarginPercent)}");
         t.Notes.Add($"{L["Col.EstimatedCost"]}: {L.Money(sheet.Variance.EstimatedTotal)}   {L["Col.Variance"]}: {L.Money(sheet.Variance.Variance)} ({L.Percent(sheet.Variance.VariancePercent)})");
         return t;
@@ -756,7 +756,7 @@ public sealed partial class ReportCatalog
         var t = new ReportTable().Col("date", "Col.Date", K.Date, 0.8f).Col("entry", "Col.Entry", width: 0.8f).Col("source", "Col.Source", width: 0.9f).Col("doc", "Col.Document", width: 0.9f)
             .Col("desc", "Col.Description", width: 2.6f).Col("debit", "Col.Debit", K.Money, total: true).Col("credit", "Col.Credit", K.Money, total: true).Col("balance", "Col.Balance", K.Money);
         t.Parameters.Add($"{L["Filter.Account"]}: {acc.Code} {(L.IsRightToLeft ? acc.NameAr : acc.NameEn)}");
-        foreach (var r in rows) t.AddRow(r.EntryId == 0 ? RowStyle.Subtotal : RowStyle.Normal, "Journal", r.EntryId == 0 ? null : r.EntryId, r.Date, r.EntryNumber, r.SourceType, r.SourceNumber, r.EntryId == 0 ? L["Report.OpeningBalance"] : r.Description, r.Debit, r.Credit, r.Balance);
+        foreach (var r in rows) t.AddRow(r.EntryId == 0 ? RowStyle.Subtotal : RowStyle.Normal, "Journal", r.EntryId == 0 ? null : r.EntryId, r.Date, r.EntryNumber, L.Source(r.SourceType), r.SourceNumber, r.EntryId == 0 ? L["Report.OpeningBalance"] : r.Description, r.Debit, r.Credit, r.Balance);
         return t;
     }
 }

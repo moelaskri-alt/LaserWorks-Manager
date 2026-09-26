@@ -247,5 +247,24 @@ public sealed partial class ReportsViewModel : PageViewModel
         });
     }
 
-    [RelayCommand] private async Task OpenRow(ReportRow? row) { if (row != null) await Nav.OpenAsync(row.SourceType, row.SourceId); }
+    [RelayCommand] private async Task OpenRow(ReportGridRow? row) { if (row != null) await Nav.OpenAsync(row.Source.SourceType, row.Source.SourceId); }
+}
+
+
+/// <summary>
+/// One row of the report grid as the screen shows it: display-ready text per column, formatted once from the report row.
+/// The grid binds one-way to this read-only list — it never binds to the report's values themselves, so nothing on the
+/// screen can change report data (an editable two-way cell binding once replaced every value with a bare object).
+/// </summary>
+public sealed class ReportGridRow
+{
+    public ReportGridRow(ReportRow source, IReadOnlyList<ReportColumn> columns)
+    {
+        Source = source;
+        Text = Array.AsReadOnly(columns.Select((c, i) => i < source.Cells.Count ? CellFormatter.Format(source.Cells[i], c.Kind, ViewModelBase.Get<SettingsService>().Current.DecimalPlaces) : "").ToArray());
+    }
+
+    public ReportRow Source { get; }
+    public IReadOnlyList<string> Text { get; }
+    public RowStyle Style => Source.Style;
 }

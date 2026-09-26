@@ -27,7 +27,7 @@
         <DataGridTextColumn Header="{l:T Col.Entry}" Binding="{Binding Number}" Width="100" MinWidth="100" />
         <DataGridTextColumn Header="{l:T Col.Date}" Binding="{Binding Date, Converter={x:Static l:Conv.Date}}" Width="95" MinWidth="95" />
         <DataGridTextColumn Header="{l:T Col.Description}" Binding="{Binding Description}" Width="3*" MinWidth="160" />
-        <DataGridTextColumn Header="{l:T Col.Source}" Binding="{Binding SourceType}" Width="120" MinWidth="120" />
+        <DataGridTextColumn Header="{l:T Col.Source}" Binding="{Binding SourceType, Converter={x:Static l:Conv.Source}}" Width="120" MinWidth="120" />
         <DataGridTextColumn Header="{l:T Col.Document}" Binding="{Binding SourceNumber}" Width="110" MinWidth="110" />
         <DataGridTextColumn Header="{l:T Col.Debit}" Binding="{Binding TotalDebit, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />
         <DataGridTextColumn Header="{l:T Col.Credit}" Binding="{Binding TotalCredit, Converter={x:Static l:Conv.Money}}" Width="110" MinWidth="110" />

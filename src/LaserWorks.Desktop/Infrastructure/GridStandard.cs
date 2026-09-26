@@ -142,6 +142,13 @@ public static class GridStandard
         if (c.Width.IsAbsolute && c.Width.Value < min) c.Width = new DataGridLength(min);
     }
 
+    /// <summary>Width of cell text in the grid's cell font (used to size generated report columns to their content).</summary>
+    public static double MeasureCell(Control g, string text, bool bold = false)
+    {
+        using var layout = new TextLayout(text, new Typeface(g is TemplatedControl tc ? tc.FontFamily : FontFamily.Default, FontStyle.Normal, bold ? FontWeight.SemiBold : FontWeight.Normal), 13, null);
+        return layout.WidthIncludingTrailingWhitespace;
+    }
+
     public static double MeasureHeader(Control g, string text)
     {
         using var layout = new TextLayout(text, new Typeface(g is TemplatedControl tc ? tc.FontFamily : FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold), HeaderFontSize, null);

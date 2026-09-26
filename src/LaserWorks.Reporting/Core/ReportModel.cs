@@ -12,10 +12,12 @@ public sealed class ReportRow
 {
     public ReportRow(object?[] cells, RowStyle style = RowStyle.Normal, string? sourceType = null, long? sourceId = null)
     {
-        Cells = cells; Style = style; SourceType = sourceType; SourceId = sourceId;
+        // copied into a read-only list: report values can never be changed by a screen binding or an exporter
+        Cells = Array.AsReadOnly((object?[])cells.Clone()); Style = style; SourceType = sourceType; SourceId = sourceId;
     }
 
-    public object?[] Cells { get; }
+    /// <summary>Cell values (text, numbers, dates, enums, yes/no), one per report column. Read-only.</summary>
+    public IReadOnlyList<object?> Cells { get; }
     public RowStyle Style { get; }
     /// <summary>Optional link to the source document for drill-down (e.g. "Job", 42).</summary>
     public string? SourceType { get; }
@@ -51,8 +53,8 @@ public sealed class ReportTable
             if (!Columns[i].Total) continue;
             decimal sum = 0;
             foreach (var r in Rows.Where(r => r.Style is not (RowStyle.Subtotal or RowStyle.Header)))
-                if (i < r.Cells.Length && r.Cells[i] is decimal d) sum += d;
-                else if (i < r.Cells.Length && r.Cells[i] is int n) sum += n;
+                if (i < r.Cells.Count && r.Cells[i] is decimal d) sum += d;
+                else if (i < r.Cells.Count && r.Cells[i] is int n) sum += n;
             totals[i] = sum;
         }
         return totals;

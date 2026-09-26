@@ -202,6 +202,15 @@ public class UiLayoutMatrixTests
                 problems.Add($"button '{Label(b)}' clipped by {clip.GetType().Name}");
         }
 
+        // no screen ever shows an object's type name or a raw internal code instead of a business value
+        foreach (var tb in scope.OfType<TextBlock>().Where(t => !string.IsNullOrEmpty(t.Text)))
+        {
+            n++;
+            if (LaserWorks.Tests.Integration.ReportOutputTests.Artifact.IsMatch(tb.Text!) && !tb.Text!.Contains("Exception") && !tb.Text.Contains("null")
+                || LaserWorks.Tests.Integration.ReportOutputTests.IsArtifact(tb.Text!) && LaserWorks.Tests.Integration.ReportOutputTests.SourceCodes.Contains(tb.Text!))
+                problems.Add($"text shows an object or code: '{Short(tb.Text!)}'");
+        }
+
         // wrapped text must fit its own width (a wider layout than bounds means the text is cut off on the right)
         foreach (var tb in scope.OfType<TextBlock>().Where(t => t.TextWrapping != TextWrapping.NoWrap && !string.IsNullOrEmpty(t.Text)))
         {
