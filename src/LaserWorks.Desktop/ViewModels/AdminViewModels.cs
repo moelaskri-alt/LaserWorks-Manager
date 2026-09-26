@@ -260,7 +260,7 @@ public sealed partial class AuditLogViewModel : ListPageViewModel<AuditRow>
     protected override ReportTable BuildExport(IReadOnlyList<AuditRow> rows)
     {
         var t = new ReportTable().Col("time", "Col.Date", K.Date).Col("user", "Col.User").Col("action", "Col.Action").Col("entity", "Col.Entity").Col("id", "Col.RecordId", K.Text, 0.6f).Col("details", "Col.Details", width: 3);
-        foreach (var a in rows) t.Add(a.Timestamp, a.Username, a.Action, L.EntityName(a.Entity), a.RecordId?.ToString(), L.AuditDetails(a.Details));
+        foreach (var a in rows) t.Add(a.Timestamp, a.Username, a.Action, L.EntityName(a.Entity), a.RecordId?.ToString(), AuditText.Format(a.Details));
         return t;
     }
 }

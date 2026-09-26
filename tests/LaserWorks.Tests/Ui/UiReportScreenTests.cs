@@ -55,7 +55,7 @@ public class UiReportScreenTests
                             cellsRead++;
                             if (!ReportOutputTests.IsArtifact(text)) continue;
                             var cell = tb.GetVisualAncestors().OfType<DataGridCell>().FirstOrDefault();
-                            problems.Add($"{lang}/{key}: cell \"{text}\" (row {row.GetIndex()} of {grid.ItemsSource?.Cast<object>().Count()}, item {row.DataContext?.GetType().Name ?? "null"}, " +
+                            problems.Add($"{lang}/{key}: cell \"{text}\" (row {row.Index} of {grid.ItemsSource?.Cast<object>().Count()}, item {row.DataContext?.GetType().Name ?? "null"}, " +
                                 $"column {(cell?.GetVisualParent() is Panel pp ? pp.Children.IndexOf(cell) : -1)})");
                         }
                     problems.AddRange(ReportOutputTests.Problems(key, vm.Table!).Select(p => $"{lang}/{key} after display: {p}"));

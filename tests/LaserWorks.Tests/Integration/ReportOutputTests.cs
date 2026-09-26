@@ -156,6 +156,27 @@ public class ReportOutputTests : IAsyncLifetime
         }
     }
 
+    [Theory]
+    [InlineData("en")]
+    [InlineData("ar")]
+    public async Task Audit_trail_details_are_readable(string lang)
+    {
+        Loc.Instance.SetLanguage(lang);
+        Assert.Equal(Loc.Instance.Enum(LaserWorks.Domain.Enums.JobStatus.QualityCheck), LaserWorks.Desktop.AuditText.Format("QualityCheck"));
+        var change = LaserWorks.Desktop.AuditText.Format("{\"Status\":\"Draft → Final\"}");
+        Assert.DoesNotContain("{\"", change);
+        Assert.Contains(Loc.Instance.Enum(LaserWorks.Domain.Enums.EstimateStatus.Final), change);
+
+        await using var db = _t.Get<IAppDbFactory>().Create();
+        var details = await db.AuditLogs.Where(a => a.Details != null).Select(a => a.Details!).Distinct().ToListAsync();
+        Assert.NotEmpty(details);
+        var problems = details.Select(d => (raw: d, text: LaserWorks.Desktop.AuditText.Format(d)))
+            .Where(x => IsArtifact(x.text) || x.text.Contains("{\"") || (Enum.TryParse<LaserWorks.Domain.Enums.JobStatus>(x.text, out var st) && x.text != Loc.Instance.Enum(st)))
+            .Select(x => $"{x.raw} -> {x.text}").ToList();
+        _out.WriteLine($"{lang}: {details.Count} distinct audit details, {problems.Count} problems");
+        Assert.True(problems.Count == 0, string.Join("\n", problems));
+    }
+
     private static string Root()
     {
         var d = new DirectoryInfo(AppContext.BaseDirectory);
