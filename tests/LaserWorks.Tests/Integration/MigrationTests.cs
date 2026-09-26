@@ -90,8 +90,8 @@ public class MigrationTests
             var estLines = await db.EstimateMaterialLines.CountAsync(l => l.EstimateId == job.EstimateId);
             Assert.True(await db.JobComponents.CountAsync(c => c.JobId == job.Id && c.EstimateLineId != null) == estLines, job.Number);
         }
-        Assert.Equal(0, await db.InventoryTransactions.CountAsync(t => t.JobId != null && t.MaterialId != null && t.JobComponentId == null &&
-            (t.Type == InventoryTxType.MaterialIssue || t.Type == InventoryTxType.MaterialReturn || t.Type == InventoryTxType.RemnantConsumption)));
+        // every stock movement of a job (issue, return, remnant saved from or used on the job) belongs to a component line
+        Assert.Equal(0, await db.InventoryTransactions.CountAsync(t => t.JobId != null && t.MaterialId != null && t.JobComponentId == null));
         Assert.Equal(0, await db.JobCostEntries.CountAsync(e => e.MaterialId != null && e.Component == CostComponent.Material && e.JobComponentId == null));
         Assert.Equal(0, await db.EstimateMaterialLines.CountAsync(l => l.Category == 0 || l.Source == 0));
 

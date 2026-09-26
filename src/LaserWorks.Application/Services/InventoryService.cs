@@ -288,7 +288,9 @@ public sealed class InventoryService : ServiceBase
             };
             db.Remnants.Add(r);
             await db.SaveChangesAsync();
-            var tx = await InventoryEngine.RemnantTxAsync(db, r, InventoryTxType.RemnantCreation, input.Date, 1, cost, job?.Id, input.Notes);
+            // an offcut saved from a job belongs to that job's line for the material (stock movement and cost entry alike)
+            var line = job == null ? null : await db.JobComponents.Where(c => c.JobId == job.Id && c.MaterialId == m.Id).OrderBy(c => c.LineNo).FirstOrDefaultAsync();
+            var tx = await InventoryEngine.RemnantTxAsync(db, r, InventoryTxType.RemnantCreation, input.Date, 1, cost, job?.Id, input.Notes, jobComponentId: line?.Id);
             var draft = new JournalDraft { Date = input.Date, Description = $"Remnant {r.Code} created" + (job != null ? $" from {job.Number}" : ""), SourceType = "Remnant", SourceId = r.Id, SourceNumber = r.Code }
                 .Dr(SystemAccounts.InventoryRemnants, cost);
             if (job != null) draft.Cr(SystemAccounts.WIP, cost, tags: new LineTags(JobId: job.Id));
@@ -296,7 +298,6 @@ public sealed class InventoryService : ServiceBase
             await PostAsync(db, tx, draft);
             if (job != null)
             {
-                var line = await db.JobComponents.Where(c => c.JobId == job.Id && c.MaterialId == m.Id).OrderBy(c => c.LineNo).FirstOrDefaultAsync();
                 JobCostEngine.Add(db, job, CostComponent.Material, -cost, input.Date, "Remnant", r.Id, $"Remnant {r.Code} {r.Length:0.#}×{r.Width:0.#}", 0, m.Id,
                     journal: tx.JournalEntry, jobComponentId: line?.Id);
             }

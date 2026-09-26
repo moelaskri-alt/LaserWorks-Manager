@@ -334,9 +334,13 @@ public class MultiComponentTests
         await jc.IssueAsync(handleLine.Id, it.Wh, 10, day);
         await jc.UseRemnantAsync(lines.Single(l => l.Source == ComponentSource.Remnant).Id, remnantId, day);
         foreach (var l in lines.Where(l => l.MaterialId == it.Box || l.MaterialId == it.Tape)) await jc.IssueAsync(l.Id, it.Wh, l.PlannedQuantity, day);
+        // an offcut of the plywood saved from this job leaves the board line's cost and stays linked to that line
+        var offcut = await inv.CreateRemnantAsync(new RemnantInput(plywood, it.Wh, 30, 20, null, jobId, null, day, "offcut"));
+        var offcutValue = (await inv.ListRemnantsAsync(new PageRequest(PageSize: 100))).Items.Single(r => r.Id == offcut).Cost;
+        Assert.Equal(Money.Round(boardLine.PlannedQuantity * 62 - offcutValue), (await jc.ListAsync(jobId)).Single(l => l.Id == boardLine.Id).ActualCost);
         Assert.Equal(-boardLine.PlannedQuantity * 62, await Ledger.BalanceAsync(t, SystemAccounts.Inventory) - rawBefore);
         Assert.Equal(-140m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryComponents) - compBefore);
-        Assert.Equal(-12m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants) - remBefore);
+        Assert.Equal(offcutValue - 12m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants) - remBefore);
         Assert.Equal(140m, (await jc.ListAsync(jobId)).Single(l => l.Id == handleLine.Id).ActualCost);
 
         // machine operation and labor, scrap, rework, quality check, completion, delivery

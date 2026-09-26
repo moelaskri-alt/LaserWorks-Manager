@@ -290,6 +290,9 @@ public sealed class DemoDataService
                 est.PackagingPerUnit = t.PackagingPerUnit;
                 est.SellingPrice = 0;
                 var estId = await estSvc.SaveAsync(est);
+                // the first multi-component product is kept as a reusable product template
+                if (idx == extras.Keys.Min())
+                    await S<ProductTemplateService>().SaveFromEstimateAsync(estId, t.Description);
 
                 At(D(2), 14);
                 var qId = await quoteSvc.CreateFromEstimateAsync(estId);
