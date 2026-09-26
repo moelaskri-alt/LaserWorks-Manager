@@ -18,14 +18,15 @@ public class UiSmokeTests
         "Materials", "Inventory", "Purchases", "Sales", "Expenses", "Accounting", "Profitability", "Reports", "Settings", "Backup", "Users"
     };
 
-    /// <summary>Opens every module (and every tab) in Arabic/Light and English/Dark at 1366×768, with no binding errors or error banners.</summary>
+    /// <summary>Opens every module and every tab at 1366×768 (Arabic/Light, English/Dark), 1600×900 (English/Light) and 1920×1080 (Arabic/Dark): no binding errors, error banners or layout-audit problems.</summary>
     [AvaloniaFact]
     public async Task Every_page_and_tab_renders_in_both_languages_and_themes()
     {
         var window = await UiSession.EnsureStartedAsync();
         var failures = new List<string>();
-        foreach (var (lang, theme) in new[] { ("ar", "Light"), ("en", "Dark") })
+        foreach (var (lang, theme, w, h) in new[] { ("ar", "Light", 1366, 768), ("en", "Dark", 1366, 768), ("en", "Light", 1600, 900), ("ar", "Dark", 1920, 1080) })
         {
+            window.Width = w; window.Height = h;
             App.ApplyLanguage(lang);
             App.ApplyTheme(theme);
             await UiSession.SettleAsync();
@@ -36,7 +37,7 @@ public class UiSmokeTests
                 UiSession.Shell.NavigateTo(page);
                 await UiSession.SettleAsync();
                 Assert.Equal(page, UiSession.Shell.CurrentKey);
-                UiSession.Capture($"{lang}-{theme}-{page}");
+                UiSession.Capture($"{w}-{lang}-{theme}-{page}");
                 failures.AddRange(UiLayoutMatrixTests.AuditPublic(window, false).Problems.Select(e => $"{lang}/{page}: layout {e}"));
                 var tabs = window.GetVisualDescendants().OfType<TabControl>().FirstOrDefault();
                 if (tabs != null)
@@ -45,7 +46,7 @@ public class UiSmokeTests
                     {
                         tabs.SelectedIndex = i;
                         await UiSession.SettleAsync();
-                        UiSession.Capture($"{lang}-{theme}-{page}-tab{i}");
+                        UiSession.Capture($"{w}-{lang}-{theme}-{page}-tab{i}");
                         failures.AddRange(UiLayoutMatrixTests.AuditPublic(window, false).Problems.Select(e => $"{lang}/{page}/tab{i}: layout {e}"));
                     }
                     tabs.SelectedIndex = 0;
@@ -54,6 +55,7 @@ public class UiSmokeTests
                 failures.AddRange(UiSession.VisibleErrors().Select(e => $"{lang}/{page}: banner {e}"));
             }
         }
+        window.Width = 1366; window.Height = 768;
         foreach (var f in failures.Distinct()) _out.WriteLine(f);
         Assert.Empty(failures.Distinct());
     }

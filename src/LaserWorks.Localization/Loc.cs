@@ -70,6 +70,27 @@ public sealed class Loc : INotifyPropertyChanged
     /// </summary>
     public string Source(string? code) => string.IsNullOrEmpty(code) ? "" : Has("Source." + code) ? Get("Source." + code) : Get("Source.Other");
 
+    /// <summary>Display name of an entity type recorded in the audit trail (e.g. "Remnant" → "قطعة بقايا").</summary>
+    public string EntityName(string? name) => string.IsNullOrEmpty(name) ? "" : Has("Entity." + name) ? Get("Entity." + name) : Get("Entity.Other");
+
+    /// <summary>
+    /// Audit details as readable text: a recorded change set ({"Field":"old → new",...}) becomes "Field: old → new · …";
+    /// other text is returned unchanged.
+    /// </summary>
+    public string AuditDetails(string? details)
+    {
+        if (string.IsNullOrWhiteSpace(details) || !details.TrimStart().StartsWith('{')) return details ?? "";
+        try
+        {
+            var map = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string?>>(details);
+            return map == null ? details : string.Join(" · ", map.Select(p => $"{p.Key}: {p.Value}"));
+        }
+        catch (System.Text.Json.JsonException) { return details; }
+    }
+
+    /// <summary>Display name of a numbering sequence key (e.g. "SupplierPayment" → "دفعة لمورد").</summary>
+    public string SequenceName(string? key) => string.IsNullOrEmpty(key) ? "" : Has("Enum.SequenceKey." + key) ? Get("Enum.SequenceKey." + key) : Get("Source.Other");
+
     public bool Has(string key) => _current.ContainsKey(key) || _fallback.ContainsKey(key);
 
     public string Format(string key, params object?[] args)

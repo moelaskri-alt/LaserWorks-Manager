@@ -16,6 +16,9 @@ public static class Conv
     public static readonly IValueConverter Percent = new OneWay<object?, string>(v => v switch { decimal d => Loc.Instance.Percent(d), null => "", _ => v.ToString() ?? "" });
     /// <summary>Document / source type code → translated name (never the raw code).</summary>
     public static readonly IValueConverter Source = new OneWay<object?, string>(v => Loc.Instance.Source(v as string));
+    public static readonly IValueConverter EntityName = new OneWay<object?, string>(v => Loc.Instance.EntityName(v as string));
+    public static readonly IValueConverter SequenceName = new OneWay<object?, string>(v => Loc.Instance.SequenceName(v as string));
+    public static readonly IValueConverter AuditDetails = new OneWay<object?, string>(v => Loc.Instance.AuditDetails(v as string));
     public static readonly IValueConverter Date = new OneWay<object?, string>(v => v switch { DateTime d => Loc.Instance.Date(d), _ => "" });
     public static readonly IValueConverter DateTimeShort = new OneWay<object?, string>(v => v switch { DateTime d => d.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), _ => "" });
     /// <summary>Name of a bilingual record (account, unit) in the current UI language.</summary>

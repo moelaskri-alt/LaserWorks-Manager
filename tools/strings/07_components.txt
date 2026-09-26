@@ -101,3 +101,37 @@ Source.Scrap|Scrap / rework|هالك / إعادة تشغيل
 Source.SupplierInvoice|Supplier invoice|فاتورة مورد
 Source.SupplierPayment|Supplier payment|دفعة لمورد
 Source.Other|Other|أخرى
+Entity.CompanySettings|Company settings|إعدادات الشركة
+Entity.CostEstimate|Cost estimate|تقدير التكلفة
+Entity.Customer|Customer|العميل
+Entity.CustomerPayment|Customer payment|دفعة عميل
+Entity.CustomerRequest|Customer request|طلب عميل
+Entity.DesignRevision|Design revision|مراجعة تصميم
+Entity.Employee|Employee|موظف
+Entity.Expense|Expense|مصروف
+Entity.Job|Job|أمر عمل
+Entity.JobComponent|Job component|مكوّن أمر عمل
+Entity.Machine|Machine|ماكينة
+Entity.Material|Item / material|صنف / مادة
+Entity.ProductTemplate|Product template|قالب منتج
+Entity.PurchaseOrder|Purchase order|أمر شراء
+Entity.PurchaseReceipt|Goods receipt|استلام مشتريات
+Entity.PurchaseReturn|Purchase return|مرتجع مشتريات
+Entity.QualityCheck|Quality check|فحص جودة
+Entity.Quotation|Quotation|عرض سعر
+Entity.Remnant|Remnant|قطعة بقايا
+Entity.SalesInvoice|Sales invoice|فاتورة مبيعات
+Entity.SalesReturn|Sales return|مرتجع مبيعات
+Entity.ScrapRecord|Scrap / rework record|سجل هالك / إعادة تشغيل
+Entity.Supplier|Supplier|مورد
+Entity.SupplierInvoice|Supplier invoice|فاتورة مورد
+Entity.SupplierPayment|Supplier payment|دفعة لمورد
+Entity.User|User|مستخدم
+Entity.Warehouse|Warehouse|مستودع
+Entity.Attachment|Attachment|مرفق
+Entity.FiscalPeriod|Fiscal period|فترة مالية
+Entity.JobOperation|Job operation|عملية تشغيل
+Entity.JournalEntry|Journal entry|قيد يومية
+Entity.RolePermission|Role permission|صلاحية دور
+Entity.Backup|Backup|نسخة احتياطية
+Entity.Other|Other|أخرى

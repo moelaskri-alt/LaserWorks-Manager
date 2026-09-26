@@ -8,6 +8,7 @@ using LaserWorks.Domain.Enums;
 using LaserWorks.Reporting.Core;
 using LaserWorks.Reporting.Documents;
 using LaserWorks.Tests.Support;
+using L = LaserWorks.Localization.Loc;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -385,6 +386,23 @@ public class MultiComponentTests
             Assert.All(await db.InventoryTransactions.AsNoTracking().Where(x => x.JobId == jobId).ToListAsync(),
                 x => Assert.True(x.WarehouseId > 0 && x.CreatedBy != null && x.Date == day && x.TotalCost == Money.Round(x.Quantity * x.UnitCost) || x.RemnantId != null, $"tx {x.Number}"));
         }
+        // job cost report → PDF and Excel, and the Excel file carries the same figures
+        var report = await t.Get<ReportCatalog>().RunAsync("JobCostSheet", new ReportFilter(new DateRange(day, day), day, JobId: jobId));
+        var company = await t.Get<SettingsService>().GetAsync();
+        Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(PdfExporter.Render(report, company), 0, 4));
+        Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(DocumentRenderer.JobCostSheet(cs, company), 0, 4));
+        var xlsx = Path.Combine(t.Folder, "serving-board.xlsx");
+        ExcelExporter.Export(report, company, xlsx);
+        using (var wb = new ClosedXML.Excel.XLWorkbook(xlsx))
+        {
+            var ws = wb.Worksheet(1);
+            var amountCol = report.Columns.FindIndex(c => c.Key == "amount") + 1;
+            var amounts = ws.Column(amountCol).CellsUsed().Where(c => c.DataType == ClosedXML.Excel.XLDataType.Number).Select(c => c.GetValue<decimal>()).ToList();
+            Assert.Contains(cs.ActualCost, amounts);                                                  // the totals row
+            Assert.Equal(cs.ActualCost, amounts.Take(cs.Entries.Count).Sum());                       // the entry rows add up
+            Assert.Contains(ws.CellsUsed(), c => c.GetString() == L.Instance.Source("JobOperation"));         // sources translated, not codes
+        }
+
         await Ledger.AssertBooksBalanceAsync(t);
         _out.WriteLine($"serving board: estimate {saved.TotalCost}, actual {cs.ActualCost}, revenue {cs.Revenue}, profit {cs.GrossProfit} ({cs.MarginPercent:0.##}%)");
     }

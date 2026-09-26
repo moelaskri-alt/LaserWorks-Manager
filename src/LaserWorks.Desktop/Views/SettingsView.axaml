@@ -60,7 +60,7 @@
           <Button DockPanel.Dock="Bottom" Classes="primary" Content="{l:T Common.Save}" Command="{Binding SaveSequencesCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" />
           <DataGrid ItemsSource="{Binding Sequences}" IsReadOnly="False" CanUserSortColumns="False">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="{l:T Settings.Document}" Binding="{Binding Key}" IsReadOnly="True" Width="2*" MinWidth="140" />
+              <DataGridTextColumn Header="{l:T Settings.Document}" Binding="{Binding Key, Converter={x:Static l:Conv.SequenceName}, Mode=OneWay}" IsReadOnly="True" Width="2*" MinWidth="140" />
               <DataGridTextColumn Header="{l:T Settings.Prefix}" Binding="{Binding Prefix}" Width="*" MinWidth="80" />
               <DataGridTextColumn Header="{l:T Settings.NextNumber}" Binding="{Binding NextNumber}" Width="*" MinWidth="80" />
               <DataGridTextColumn Header="{l:T Settings.Padding}" Binding="{Binding Padding}" Width="*" MinWidth="80" />

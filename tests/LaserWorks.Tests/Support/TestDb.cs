@@ -81,10 +81,14 @@ public sealed class TestDb : IAsyncDisposable
         await Get<PermissionService>().LoadAsync();
     }
 
+    /// <summary>Keep the data folder on dispose (to "close" the application and open it again on the same data).</summary>
+    public bool KeepFolder { get; set; }
+
     public async ValueTask DisposeAsync()
     {
         await Services.DisposeAsync();
         SqliteConnection.ClearAllPools();
+        if (KeepFolder) return;
         try { Directory.Delete(Folder, true); } catch { /* best effort */ }
     }
 }

@@ -154,11 +154,27 @@ public class InventoryCostingTests
         Assert.Equal(36.25m, expected);
         Assert.Equal(145m - expected, await Ledger.BalanceAsync(t, SystemAccounts.WIP, job));
         Assert.Equal(expected, await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants));
+        // the remnant record: dimensions, thickness, warehouse, source job, value, available
+
+        var r = (await inv.ListRemnantsAsync(new PageRequest(PageSize: 50), null)).Items.Single(x => x.Id == remnantId);
+        Assert.Equal((122m, 61m, mat.Thickness), (r.Length, r.Width, r.Thickness));
+        Assert.Equal((await t.Get<LookupService>().WarehousesAsync()).Single(w => w.Id == wh).Name, r.Warehouse);
+        Assert.Equal((await t.Get<JobService>().GetAsync(job))!.Number, r.SourceJob);
+        Assert.Equal(expected, r.Cost);
+        Assert.Equal(RemnantStatus.Available, r.Status);
+        // the job's material line carries the net cost (sheet − offcut)
+        Assert.Equal(145m - expected, (await t.Get<JobComponentService>().ListAsync(job)).Sum(l => l.ActualCost));
 
         var job2 = await t.Get<JobService>().SaveAsync(new Job { CustomerId = customer, Title = "Job B", Quantity = 1, OrderDate = day, DueDate = day.AddDays(3), SellingPrice = 200 });
         await inv.ConsumeRemnantAsync(remnantId, job2, day);
         Assert.Equal(expected, await Ledger.BalanceAsync(t, SystemAccounts.WIP, job2));
         Assert.Equal(0m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants));
+        r = (await inv.ListRemnantsAsync(new PageRequest(PageSize: 50), null)).Items.Single(x => x.Id == remnantId);
+        Assert.Equal(RemnantStatus.Consumed, r.Status);
+        Assert.Equal((await t.Get<JobService>().GetAsync(job2))!.Number, r.ConsumedJob);
+        Assert.Equal(day, r.ConsumedDate);
+        Assert.DoesNotContain((await inv.ListRemnantsAsync(new PageRequest(PageSize: 50))).Items, x => x.Id == remnantId);   // no longer in the available list
+        Assert.Equal(expected, (await t.Get<JobComponentService>().ListAsync(job2)).Single().ActualCost);                  // lands on a remnant line of job B
         Assert.Equal("Err.RemnantNotAvailable", (await Assert.ThrowsAsync<DomainException>(() => inv.ConsumeRemnantAsync(remnantId, job, day))).Code);
         await Ledger.AssertBooksBalanceAsync(t);
     }

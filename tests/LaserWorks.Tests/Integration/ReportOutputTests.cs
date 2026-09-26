@@ -42,9 +42,14 @@ public class ReportOutputTests : IAsyncLifetime
         "Overhead", "PurchaseReceipt", "PurchaseReturn", "Remnant", "SalesInvoice", "SalesReturn", "Scrap", "SupplierInvoice", "SupplierPayment"
     };
 
-    /// <summary>True when the text is an object artifact, or a raw source code that is not a real label in the current language.</summary>
+    /// <summary>Entity type names (audit trail) and sequence keys — also internal codes that must never be shown raw.</summary>
+    public static readonly string[] InternalNames = typeof(LaserWorks.Domain.Entities.Job).Assembly.GetTypes()
+        .Where(t => typeof(LaserWorks.Domain.Common.IAudited).IsAssignableFrom(t) && !t.IsInterface).Select(t => t.Name)
+        .Concat(Enum.GetNames<LaserWorks.Domain.Enums.SequenceKey>()).Concat(SourceCodes).Distinct().ToArray();
+
+    /// <summary>True when the text is an object artifact, or a raw internal code / type name that is not a real label in the current language.</summary>
     public static bool IsArtifact(string text) =>
-        Artifact.IsMatch(text) || (SourceCodes.Contains(text) && !Loc.Instance.Strings(Loc.Instance.Language).Values.Contains(text));
+        Artifact.IsMatch(text) || (InternalNames.Contains(text) && !Loc.Instance.Strings(Loc.Instance.Language).Values.Contains(text));
 
     public static IEnumerable<string> Problems(string report, ReportTable table)
     {
@@ -137,6 +142,18 @@ public class ReportOutputTests : IAsyncLifetime
                 var code = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
                 Assert.True(SourceCodes.Contains(code) || code == "DirectCostReversal", $"{Path.GetFileName(file)}: source code {code} has no display name");
             }
+    }
+
+    [Fact]
+    public void Every_audited_entity_and_sequence_has_a_translated_name()
+    {
+        var audited = typeof(LaserWorks.Domain.Entities.Job).Assembly.GetTypes().Where(t => typeof(LaserWorks.Domain.Common.IAudited).IsAssignableFrom(t) && !t.IsInterface).Select(t => t.Name)
+            .Concat(new[] { "Attachment", "FiscalPeriod", "JobOperation", "JournalEntry", "RolePermission" });
+        foreach (var lang in new[] { "en", "ar" })
+        {
+            foreach (var name in audited) Assert.True(Loc.Instance.Strings(lang).ContainsKey("Entity." + name), $"{lang}: Entity.{name}");
+            foreach (var key in Enum.GetNames<LaserWorks.Domain.Enums.SequenceKey>()) Assert.True(Loc.Instance.Strings(lang).ContainsKey("Enum.SequenceKey." + key), $"{lang}: sequence {key}");
+        }
     }
 
     private static string Root()

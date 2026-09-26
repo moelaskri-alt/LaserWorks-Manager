@@ -207,8 +207,9 @@ public class UiLayoutMatrixTests
         {
             n++;
             if (LaserWorks.Tests.Integration.ReportOutputTests.Artifact.IsMatch(tb.Text!) && !tb.Text!.Contains("Exception") && !tb.Text.Contains("null")
-                || LaserWorks.Tests.Integration.ReportOutputTests.IsArtifact(tb.Text!) && LaserWorks.Tests.Integration.ReportOutputTests.SourceCodes.Contains(tb.Text!))
+                || LaserWorks.Tests.Integration.ReportOutputTests.IsArtifact(tb.Text!) && LaserWorks.Tests.Integration.ReportOutputTests.InternalNames.Contains(tb.Text!))
                 problems.Add($"text shows an object or code: '{Short(tb.Text!)}'");
+            if (tb.Text!.TrimStart().StartsWith("{\"")) problems.Add($"text shows serialized data: '{Short(tb.Text!)}'");
         }
 
         // wrapped text must fit its own width (a wider layout than bounds means the text is cut off on the right)
