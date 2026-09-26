@@ -12,8 +12,9 @@ we sell it for, and how much profit did we really make?*
 - Arabic (default) and English, switchable at runtime, full right-to-left layout; light, dark and system themes
 - Real double-entry accounting: every operational transaction posts a balanced, traceable journal entry; posted entries are never edited, only reversed
 - Moving weighted average inventory, sheet utilisation, reusable remnants, machine hourly cost
-- Estimates with eleven cost components (each automatic or manual), what-if pricing, estimated-vs-actual variance, profitability flags
-- 40 reports with PDF, Excel, CSV and print; quotation, invoice and job cost sheet documents
+- Multi-component jobs: unlimited lines of raw materials, purchased components, consumables, packaging, remnants, external services and other direct costs — from inventory, remnants, direct purchase or manual cost, with no double charging; product templates for repeat products
+- Estimates with fifteen cost components (each automatic or manual), what-if pricing, estimated-vs-actual variance per component line, profitability flags
+- 41 reports with PDF, Excel, CSV and print; quotation, invoice and job cost sheet documents
 - Six roles with per-module permissions, PBKDF2 passwords, account lockout, audit trail
 - Backup and restore with checksum validation and an automatic safety backup
 - Nothing is hard-coded to one workshop: materials, machines, employees, rates, numbering and taxes are all configured in the app

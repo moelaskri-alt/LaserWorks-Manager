@@ -32,6 +32,8 @@ and their type is fixed because the posting rules use them.
 | 1210 | Inventory – remnants | 3100 | Owner's capital |
 | 1220 | Inventory – finished goods | 3200 | Retained earnings |
 | 1230 | Inventory – consumables | 3900 | Opening balance equity |
+| 1240 | Inventory – purchased components | | |
+| 1250 | Inventory – packaging | | |
 | 1300 | Work in progress (WIP) | 4100 | Sales revenue |
 | 1400 | Input tax (VAT) | 4200 | Sales returns |
 | 1500 / 1510 | Machinery / accumulated depreciation | 4900 | Other income |
@@ -44,11 +46,13 @@ and their type is fixed because the posting rules use them.
 |---|---|---|
 | Opening stock | Inventory (by material kind) | Opening balance equity |
 | Customer / supplier opening balance | AR / Opening equity | Opening equity / AP |
-| Goods receipt | Inventory | GRNI |
+| Goods receipt | Inventory account of the item kind (raw materials, purchased components, consumables, packaging, finished goods) | GRNI |
 | Supplier invoice (at receipt cost) | GRNI + Input tax | AP |
 | Supplier payment | AP | Cash / Bank |
 | Purchase return | AP + … (or GRNI if not yet invoiced) | Inventory at the original receipt cost, Input tax |
-| Material issue to job | WIP (job) | Inventory, at moving average cost |
+| Stock issue to a job component line | WIP (job) | Inventory account of the item kind, at moving average cost |
+| Direct purchase / external service / manual cost on a job component line | WIP (job) + Input tax | AP (supplier) or Cash / Bank |
+| Reversal of such a direct cost | the reversing entry of the original | |
 | Material return from job | Inventory | WIP (job), at the cost it was issued at |
 | Operation completed | WIP (job) | Machine applied (machine + maintenance), Labor applied |
 | Rework | WIP (job) | Machine applied / Labor applied |

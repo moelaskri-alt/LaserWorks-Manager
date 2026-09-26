@@ -8,7 +8,7 @@ src/
   LaserWorks.Localization    Arabic/English string tables, number/date formatting
   LaserWorks.Application     use cases: services, posting engines, IAppDb abstraction
   LaserWorks.Infrastructure  EF Core + SQLite, integrity rules, migrations, backup, file paths
-  LaserWorks.Reporting       40 reports, PDF (QuestPDF) / Excel (ClosedXML) / CSV exporters, documents
+  LaserWorks.Reporting       41 reports, PDF (QuestPDF) / Excel (ClosedXML) / CSV exporters, documents
   LaserWorks.Desktop         Avalonia UI (MVVM), produces LaserWorksManager.exe
   LaserWorks.Tools           command line: demo database, bulk report export
 tests/

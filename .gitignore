@@ -12,3 +12,6 @@ publish/
 TestResults/
 *.lwbak
 screenshots/tmp/
+
+# test fixture: the rc1 demo database the migration test upgrades
+!tests/LaserWorks.Tests/Fixtures/*.db

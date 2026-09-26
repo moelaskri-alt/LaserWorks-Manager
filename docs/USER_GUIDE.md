@@ -30,7 +30,8 @@ Everything can be changed later under Settings, Machines, Materials and Users.
 
 ## 3. Materials and stock
 
-**Materials → New material**: code (auto-numbered), name, kind (raw material, consumable, finished good),
+**Items & Materials → New material**: code (auto-numbered), name, kind (raw material, purchased component,
+consumable, packaging, finished product or service — services are never stocked),
 type, thickness, sheet length and width (for sheet materials use the *Sheet* unit), purchase and sales price,
 reorder level. Stock quantity and average cost cannot be typed; they change only through movements:
 
@@ -49,11 +50,16 @@ own rate. **Employees & Labor**: name, role and hourly cost; used for labor on o
 
 ## 5. Customer request and design
 
-**Customer requests → New request**: customer, description, dimensions, material, thickness, quantity, required
-date. Click **Save** (the dialog stays open), then:
+**Customer requests → New request**: customer, description, dimensions, quantity and required date, and on the
+**Requested items** tab every material, component, accessory, packaging or service the customer asked for —
+as many lines as needed, each with its quantity per finished unit (pick an item, or type a free-text item and
+choose its type). **Add item**, **Duplicate** and **Remove** manage the lines. Click **Save and continue**
+(the dialog stays open), then:
 
-- **Attach file** — reference images, logos, DXF/SVG/PDF files (stored inside the data folder)
-- **New revision** — design size, cutting length, engraving area, estimated machine minutes; attach design files
+- **Attachments** tab — add, open or remove reference images, logos, DXF/SVG/PDF files (name, type, size, date
+  and user are shown; stored inside the data folder)
+- **Design revision** tab — **New revision** (design size, main sheet material, cutting length, engraving area,
+  estimated machine minutes, design files); **Open** shows a revision
 - **Approve as final** on the chosen revision (other revisions become *Superseded*)
 - **Create estimate** — opens a cost estimate prefilled from the request and approved design
 
@@ -61,15 +67,22 @@ date. Click **Save** (the dialog stays open), then:
 
 The estimate editor recalculates as you type:
 
-- **Materials**: pick the material; for sheets add the pieces per unit (length, width, quantity) and check
-  sheets required, utilisation and waste; override sheets or use *Find remnants*.
+- **Components & materials**: a grid with one line per component — type, source, item, unit, quantity per unit,
+  total quantity, unit cost and cost. Add lines **From inventory**, **Purchased for job** (bought directly for this
+  job), **External service**, **Use remnant** (pick the offcut) or **Other cost**; **Duplicate** / **Remove** the
+  selected line. The panel under the grid edits the selected line; **New item** creates a missing item in the item
+  master on the spot. For sheet materials add the pieces per unit (length, width, quantity) and check sheets
+  required, utilisation and waste; override sheets or use *Find remnants*. There is no limit on the number of lines.
 - **Machine time**: machine, operation and minutes per unit. **Labor**: employee, operation, minutes per unit.
-- **Other costs**: design and setup hours, finishing, packaging and consumables per unit, overhead, scrap allowance.
+- **Other costs**: design and setup hours, finishing, packaging and consumables per unit, overhead, scrap and
+  rework allowance.
 - **Cost breakdown**: tick *Manual* on any component to type its amount.
 - **Pricing**: target and minimum margin, suggested price, selling price, profit, margin and markup; a warning
   appears below the minimum margin. **What-if** tries other quantities, costs, margins or prices.
 
 **Save**, then **Create quotation** (this finalises the estimate). *Duplicate* makes a new draft from a final estimate.
+**Save as template** keeps the estimate's bill of materials and routing as a product template;
+**Estimates → New from template** starts a new estimate from a template (templates can be deleted there too).
 
 ## 7. Quotation
 
@@ -83,9 +96,20 @@ A job can also be created directly (Jobs → *New job (without quotation)*) for 
 ## 8. Job and production
 
 The job screen shows selling price, estimated and actual cost, variance, profit and margin, with tabs for
-cost, operations, materials, scrap and rework, quality and details.
+cost, components, operations, materials, scrap and rework, quality and details.
 
-1. **Issue material** from stock (or **Use remnant**); **Return material** if not used.
+1. **Components** tab: the job's component lines, taken from the estimate (planned quantity, used quantity,
+   remaining, estimated and actual cost, variance). Select a line and:
+   - **Issue material** / **Return material** for stock lines (the quantity defaults to what is still needed),
+   - **Use remnant** for raw-material lines,
+   - **Record direct cost** for lines purchased for the job, external services and other costs — the supplier
+     bill (on credit) or cash/bank payment is posted straight to the job, never through stock
+     (a wrong one is reversed from the cost tab with **Reverse direct cost**).
+   **From inventory / Purchased for job / External service / Use remnant / Other cost** add lines during
+   production; **Edit**, **Duplicate** and **Delete** manage them (a line that already carries cost keeps its item,
+   source and type). **Save job as template** keeps the job's actual bill of materials for repeat products.
+   The **Issue material** button at the top and the Inventory page still work: the movement is attached to the
+   job's line for that item, or to a new *unplanned* line.
 2. **Operations** are created from the estimate (design, preparation, cutting/engraving, finishing…).
    **Start** and **Complete** each one with actual labor hours, machine hours, quantity, employee and machine;
    the cost is posted immediately. Add or edit operations as needed; the Production → *Operations board*
@@ -111,9 +135,10 @@ value into that job. Inventory → Remnants lets you adjust or scrap old remnant
 
 ## 11. Understanding job costing
 
-Actual cost is built only from real transactions: material issued, machine and labor time on operations,
-rework, expenses charged to the job and overhead. The **Cost & variance** tab compares every component with
-the estimate and names the main reason for the difference. **Cost sheet (PDF)** and **Excel** export the full
+Actual cost is built only from real transactions: stock issued to component lines, remnants used, direct
+purchases and external services recorded on lines, machine and labor time on operations, rework, expenses
+charged to the job and overhead. The **Cost & variance** tab compares every component line (and every cost
+component) with the estimate and names the main reason for the difference. **Cost sheet (PDF)** and **Excel** export the full
 job cost sheet. See [COSTING.md](COSTING.md).
 
 ## 12. Understanding profitability
