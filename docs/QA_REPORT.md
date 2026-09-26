@@ -1,3 +1,5 @@
+> **Superseded.** This is the 1.0.0-rc1 QA report. The current report is [FINAL_QA_REPORT.md](../FINAL_QA_REPORT.md) (1.1.0-rc1).
+
 # Final QA report — LaserWorks Manager 1.0.0-rc1
 
 **Status: RELEASE CANDIDATE.** Automated Windows validation passed; interactive Windows validation is pending.

@@ -73,9 +73,12 @@ No posted amount changes during the upgrade.
 
 ## Known limitations
 
-- **Interactive Windows validation is pending.** On Windows the release was validated by automation only
-  (all 51 tests, packaged-exe start-up smoke test, silent install/start/uninstall on a Windows Server 2025 runner);
-  it has not yet been used by hand on Windows 10/11.
+- **Interactive Windows validation is pending.** On Windows this release was validated by automation only
+  (all 61 tests, packaged-exe start-up smoke test, demo reconciliation, silent install/start/uninstall on a
+  Windows Server 2025 runner); it has not yet been used by hand on Windows 10/11.
+- Upgrading from 1.0.0-rc1 was tested on the rc1 demo database. Back up a production database before the first start
+  of 1.1.0-rc1.
+- Grid columns have minimum widths but no maximum width.
 - The executable and installer are not code-signed, so Windows SmartScreen shows an "unknown publisher" warning.
 - Single currency; single company per database; no payroll or fixed-asset register (depreciation is included
   in machine rates and posted as an expense when you record it).

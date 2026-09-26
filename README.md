@@ -58,9 +58,12 @@ tools/release.sh                                    # exe, installer, portable z
 
 ## Status
 
-Version 1.0.0-rc1. All 51 automated tests pass on Linux and on Windows.
-Automated Windows validation **passed** on a Windows Server 2025 runner (GitHub Actions run [36207448127](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36207448127), commit 19ed4d4):
-51/51 tests (including headless UI), the published `LaserWorksManager.exe --smoke-test`, and a silent install → start → uninstall
-of `LaserWorksManagerSetup.exe`. **Interactive Windows validation is pending**: nobody has yet used the application by hand on
-Windows 10/11 (file dialogs, printing, high-DPI, SmartScreen).
-See [docs/TESTING.md](docs/TESTING.md) and the QA report in [docs/QA_REPORT.md](docs/QA_REPORT.md).
+Version 1.1.0-rc1 (multi-component jobs). All 61 automated tests pass on Linux and on Windows.
+Automated Windows validation **passed** on a Windows Server 2025 runner (GitHub Actions run
+[36222354588](https://github.com/moelaskri-alt/LaserWorks-Manager/actions/runs/36222354588), commit 28a735f):
+61/61 tests (including headless UI), the published `LaserWorksManager.exe --smoke-test`, the demo company's 15
+reconciliation checks, and a silent install → start → uninstall of `LaserWorksManagerSetup.exe`.
+**Interactive Windows validation is pending**: nobody has yet used this build by hand on Windows 10/11 (file dialogs,
+printing, high-DPI, SmartScreen).
+
+See [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md) and [docs/TESTING.md](docs/TESTING.md).
