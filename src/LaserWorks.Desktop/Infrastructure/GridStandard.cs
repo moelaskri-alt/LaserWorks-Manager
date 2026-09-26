@@ -61,7 +61,15 @@ public static class GridStandard
             g.DetachedFromVisualTree += (_, _) => Detach(g);
             if (g.IsAttachedToVisualTree()) Attach(g);
         });
-        Loc.Instance.LanguageChanged += (_, _) => UiThread.Run(() => { foreach (var g in Live()) { FitAll(g); UpdateOverlay(g); } });
+        // queued on the UI thread and contained per grid: re-fitting headers must never break a language switch
+        Loc.Instance.LanguageChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            foreach (var g in Live())
+            {
+                try { FitAll(g); UpdateOverlay(g); }
+                catch (Exception ex) { Serilog.Log.Warning(ex, "Grid header refit failed for {Grid}", g.Name); }
+            }
+        });
     }
 
     private static readonly List<WeakReference<DataGrid>> Attached = new();
@@ -111,6 +119,11 @@ public static class GridStandard
     {
         if (AuthorMinWidth.TryGetValue(c, out _)) return;
         AuthorMinWidth.Add(c, new StrongBox<double>(double.IsNaN(c.MinWidth) ? 0 : c.MinWidth));
+        // amounts, quantities and percentages line up at the end of the cell (mirrored in right-to-left)
+        if (c is DataGridBoundColumn { Binding: { } b } && b.GetType().GetProperty("Converter")?.GetValue(b) is { } conv
+            && (ReferenceEquals(conv, Conv.Number) || ReferenceEquals(conv, Conv.Money) || ReferenceEquals(conv, Conv.Percent))
+            && !c.CellStyleClasses.Contains("num"))
+            c.CellStyleClasses.Add("num");
         c.PropertyChanged += (_, e) => { if (e.Property == DataGridColumn.HeaderProperty) Fit(g, c); };
     }
 

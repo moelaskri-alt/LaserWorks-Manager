@@ -240,6 +240,151 @@ public class MultiComponentTests
         _out.WriteLine($"estimate {saved.TotalCost}, actual {final.ActualCost}, revenue {final.Revenue}, profit {final.GrossProfit} ({final.MarginPercent}%)");
     }
 
+    /// <summary>
+    /// Spec §29: an engraved wooden serving board with the restaurant's logo — plywood (stock), an acrylic logo cut from a remnant,
+    /// a brass handle bought through purchasing (order → receipt → supplier invoice → issue to the job), a gift box and glue.
+    /// Every posting is checked against the chart of accounts and every journal entry must balance on its own.
+    /// </summary>
+    [Fact]
+    public async Task Serving_board_with_purchased_accessory_end_to_end()
+    {
+        await using var t = await TestDb.CreateAsync();
+        var day = t.Clock.Now.Date;
+        var it = await SetupItemsAsync(t);
+        var mat = t.Get<MaterialService>();
+        var inv = t.Get<InventoryService>();
+        long unit(string code) { using var db = t.Get<IAppDbFactory>().Create(); return db.Units.First(u => u.Code == code).Id; }
+        var plywood = await mat.SaveAsync(new Material { Name = "Plywood Birch 4mm 122x244", Kind = MaterialKind.RawMaterial, UnitId = unit("SHEET"), Length = 244, Width = 122, Thickness = 4, PurchaseCost = 62 });
+        await inv.OpeningBalanceAsync(plywood, it.Wh, 5, 62, day);
+        var handle = await mat.SaveAsync(new Material { Name = "Brass handle", Kind = MaterialKind.PurchasedComponent, UnitId = unit("PCS"), PurchaseCost = 14 });
+        var customerId = await t.Get<CustomerService>().SaveAsync(new Customer { Name = "Al Sultan Restaurant", CreditLimit = 20000, PaymentTermsDays = 30 });
+
+        // the handle is bought for stock: Dr Inventory – purchased components / Cr GRNI, then Dr GRNI + input tax / Cr supplier
+        var pur = t.Get<PurchaseService>();
+        var po = new PurchaseOrder { SupplierId = it.Supplier, Date = day, ExpectedDate = day };
+        po.Lines.Add(new PurchaseOrderLine { MaterialId = handle, Quantity = 20, UnitCost = 14, TaxRate = 15 });
+        var poId = await pur.SaveOrderAsync(po);
+        await pur.SetOrderStatusAsync(poId, PurchaseOrderStatus.Approved);
+        var rec = await pur.ReceiptFromOrderAsync(poId);
+        rec.WarehouseId = it.Wh; rec.Date = day;
+        var compInvBefore = await Ledger.BalanceAsync(t, SystemAccounts.InventoryComponents);
+        var apBefore = await Ledger.BalanceAsync(t, SystemAccounts.AP);
+        var recId = await pur.PostReceiptAsync(rec);
+        Assert.Equal(280m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryComponents) - compInvBefore);
+        await pur.PostSupplierInvoiceFromReceiptAsync(recId, "SI-5521", day);
+        Assert.Equal(-322m, await Ledger.BalanceAsync(t, SystemAccounts.AP) - apBefore);           // 280 + 15 % VAT
+        Assert.Equal(0m, await Ledger.BalanceAsync(t, SystemAccounts.GRNI));
+
+        // acrylic offcut for the logo
+        var remnantId = await inv.CreateRemnantAsync(new RemnantInput(it.Acrylic.Id, it.Wh, 40, 30, null, null, 12, day, "logo offcut"));
+
+        // request → V1 → V2 → approval → estimate with five component lines
+        var reqSvc = t.Get<RequestService>();
+        var requestId = await reqSvc.SaveAsync(new CustomerRequest
+        {
+            CustomerId = customerId, RequestDate = day, Description = "Engraved wooden serving board with restaurant logo", Quantity = 10, RequiredDate = day.AddDays(15),
+            Items =
+            {
+                new RequestItem { MaterialId = plywood, Quantity = 1 },
+                new RequestItem { MaterialId = it.Acrylic.Id, Quantity = 1, Notes = "logo inlay" },
+                new RequestItem { MaterialId = handle, Quantity = 1 },
+                new RequestItem { MaterialId = it.Box, Quantity = 1 },
+                new RequestItem { MaterialId = it.Tape, Quantity = 0.1m, Notes = "glue / tape" }
+            }
+        });
+        var design = t.Get<DesignService>();
+        var v1 = await design.SaveAsync(new DesignRevision { RequestId = requestId, Date = day, Width = 40, Height = 25, MaterialId = plywood, Thickness = 4, CuttingLengthM = 1.5m, EstimatedMachineMinutes = 8 });
+        await design.RejectAsync(v1);
+        var v2 = await design.SaveAsync(new DesignRevision { RequestId = requestId, Date = day, Width = 45, Height = 25, MaterialId = plywood, Thickness = 4, CuttingLengthM = 1.7m, EstimatedMachineMinutes = 9 });
+        await design.ApproveAsync(v2);
+        var estSvc = t.Get<EstimateService>();
+        var est = await estSvc.NewDraftAsync(customerId, requestId);
+        Assert.Equal(5, est.MaterialLines.Count);
+        var board = est.MaterialLines.Single(l => l.MaterialId == plywood);
+        board.Pieces.Clear();
+        board.Pieces.Add(new EstimatePiece { Name = "Board", Length = 45, Width = 25, QuantityPerUnit = 1 });
+        var logo = est.MaterialLines.Single(l => l.MaterialId == it.Acrylic.Id);
+        logo.Source = ComponentSource.Remnant; logo.RemnantId = remnantId; logo.UnitCost = 12;
+        est.MachineLines.Clear();
+        est.MachineLines.Add(new EstimateMachineLine { MachineId = it.MachineId, Operation = OperationType.Engraving, MinutesPerUnit = 9 });
+        est.LaborLines.Add(new EstimateLaborLine { EmployeeId = it.OperatorId, Operation = OperationType.Assembly, MinutesPerUnit = 6, HourlyRate = 30 });
+        est.ScrapAllowancePercent = 5; est.ReworkAllowancePercent = 3;
+        var estimateId = await estSvc.SaveAsync(est);
+        var saved = (await estSvc.GetAsync(estimateId))!;
+        Assert.Equal(ComponentSource.Remnant, saved.MaterialLines.Single(l => l.MaterialId == it.Acrylic.Id).Source);
+        Assert.Equal(12m, saved.MaterialLines.Single(l => l.MaterialId == it.Acrylic.Id).Cost);
+
+        // quotation → approval → job
+        var quotes = t.Get<QuotationService>();
+        var q = await quotes.CreateFromEstimateAsync(estimateId);
+        await quotes.MarkSentAsync(q);
+        await quotes.ApproveAsync(q);
+        var jobId = await quotes.CreateJobAsync(q, new JobCreationOptions(day.AddDays(10), JobPriority.Normal, it.MachineId, it.OperatorId));
+        var jc = t.Get<JobComponentService>();
+        var lines = await jc.ListAsync(jobId);
+        Assert.Equal(5, lines.Count);
+
+        // material issue, purchased component issue, remnant use: Dr WIP / Cr the right inventory account
+        var rawBefore = await Ledger.BalanceAsync(t, SystemAccounts.Inventory);
+        var compBefore = await Ledger.BalanceAsync(t, SystemAccounts.InventoryComponents);
+        var remBefore = await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants);
+        var boardLine = lines.Single(l => l.MaterialId == plywood);
+        await jc.IssueAsync(boardLine.Id, it.Wh, boardLine.PlannedQuantity, day);
+        var handleLine = lines.Single(l => l.MaterialId == handle);
+        await jc.IssueAsync(handleLine.Id, it.Wh, 10, day);
+        await jc.UseRemnantAsync(lines.Single(l => l.Source == ComponentSource.Remnant).Id, remnantId, day);
+        foreach (var l in lines.Where(l => l.MaterialId == it.Box || l.MaterialId == it.Tape)) await jc.IssueAsync(l.Id, it.Wh, l.PlannedQuantity, day);
+        Assert.Equal(-boardLine.PlannedQuantity * 62, await Ledger.BalanceAsync(t, SystemAccounts.Inventory) - rawBefore);
+        Assert.Equal(-140m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryComponents) - compBefore);
+        Assert.Equal(-12m, await Ledger.BalanceAsync(t, SystemAccounts.InventoryRemnants) - remBefore);
+        Assert.Equal(140m, (await jc.ListAsync(jobId)).Single(l => l.Id == handleLine.Id).ActualCost);
+
+        // machine operation and labor, scrap, rework, quality check, completion, delivery
+        var prod = t.Get<ProductionService>();
+        foreach (var o in (await prod.ListOperationsAsync(new PageRequest(PageSize: 50), jobId)).Items)
+            await prod.CompleteOperationAsync(o.Id, new OperationCompletion(Math.Max(o.PlannedHours, 0.25m), o.OperationType is OperationType.Engraving or OperationType.Cutting ? 1.6m : 0, 10, EmployeeId: it.OperatorId));
+        await prod.RecordScrapAsync(new ScrapRecord { JobId = jobId, Date = day, Type = ScrapType.NormalScrap, MaterialId = plywood, Quantity = 0.05m, Reason = "engraving test piece" });
+        await prod.RecordScrapAsync(new ScrapRecord { JobId = jobId, Date = day, Type = ScrapType.Rework, MachineId = it.MachineId, EmployeeId = it.OperatorId, Quantity = 1, Hours = 0.2m, Reason = "re-engrave logo" });
+        await prod.CompleteProductionAsync(jobId);
+        await prod.RecordQualityCheckAsync(new QualityCheck { JobId = jobId, Date = day, QuantityProduced = 10, QuantityAccepted = 10, Status = QualityStatus.Passed });
+        await t.Get<JobService>().DeliverAsync(jobId, day, "delivered to restaurant");
+        var costing = t.Get<JobCostingService>();
+        var before = await costing.CostSheetAsync(jobId);
+        Assert.Equal(before.ActualCost, await Ledger.BalanceAsync(t, SystemAccounts.WIP, jobId));
+
+        // invoice (Dr customer / Cr sales + output tax, Dr COGS / Cr WIP) and payment
+        var sales = t.Get<SalesService>();
+        var cogsBefore = await Ledger.BalanceAsync(t, SystemAccounts.COGS);
+        var invoiceId = await sales.CreateInvoiceFromJobAsync(jobId);
+        await sales.PostInvoiceAsync(invoiceId);
+        var invoice = (await sales.GetInvoiceAsync(invoiceId))!;
+        Assert.Equal(invoice.Total, await Ledger.BalanceAsync(t, SystemAccounts.AR, customerId: customerId));
+        Assert.Equal(before.ActualCost, await Ledger.BalanceAsync(t, SystemAccounts.COGS) - cogsBefore);
+        Assert.Equal(0m, await Ledger.BalanceAsync(t, SystemAccounts.WIP, jobId));
+        await sales.RecordPaymentAsync(customerId, invoiceId, invoice.Total, PaymentMethod.Cash, day, null);
+        Assert.Equal(0m, await Ledger.BalanceAsync(t, SystemAccounts.AR, customerId: customerId));
+
+        // actual cost and profitability reconcile; every journal entry balances on its own
+        var cs = await costing.CostSheetAsync(jobId);
+        Assert.Equal(cs.ActualCost, cs.Components.Sum(c => c.Actual));
+        Assert.Equal(saved.TotalCost, cs.Components.Sum(c => c.Estimated));
+        Assert.Equal(invoice.Subtotal - invoice.DiscountAmount, cs.Revenue);
+        Assert.Equal(cs.Revenue - cs.ActualCost, cs.GrossProfit);
+        Assert.Equal(cs.Revenue == 0 ? 0 : Math.Round(cs.GrossProfit / cs.Revenue * 100m, 2), Math.Round(cs.MarginPercent, 2));
+        await using (var db = t.Get<IAppDbFactory>().Create())
+        {
+            var entries = await db.JournalEntries.AsNoTracking().Where(e => e.Status != JournalStatus.Draft)
+                .Select(e => new { e.Number, D = e.Lines.Sum(l => l.Debit), C = e.Lines.Sum(l => l.Credit) }).ToListAsync();
+            Assert.NotEmpty(entries);
+            Assert.All(entries, e => Assert.True(e.D == e.C, $"{e.Number}: {e.D} ≠ {e.C}"));
+            Assert.Equal(0, await db.InventoryTransactions.CountAsync(x => x.JobId == jobId && x.JobComponentId == null));
+            Assert.All(await db.InventoryTransactions.AsNoTracking().Where(x => x.JobId == jobId).ToListAsync(),
+                x => Assert.True(x.WarehouseId > 0 && x.CreatedBy != null && x.Date == day && x.TotalCost == Money.Round(x.Quantity * x.UnitCost) || x.RemnantId != null, $"tx {x.Number}"));
+        }
+        await Ledger.AssertBooksBalanceAsync(t);
+        _out.WriteLine($"serving board: estimate {saved.TotalCost}, actual {cs.ActualCost}, revenue {cs.Revenue}, profit {cs.GrossProfit} ({cs.MarginPercent:0.##}%)");
+    }
+
     /// <summary>A job with no component lines at all (labor/machine only) still costs, reconciles and reports.</summary>
     [Fact]
     public async Task Job_without_components_and_manual_lines()

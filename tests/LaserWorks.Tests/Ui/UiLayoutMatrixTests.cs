@@ -28,14 +28,17 @@ public class UiLayoutMatrixTests
 
     public static readonly (int W, int H)[] Resolutions = { (1366, 768), (1600, 900), (1920, 1080) };
 
-    private sealed record Ids(long JobId, long EstimateId, long RequestId, int Components);
+    private sealed record Ids(long JobId, long EstimateId, long RequestId, int Components, long QuotationId, long InvoiceId, long CustomerId);
 
     private static async Task<Ids> PickAsync()
     {
         await using var db = App.Services.GetRequiredService<IAppDbFactory>().Create();
         var job = await db.Jobs.AsNoTracking().OrderByDescending(j => j.Components.Count).Select(j => new { j.Id, j.EstimateId, j.RequestId, N = j.Components.Count })
             .FirstAsync(j => j.EstimateId != null && j.RequestId != null);
-        return new Ids(job.Id, job.EstimateId!.Value, job.RequestId!.Value, job.N);
+        var quotation = await db.Quotations.AsNoTracking().OrderBy(q => q.Id).Select(q => q.Id).FirstAsync();
+        var invoice = await db.SalesInvoices.AsNoTracking().OrderByDescending(i => i.Lines.Count).Select(i => i.Id).FirstAsync();
+        var customer = await db.Customers.AsNoTracking().Select(c => c.Id).FirstAsync();
+        return new Ids(job.Id, job.EstimateId!.Value, job.RequestId!.Value, job.N, quotation, invoice, customer);
     }
 
     [AvaloniaFact]
@@ -83,11 +86,16 @@ public class UiLayoutMatrixTests
                 }
 
                 // lists
-                foreach (var page in new[] { "Requests", "Estimates", "Jobs", "Materials", "Inventory" })
+                // spec §33 critical screens
+                foreach (var page in new[] { "Dashboard", "Customers", "Requests", "Design", "Estimates", "Quotations", "Jobs", "Production", "Materials", "Inventory", "Sales", "Reports", "Settings" })
                 {
                     UiSession.Shell.NavigateTo(page);
                     await Check(page);
                 }
+
+                await Dialog(new CustomerEditorViewModel(ids.CustomerId), "CustomerEditor");
+                await Dialog(new QuotationEditorViewModel(ids.QuotationId), "QuotationEditor");
+                await Dialog(new InvoiceEditorViewModel(ids.InvoiceId), "InvoiceEditor");
 
                 // request editor: header, requested items, attachments, design revisions
                 var req = new RequestEditorViewModel(ids.RequestId);

@@ -111,6 +111,8 @@ public sealed partial class MaterialLineVm : ObservableObject
         _ => Owner.Materials
     };
 
+    public void RefreshChoices() => OnPropertyChanged(nameof(ItemChoices));
+
     public bool IsRemnant => Source == ComponentSource.Remnant;
     public bool CanBeSheet => Source is ComponentSource.Inventory or ComponentSource.DirectPurchase;
     public bool ShowSheet => SheetBased && CanBeSheet;
@@ -637,6 +639,24 @@ public sealed partial class EstimateEditorViewModel : PageViewModel
     }
 
     [RelayCommand] private void RemoveLine(MaterialLineVm? line) { line ??= SelectedLine; if (line != null) RemoveMaterial(line); }
+
+    /// <summary>Creates a new item in the item master (kind from the line's type) and puts it on the selected line.</summary>
+    [RelayCommand]
+    private async Task NewItem()
+    {
+        var line = SelectedLine;
+        if (line == null) return;
+        var editor = MaterialEditorViewModel.NewOfKind(ComponentRules.KindOf(line.Category));
+        if (!await Dialogs.ShowAsync(editor) || editor.SavedId == 0) return;
+        Materials = await Get<MaterialService>().LookupAsync();
+        OnPropertyChanged(nameof(Materials));
+        foreach (var l in MaterialLines) l.RefreshChoices();
+        var item = Materials.FirstOrDefault(m => m.Id == editor.SavedId);
+        if (item == null) return;
+        if (!ComponentRules.IsStockable(item.Kind) && ComponentRules.IsStocked(line.Source)) line.Source = ComponentSource.ExternalService;
+        line.Material = item;
+        ScheduleRecalc();
+    }
 
     private int NextLineNo() => MaterialLines.Count == 0 ? 1 : MaterialLines.Max(l => l.LineNo) + 1;
 

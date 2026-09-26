@@ -65,7 +65,11 @@ public sealed partial class MaterialEditorViewModel : DialogViewModel
 {
     private readonly long _id;
     public MaterialEditorViewModel(long id) => _id = id;
+    /// <summary>A new item of the given kind (used by "New item" on component lines).</summary>
+    public static MaterialEditorViewModel NewOfKind(MaterialKind kind) => new(0) { Kind = kind };
     public override string TitleKey => _id == 0 ? "Material.New" : "Material.Edit";
+    /// <summary>Id of the saved item (set after a successful save).</summary>
+    public long SavedId { get; private set; }
     public override double DialogWidth => 820;
 
     [ObservableProperty] private string? _code;
@@ -111,7 +115,7 @@ public sealed partial class MaterialEditorViewModel : DialogViewModel
         foreach (var (w, q) in await Get<MaterialService>().StockByWarehouseAsync(_id)) StockByWarehouse.Add($"{w}: {L.Number(q)}");
     }
 
-    protected override Task SaveAsync() => Get<MaterialService>().SaveAsync(new Material
+    protected override async Task SaveAsync() => SavedId = await Get<MaterialService>().SaveAsync(new Material
     {
         Id = _id, Code = Code ?? "", Name = Name ?? "", CategoryId = Category?.Id, Kind = Kind, MaterialType = MaterialType, Thickness = Thickness, Length = Length, Width = Width,
         UnitId = Unit?.Id ?? 0, PurchaseCost = PurchaseCost, SalesPrice = SalesPrice, SupplierId = Supplier?.Id, MinimumStock = MinimumStock, ReorderLevel = ReorderLevel, IsActive = IsActive, Notes = Notes

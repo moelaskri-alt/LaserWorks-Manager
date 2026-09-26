@@ -371,6 +371,8 @@
  "Component.Hint": "Unlimited lines: raw materials, purchased components, consumables, packaging, remnants, external services and other direct costs.",
  "Component.LockedHint": "This line already carries cost or stock movements: its item, source and type can no longer change. Reverse the movements first to change them.",
  "Component.New": "New component line",
+ "Component.NewItem": "New item",
+ "Component.NewItemTip": "Create a new item in the item master (raw material, purchased component, consumable, packaging or service) and use it on this line.",
  "Component.NoItem": "(no item – description only)",
  "Component.PickRemnant": "Select a remnant",
  "Component.RecordCost": "Record direct cost",

@@ -18,6 +18,16 @@ public static class ComponentRules
         _ => ComponentCategory.PurchasedComponent // purchased components and bought-in finished goods
     };
 
+    /// <summary>Item kind for a new item master record created from a component line of this category.</summary>
+    public static MaterialKind KindOf(ComponentCategory category) => category switch
+    {
+        ComponentCategory.RawMaterial => MaterialKind.RawMaterial,
+        ComponentCategory.Consumable => MaterialKind.Consumable,
+        ComponentCategory.Packaging => MaterialKind.Packaging,
+        ComponentCategory.ExternalService or ComponentCategory.OtherDirect => MaterialKind.Service,
+        _ => MaterialKind.PurchasedComponent
+    };
+
     public static CostComponent CostComponentOf(ComponentCategory category) => category switch
     {
         ComponentCategory.RawMaterial => CostComponent.Material,

@@ -79,3 +79,5 @@ Col.Lines|Lines|البنود
 Col.Remaining|Remaining|المتبقي
 Grid.Empty|No records to show.|لا توجد سجلات لعرضها.
 Grid.Loading|Loading…|جارٍ التحميل…
+Component.NewItem|New item|صنف جديد
+Component.NewItemTip|Create a new item in the item master (raw material, purchased component, consumable, packaging or service) and use it on this line.|إنشاء صنف جديد في دليل الأصناف (مادة خام أو مكوّن مشترى أو مستهلكات أو تغليف أو خدمة) واستخدامه في هذا البند.

@@ -221,6 +221,11 @@
   <Style Selector="DataGridCell TextBlock">
     <Setter Property="Margin" Value="4,0" />
   </Style>
+  <!-- numeric columns (GridStandard adds the "num" class to Number / Money / Percent columns) -->
+  <Style Selector="DataGridCell.num > TextBlock">
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="TextAlignment" Value="Right" />
+  </Style>
   <!-- long cell values are trimmed in the grid; the full value shows as a tooltip -->
   <Style Selector="DataGridCell > TextBlock">
     <Setter Property="TextTrimming" Value="CharacterEllipsis" />

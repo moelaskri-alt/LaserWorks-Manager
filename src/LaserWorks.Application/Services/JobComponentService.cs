@@ -47,7 +47,7 @@ public sealed class JobComponentService : ServiceBase
             .Select(c => new
             {
                 c.Id, c.JobId, c.LineNo, c.Category, c.Source, c.MaterialId, Code = c.Material != null ? c.Material.Code : null, Name = c.Material != null ? c.Material.Name : null,
-                c.Description, c.Unit, c.PlannedQuantity, c.EstimatedUnitCost, c.EstimatedCost, c.RemnantId, RemnantCode = c.Remnant != null ? c.Remnant.Code : null,
+                c.Description, Unit = c.Unit ?? (c.Material != null ? c.Material.Unit!.Code : null), c.PlannedQuantity, c.EstimatedUnitCost, c.EstimatedCost, c.RemnantId, RemnantCode = c.Remnant != null ? c.Remnant.Code : null,
                 c.SupplierId, Supplier = c.Supplier != null ? c.Supplier.Name : null, c.Notes, c.EstimateLineId
             }).ToListAsync();
         var ids = lines.Select(l => l.Id).ToList();

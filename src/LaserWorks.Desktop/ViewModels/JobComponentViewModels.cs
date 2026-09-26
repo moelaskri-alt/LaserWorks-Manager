@@ -103,6 +103,21 @@ public sealed partial class JobComponentEditorViewModel : DialogViewModel
         OnPropertyChanged(nameof(ItemChoices));
     }
 
+    /// <summary>Creates a new item in the item master (kind from the line's type) and selects it.</summary>
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task NewItem()
+    {
+        var editor = MaterialEditorViewModel.NewOfKind(ComponentRules.KindOf(Category));
+        if (!await Dialogs.ShowAsync(editor) || editor.SavedId == 0) return;
+        Materials = await Get<MaterialService>().LookupAsync();
+        OnPropertyChanged(nameof(Materials));
+        OnPropertyChanged(nameof(ItemChoices));
+        var item = Materials.FirstOrDefault(m => m.Id == editor.SavedId);
+        if (item == null) return;
+        if (!ComponentRules.IsStockable(item.Kind) && ComponentRules.IsStocked(Source)) Source = ComponentSource.ExternalService;
+        Material = item;
+    }
+
     protected override Task SaveAsync() => Get<JobComponentService>().SaveAsync(new JobComponent
     {
         Id = _id, JobId = _jobId, Category = Category, Source = Source, MaterialId = Material?.Id, Description = Description, Unit = Unit,
